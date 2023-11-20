@@ -1,5 +1,7 @@
 # Locallm
 
+_Note: If you would like to build this image yourself locally, it expects that you have downloaded this [model](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q5_K_S.gguf) ([llama-2-7b-chat.Q5_K_S.gguf](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q5_K_S.gguf)) from huggingface and saved it into the top directory of this repo._ 
+
 Pull the image
 ```bash
 podman pull quay.io/michaelclifford/locallm
@@ -24,3 +26,5 @@ llama_print_timings:       total time =    7652.90 ms
 
 ```
 
+
+ 
