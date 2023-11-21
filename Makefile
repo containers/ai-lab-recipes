@@ -5,4 +5,4 @@ build:
 	@podman build -t $(app_name) .
 
 run: 
-	@podman run -it $(app_name):latest /bin/bash
+	@podman run -it $(app_name):latest 

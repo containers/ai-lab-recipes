@@ -6,3 +6,4 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
 USER user
 COPY --chown=1000 ./ /locallm
+ENTRYPOINT [ "python", "run_locallm.py" ]
