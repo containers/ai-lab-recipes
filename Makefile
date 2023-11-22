@@ -5,4 +5,4 @@ build:
 	@podman build -t $(app_name) .
 
 run: 
-	@podman run -it $(app_name):latest 
+	@podman run -it -p 7860:7860 $(app_name):latest

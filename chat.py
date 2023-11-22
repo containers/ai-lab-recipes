@@ -6,7 +6,8 @@ class Chat:
 
     def __init__(self) -> None:
         self.chat_history = [
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": """You are a helpful assistant that is comfortable speaking
+                 with C level executives in a professional setting."""},
                 ]
         self.llm = Llama(model_path="llama-2-7b-chat.Q5_K_S.gguf", 
                          n_ctx=Chat.n_ctx, 
@@ -23,7 +24,7 @@ class Chat:
             self.chat_history.pop(1)
          
     
-    def ask(self, prompt):
+    def ask(self, prompt, history):
         prompt = {"role":"user", "content":prompt}
         self.chat_history.append(prompt)
         self.clip_history(prompt)
