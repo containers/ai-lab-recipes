@@ -1,3 +1,4 @@
+import os
 from llama_cpp import Llama
 
 class Chat:
@@ -9,10 +10,9 @@ class Chat:
                 {"role": "system", "content": """You are a helpful assistant that is comfortable speaking
                  with C level executives in a professional setting."""},
                 ]
-        self.llm = Llama(model_path="llama-2-7b-chat.Q5_K_S.gguf", 
-                         n_ctx=Chat.n_ctx, 
+        self.llm = Llama(model_path=os.environ['MODEL_FILE'],
+                         n_ctx=Chat.n_ctx,
                          n_gpu_layer=-1)
-    
    
     def count_tokens(self, messages):
         num_extra_tokens = len(self.chat_history) * 6 # accounts for tokens outside of "content"
