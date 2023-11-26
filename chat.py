@@ -14,15 +14,27 @@ class Chat:
                          n_gpu_layer=-1)
     
    
+    def count_tokens(self, messages):
+        num_extra_tokens = len(self.chat_history) * 6 # accounts for tokens outside of "content"
+        token_count = sum([len(self.llm.tokenize(bytes(x["content"], "utf-8"))) for x 
+                           in messages]) + num_extra_tokens
+        return token_count
+    
+    
     def clip_history(self, prompt):
         context_length = Chat.n_ctx
         prompt_length = len(self.llm.tokenize(bytes(prompt["content"], "utf-8")))
-        history_length = sum([len(self.llm.tokenize(bytes(x["content"], "utf-8"))) for x 
-                           in self.chat_history])
-        if (prompt_length + history_length) > context_length:
+        history_length = self.count_tokens(self.chat_history)
+        input_length = prompt_length + history_length
+        print(input_length)
+        while input_length > context_length:
+            print("Clipping")
             self.chat_history.pop(1)
             self.chat_history.pop(1)
-         
+            history_length = self.count_tokens(self.chat_history)      
+            input_length = history_length + prompt_length   
+            print(input_length)
+    
     
     def ask(self, prompt, history):
         prompt = {"role":"user", "content":prompt}
