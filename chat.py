@@ -12,7 +12,11 @@ class Chat:
                 ]
         self.llm = Llama(model_path=os.environ['MODEL_FILE'],
                          n_ctx=Chat.n_ctx,
-                         n_gpu_layer=-1)
+                         n_gpu_layer=-1,
+                         n_batch=Chat.n_ctx,
+                         f16_kv=True,
+                         stream=True)
+    
    
     def count_tokens(self, messages):
         num_extra_tokens = len(self.chat_history) * 6 # accounts for tokens outside of "content"
@@ -35,12 +39,16 @@ class Chat:
             input_length = history_length + prompt_length   
             print(input_length)
     
-    
+
     def ask(self, prompt, history):
         prompt = {"role":"user", "content":prompt}
         self.chat_history.append(prompt)
         self.clip_history(prompt)
-        chat_response = self.llm.create_chat_completion(self.chat_history)
-        reply = chat_response["choices"][0]["message"]
-        self.chat_history.append(reply)
-        return reply["content"]
+        chat_response = self.llm.create_chat_completion(self.chat_history, stream=True)
+        reply = ""
+        for i in chat_response:
+            token =  i["choices"][0]["delta"] 
+            if "content" in token.keys():
+                reply += token["content"]
+                yield reply
+        self.chat_history.append({"role":"assistant","content":reply})
