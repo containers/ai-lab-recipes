@@ -12,10 +12,10 @@ class Chat:
         self.llm = Llama(model_path=os.getenv("MODEL_FILE",
                                     "llama-2-7b-chat.Q5_K_S.gguf"),
                          n_ctx=Chat.n_ctx,
-                         n_gpu_layer=-1,
+                         n_gpu_layers=-1,
                          n_batch=Chat.n_ctx,
                          f16_kv=True,
-                         stream=True)
+                         stream=True,)
     
    
     def count_tokens(self, messages):
