@@ -1,5 +1,5 @@
 
-from chat import Chat
+from src.chat import Chat
  
 if __name__ == "__main__":
 
