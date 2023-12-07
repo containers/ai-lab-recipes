@@ -9,7 +9,7 @@ class Chat:
         self.chat_history = [
                 {"role": "system", "content": """You are a helpful assistant that is comfortable speaking
                  with C level executives in a professional setting."""},]        
-        self.llm = Llama(model_path="src/"+os.getenv("MODEL_FILE",
+        self.llm = Llama(model_path=os.getenv("MODEL_FILE",
                                     "llama-2-7b-chat.Q5_K_S.gguf"),
                          n_ctx=Chat.n_ctx,
                          n_gpu_layers=-1,
