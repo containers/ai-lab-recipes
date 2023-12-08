@@ -1,2 +1,4 @@
 llama-cpp-python
 gradio
+langchain
+chromadb
