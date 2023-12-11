@@ -1,5 +1,5 @@
 
-FROM quay.io/opendatahub/workbench-images:cuda-ubi9-python-3.9-2023a-20231129-be1c5de
+FROM quay.io/opendatahub/workbench-images:cuda-ubi9-python-3.9-20231206
 WORKDIR /locallm
 COPY ../requirements.txt /locallm/requirements.txt
 RUN pip install --upgrade pip
