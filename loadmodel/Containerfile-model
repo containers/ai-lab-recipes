@@ -1,0 +1,14 @@
+# This containerfile downloads a model
+FROM registry.access.redhat.com/ubi9/ubi:9.3-1476 as model
+WORKDIR /model
+ARG MODEL_URL=https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_K_M.gguf?download=true
+ARG MODEL_FILE=llama-2-7b-chat.Q4_K_M.gguf
+RUN dnf install -y wget
+RUN wget -O $MODEL_FILE $MODEL_URL
+
+FROM registry.access.redhat.com/ubi9-micro:9.3-9
+WORKDIR /model
+ARG MODEL_URL=https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_K_M.gguf?download=true
+ARG MODEL_FILE=llama-2-7b-chat.Q4_K_M.gguf
+ENV MODEL_FILE=$MODEL_FILE
+COPY --from=model /model/${MODEL_FILE} /model/
