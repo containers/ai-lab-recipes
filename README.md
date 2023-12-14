@@ -1,4 +1,4 @@
-# Locallm 
+# Locallm
 
 This repo contains the assets required to build and run an application on your Mac that uses a local instance of a large language model (LLM).
 
@@ -35,10 +35,10 @@ If you'd like to customize the application or change the model, you can rebuild 
 
 _Note: If you would like to build this repo as is, it expects that you have downloaded this [model](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q5_K_S.gguf) ([llama-2-7b-chat.Q5_K_S.gguf](https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/blob/main/llama-2-7b-chat.Q5_K_S.gguf)) from huggingface and saved it into the top directory of this repo._ 
 
-### Build the image locally
+### Build the image locally for arm
 
 ```bash
-podman build -t locallm .
+podman build -t locallm . -f arm/Containerfile  
 ```
 
 ### Run the image
@@ -55,16 +55,26 @@ Go to `0.0.0.0:7860` in your browser and start to chat with the LLM.
 
 Now that we've developed an application locally that leverages an LLM, we likely want to share it with a wider audience. Let's get it off our machine and run it on OpenShift. 
 
-### Rebuild for amd64
-We'll need to rebuild the image for the amd64 architecture for most use case outside our Mac.   
+### Rebuild for x86
+We'll need to rebuild the image for the x86 architecture for most use case outside of our Mac. Since this is an AI workload, we will also want to take advantage of Nvidia GPU's available outside our local machine. Therefore, this image's base image contains CUDA and builds llama.cpp specifically for a CUDA environment. 
 
 ```bash
-podman build -t locallm . --arch=amd64
+podman build -t locallm:x86 . -f x86/Containerfile
+```
+
+ Before building the image, you can change line 6 of `x86/Containerfile` if you'd like to **NOT** use CUDA and GPU acceleration by setting `-DLLAMA_CUBLAS` to `off`  
+
+```Containerfile
+ENV CMAKE_ARGS="-DLLAMA_CUBLAS=off"
 ```
 
 ### Push to Quay
 
-Once you login to [quay.io](quay.io) you can push your own version of this LLM application to your repository for use by others.  
+Once you login to [quay.io](quay.io) you can push your own newly built version of this LLM application to your repository for use by others.  
+
+```bash
+podman login quay.io
+```
 
 ```bash
 podman push localhost/locallm quay.io/<YOUR-QUAY_REPO>/locallm
