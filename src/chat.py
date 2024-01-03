@@ -17,14 +17,20 @@ class Chat:
                          n_batch=Chat.n_ctx,
                          f16_kv=True,
                          stream=True,)
-    
+
+
     def reset_system_prompt(self, prompt=None):
         if not prompt:
-            self.chat_history = []
+            self.chat_history[0] = {"role":"system", "content":""}
         else:
-            self.chat_history = [{"role":"system",
-                                  "content": prompt}]
-        print(self.chat_history)
+            self.chat_history[0] = {"role":"system",
+                                  "content": prompt}
+        print(self.chat_history[0])
+
+
+    def clear_history(self):
+        self.chat_history = [self.chat_history[0]]
+
 
     def count_tokens(self, messages):
         num_extra_tokens = len(self.chat_history) * 6 # accounts for tokens outside of "content"
@@ -60,3 +66,33 @@ class Chat:
                 reply += token["content"]
                 yield reply
         self.chat_history.append({"role":"assistant","content":reply})
+
+
+def chunk_tokens(llm, prompt, chunk_size):
+    tokens = tokenize(llm, prompt)
+    num_tokens = count_tokens(llm, prompt)
+    chunks = []
+    for i in range((num_tokens//chunk_size)+1):
+        chunk = str(llm.detokenize(tokens[:chunk_size]),"utf-8")
+        chunks.append(chunk)
+        tokens = tokens[chunk_size:]
+    return chunks
+
+def tokenize(llama, prompt):
+    return llama.tokenize(bytes(prompt, "utf-8"))
+
+def count_tokens(llama,prompt):
+    return len(tokenize(llama,prompt)) + 5
+
+def clip_history(llama, prompt, history, n_ctx, max_tokens):
+    prompt_len = count_tokens(llama, prompt)
+    history_len = sum([count_tokens(llama, x["content"]) for x in history])
+    input_len = prompt_len + history_len
+    print(input_len)
+    while input_len >= n_ctx-max_tokens:
+        print("Clipping")
+        history.pop(1)
+        history_len = sum([count_tokens(llama, x["content"]) for x in history])
+        input_len = history_len + prompt_len
+        print(input_len)
+    return history
