@@ -28,7 +28,7 @@ def summary(prompt, history):
     partial_summaries = []
     print(f"processing {len(prompt_chunks)} chunks")
     for i,chunk in enumerate(prompt_chunks):
-        print(f"{i}/{len(prompt_chunks)}")
+        print(f"{i+1}/{len(prompt_chunks)}")
         prompt = {"role":"user", "content": chunk}
         system_prompt.append(prompt)
         chat_response = llm.create_chat_completion(system_prompt)

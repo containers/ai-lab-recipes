@@ -12,6 +12,6 @@ client = Client(args.model_endpoint)
 with open(args.file) as f:
    prompt = f.read()
 start = time.time()
-result = client.predict(prompt)
+result = client.predict(prompt, api_name="/chat")
 print(result)
 print(time.time() - start)

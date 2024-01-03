@@ -1,11 +1,11 @@
 FROM registry.access.redhat.com/ubi9/python-39:1-158
 WORKDIR /locallm
-COPY requirements.txt /locallm/requirements.txt
+COPY builds/requirements.txt /locallm/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
 ARG MODEL_FILE=llama-2-7b-chat.Q5_K_S.gguf
 ENV MODEL_FILE=${MODEL_FILE}
-COPY ${MODEL_FILE} /locallm/
-COPY src/ /locallm
-RUN printenv | grep MODEL_FILE
-ENTRYPOINT [ "python", "summary_app.py" ]
+COPY builds/${MODEL_FILE} /locallm/
+COPY builds/src/ /locallm
+COPY summary_service.py /locallm/
+ENTRYPOINT [ "python", "summary_service.py" ]
