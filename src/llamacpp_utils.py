@@ -19,3 +19,13 @@ def clip_history(llama, prompt, history, n_ctx, max_tokens):
         input_len = history_len + prompt_len
         print(input_len)
     return history
+
+def chunk_tokens(llm, prompt, chunk_size):
+    tokens = tokenize(llm, prompt)
+    num_tokens = count_tokens(llm, prompt)
+    chunks = []
+    for i in range((num_tokens//chunk_size)+1):
+        chunk = str(llm.detokenize(tokens[:chunk_size]),"utf-8")
+        chunks.append(chunk)
+        tokens = tokens[chunk_size:]
+    return chunks
