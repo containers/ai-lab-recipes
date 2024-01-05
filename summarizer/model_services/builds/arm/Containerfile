@@ -5,7 +5,7 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
 ARG MODEL_FILE=llama-2-7b-chat.Q5_K_S.gguf
 ENV MODEL_FILE=${MODEL_FILE}
-COPY builds/${MODEL_FILE} /locallm/
+COPY builds/${MODEL_FILE} /locallm/models/
 COPY builds/src/ /locallm
 COPY summary_service.py /locallm/
 ENTRYPOINT [ "python", "summary_service.py" ]
