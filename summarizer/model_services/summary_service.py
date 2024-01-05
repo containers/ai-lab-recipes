@@ -2,9 +2,9 @@ import sys
 sys.path.append("src")
 import gradio as gr
 from llama_cpp import Llama
-from chat import clip_history, chunk_tokens
+from llamacpp_utils import clip_history, chunk_tokens
  
-llm = Llama("llama-2-7b-chat.Q5_K_S.gguf",
+llm = Llama("models/llama-2-7b-chat.Q5_K_S.gguf",
             n_gpu_layers=-1,
             n_ctx=4096,
             max_tokens=512,
