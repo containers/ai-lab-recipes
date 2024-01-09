@@ -1,0 +1,16 @@
+applications:
+  # type: language
+  # name: chatbot
+  # description: This is a LLM chatbot application
+  containers:
+    - name: chatbot-example
+      contextdir: ai-application/builds
+      #image-name: quay.io/redhat-et/chatbot:latest
+    - name: chatbot-model-arm
+      contextdir: model-services/builds/arm
+      arch: arm64
+      model-service: true 
+    - name: chatbot-model-x86
+      contextdir: model-services/builds/x86
+      arch: amd64
+      model-service: true 
