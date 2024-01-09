@@ -7,4 +7,5 @@ ENV MODEL_FILE=llama-2-7b-chat.Q5_K_S.gguf
 COPY builds/${MODEL_FILE} /locallm/models/
 COPY builds/src/ /locallm
 COPY chat_service.py /locallm/chat_service.py
+EXPOSE 7860
 ENTRYPOINT [ "python", "chat_service.py" ]

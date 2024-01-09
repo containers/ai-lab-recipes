@@ -5,9 +5,10 @@ from llama_cpp import Llama
 from llamacpp_utils import clip_history, chunk_tokens
  
 llm = Llama("models/llama-2-7b-chat.Q5_K_S.gguf",
-            n_gpu_layers=-1,
+            n_gpu_layers=0,
             n_ctx=4096,
             max_tokens=512,
+            n_batch=32,
             f16_kv = True,
             stream=False)
 

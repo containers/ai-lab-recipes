@@ -1,0 +1,7 @@
+FROM registry.access.redhat.com/ubi9/python-39:1-158
+WORKDIR /chatbot
+COPY requirements.txt /chatbot/requirements.txt
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --upgrade -r /chatbot/requirements.txt
+COPY chat_ui.py /chat_bot/chat_ui.py
+ENTRYPOINT [ "python", "chat_ui.py" ]
