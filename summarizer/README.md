@@ -44,6 +44,7 @@ podman run -it -p 7860:7860 summarizer
 ```
 ### Interact with the app
 
+#### Python Code
 Now the service can be used with the python code below.  
 
 ```python
@@ -67,12 +68,22 @@ print(result)
 • Excitement and competition among the teams
 ```
 
+#### Python Script
 You can also use the `summarize.py` script under `/ai_applications` to run the summary application against a local file. If the `--file` argument is left blank, it will run against the demo file `data/fake_meeting.text` 
 
 ```bash
-cd summarizer/ai_applications
-
-python summarize --file <YOUR-FILE>
+python summarizer/ai_applications/summarize --file <YOUR-FILE>
 ```
 
+#### Web App 
+You can also use `upload_file_ui.py` under `/ai_applications` to deploy a small webapp that provides a simple file upload UI to get summaries of the uploaded files.   
+
+```bash
+python summarizer/ai_applications/upload_file_ui.py
+```
+
+You should now have an instance running at http://0.0.0.0:8080. 
+
+
+![](/assets/summary__upload_ui.png)
 
