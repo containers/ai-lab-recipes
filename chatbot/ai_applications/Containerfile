@@ -3,5 +3,5 @@ WORKDIR /chatbot
 COPY requirements.txt /chatbot/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /chatbot/requirements.txt
-COPY chat_ui.py /chat_bot/chat_ui.py
+COPY chat_ui.py /chatbot/chat_ui.py
 ENTRYPOINT [ "python", "chat_ui.py" ]

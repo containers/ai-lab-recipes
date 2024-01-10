@@ -1,4 +1,4 @@
-applications:
+application:
   # type: language
   # name: chatbot
   # description: This is a LLM chatbot application
