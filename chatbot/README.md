@@ -59,7 +59,7 @@ You can also use the `ask.py` script under `/ai_applications` to run the chat ap
 ```bash
 cd chatbot/ai_applications
 
-python summarize --prompt <YOUR-PROMPT>
+python ask.py --prompt <YOUR-PROMPT>
 ```
 
 ## Deploy on Openshift
