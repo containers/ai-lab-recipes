@@ -3,9 +3,11 @@ sys.path.append("src")
 import gradio as gr
 from llama_cpp import Llama
 from llamacpp_utils import clip_history
+import os
  
 
-llm = Llama("models/llama-2-7b-chat.Q5_K_S.gguf",
+llm = Llama(os.getenv('MODEL_PATH', 
+                      "models/llama-2-7b-chat.Q5_K_S.gguf"),
             n_gpu_layers=-1,
             n_ctx=2048,
             max_tokens=512,
