@@ -31,20 +31,22 @@ wget https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7
 
 ### Build the image
 
-To build the image we will use a `build.sh` script that will simply copy the desired model and shared code into the build directory temporarily. This prevents any large unused model files in the repo from being loaded into the podman environment during build which can cause a significant slowdown.    
+To build the image we will use a `build.sh` script that will simply build the image without any model. 
+After the image is created we could run it with the model mounted as volume. This prevents any large model file from being loaded into the podman environment during build which can cause a significant slowdown.
 
 ```bash
 cd chatbot/model_services/builds
 
-sh build.sh llama-2-7b-chat.Q5_K_S.gguf arm locallm
+sh build.sh locallm x86-cuda
 ```
-The user should provide the model name, the architecture and image name they want to use for the build. 
+The user should provide the image name and the architecture (no need to specify it without any specific hardware accelerator) they want to use for the build. 
 
 ### Run the image
 Once the model service image is built, it can be run with the following:
+By assuming that we want to mount the model `llama-2-7b-chat.Q5_K_S.gguf`
 
 ```bash
-podman run -it -p 7860:7860 locallm
+podman run -v <local-path>\llama-2-7b-chat.Q5_K_S.gguf:/llama-2-7b-chat.Q5_K_S.gguf:Z --env MODEL_PATH=/llama-2-7b-chat.Q5_K_S.gguf -it -p 7860:7860 locallm
 ```
 
 ### Interact with the app
