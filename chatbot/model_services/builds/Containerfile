@@ -3,8 +3,6 @@ WORKDIR /locallm
 COPY builds/requirements.txt /locallm/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
-ENV MODEL_PATH=builds/llama-2-7b-chat.Q5_K_S.gguf
-COPY ${MODEL_PATH} /locallm/models/
 COPY builds/src/ /locallm
 COPY chat_service.py /locallm/chat_service.py
 EXPOSE 7860

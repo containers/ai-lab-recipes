@@ -4,13 +4,15 @@ application:
   # description: This is a LLM chatbot application
   containers:
     - name: chatbot-example
-      contextdir: ai-application/builds
+      contextdir: ai-application
+      containerfile: builds/Containerfile
       #image-name: quay.io/redhat-et/chatbot:latest
-    - name: chatbot-model-arm
-      contextdir: model-services/builds/arm
-      arch: arm64
+    - name: chatbot-model
+      contextdir: model-services
+      containerfile: builds/Containerfile
       model-service: true 
-    - name: chatbot-model-x86
-      contextdir: model-services/builds/x86
-      arch: amd64
+    - name: chatbot-model-x86-cuda
+      contextdir: model-services
+      containerfile: builds/x86/Containerfile
+      arch: amd64-cuda
       model-service: true 
