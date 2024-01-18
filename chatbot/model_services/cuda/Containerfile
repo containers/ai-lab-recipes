@@ -1,10 +1,11 @@
 FROM quay.io/opendatahub/workbench-images:cuda-ubi9-python-3.9-20231206
 WORKDIR /locallm
-COPY builds/requirements.txt /locallm/requirements.txt
+COPY chatbot/model_service/builds/requirements.txt .
+COPY src .
 RUN pip install --upgrade pip
 ENV CMAKE_ARGS="-DLLAMA_CUBLAS=on"
 ENV FORCE_CMAKE=1
 RUN pip install --upgrade --force-reinstall --no-cache-dir -r /locallm/requirements.txt
-COPY builds/src/ /locallm
-COPY chat_service.py /locallm/chat_service.py
+EXPOSE 7860
+COPY chatbot/model_service/chat_service.py .
 ENTRYPOINT [ "python", "chat_service.py" ]
