@@ -1,9 +1,0 @@
-FROM registry.access.redhat.com/ubi9/python-39:1-158
-WORKDIR /locallm
-COPY builds/requirements.txt /locallm/requirements.txt
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
-COPY builds/src/ /locallm
-COPY chat_service.py /locallm/chat_service.py
-EXPOSE 7860
-ENTRYPOINT [ "python", "chat_service.py" ]

@@ -1,0 +1,12 @@
+application:
+  type: language
+  name: chatbot-inference-app
+  description: This is a LLM chatbot application that can interact with a llamacpp model-service
+  gitrepo: https://github.com/redhat-et/locallm
+  containers:
+    - name: chatbot-inference-app
+      contextdir: chatbot/ai_applications
+      containerfile: builds/Containerfile
+      arch:
+        - arm64
+        - amd64
