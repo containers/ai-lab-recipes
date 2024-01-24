@@ -1,14 +1,13 @@
-
-import sys
-sys.path.append("src")
 import gradio as gr
 from llama_cpp import Llama
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.vectorstores import Chroma
 from llamacpp_utils import clip_history
+import os
 
 
-llm = Llama("models/llama-2-7b-chat.Q5_K_S.gguf",
+llm = Llama(os.getenv("MODEL_PATH",
+                      "models/llama-2-7b-chat.Q5_K_S.gguf"),
             n_gpu_layers=-1,
             n_ctx=2048,
             max_tokens=512,
@@ -20,7 +19,8 @@ system_prompt = [
      with C level executives in a professional setting."""},
      ]
 
-embeddings = SentenceTransformerEmbeddings(model_name="BAAI/bge-base-en-v1.5")
+embeddings = SentenceTransformerEmbeddings(model_name="BAAI/bge-base-en-v1.5",
+                                           cache_folder="models/")
 
 
 def ask(prompt, history, rag):
@@ -68,12 +68,11 @@ def retriever(prompt, top_k=2,threshold=0.75):
     else:
         return None
 
-    
 
 if __name__ == "__main__":
 
     with gr.Blocks() as demo:   
         box = gr.Checkbox(label="RAG", info="Do you want to turn on RAG?")
-        chat_app = gr.ChatInterface(ask,additional_inputs=[box])
+        chat_app = gr.ChatInterface(ask, additional_inputs=[box])
 
     demo.launch(server_name="0.0.0.0")

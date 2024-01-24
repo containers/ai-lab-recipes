@@ -14,15 +14,7 @@ ENV LD_LIBRARY_PATH="/usr/local/lib"
 WORKDIR /locallm
 RUN mkdir /data
 ###
-#USER default
-WORKDIR /locallm
-COPY builds/requirements.txt /locallm/
+COPY src .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
-ARG MODEL_FILE=llama-2-7b-chat.Q5_K_S.gguf
-ENV MODEL_FILE=${MODEL_FILE}
-COPY builds/${MODEL_FILE} /locallm/models/
-COPY builds/src/ /locallm
-COPY builds/chroma.sqlite3 /locallm/data/
-COPY rag_service.py /locallm
 ENTRYPOINT [ "python", "rag_service.py" ]
