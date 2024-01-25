@@ -1,11 +1,6 @@
 FROM registry.access.redhat.com/ubi9/python-39:1-158
 WORKDIR /locallm
-COPY builds/requirements.txt /locallm/requirements.txt
+COPY src .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
-ARG MODEL_PATH=builds/llama-2-7b-chat.Q5_K_S.gguf
-ENV MODEL_PATH=${MODEL_PATH}
-COPY ${MODEL_PATH} /locallm/models/
-COPY builds/src/ /locallm
-COPY summary_service.py /locallm/
 ENTRYPOINT [ "python", "summary_service.py" ]
