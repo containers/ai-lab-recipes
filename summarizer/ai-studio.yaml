@@ -4,7 +4,7 @@ application:
   description: This is a LLM summarizer application
   containers:
     - name: summarizer-model-service
-      contextdir: model-services
+      contextdir: model_services
       containerfile: base/Containerfile
       model-service: true 
       backend:
@@ -13,7 +13,7 @@ application:
         - arm64
         - amd64
     - name: summarizer-model-service-cuda
-      contextdir: model-services
+      contextdir: model_services
       containerfile: cuda/Containerfile
       model-service: true 
       backend:
@@ -23,7 +23,7 @@ application:
       arch:
         - amd64
     - name: summarizer-example-app
-      contextdir: ai-applications
+      contextdir: ai_applications
       containerfile: base/Containerfile
       arch:
         - amd64
