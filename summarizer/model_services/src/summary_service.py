@@ -3,6 +3,7 @@ sys.path.append("src")
 import gradio as gr
 from llama_cpp import Llama
 from llamacpp_utils import clip_history, chunk_tokens
+import os
  
 llm = Llama(os.getenv('MODEL_PATH', 
                       "models/llama-2-7b-chat.Q5_K_S.gguf"),

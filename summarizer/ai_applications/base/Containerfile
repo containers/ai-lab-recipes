@@ -4,4 +4,5 @@ COPY base/requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /summarizer/requirements.txt
 COPY upload_file_ui.py .
+EXPOSE 8080
 ENTRYPOINT [ "python", "upload_file_ui.py"]
