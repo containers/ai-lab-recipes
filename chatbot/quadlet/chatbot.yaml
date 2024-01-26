@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: chatbot-inference-app
+  name: chatbot-inference-app
+spec:
+  initContainers:
+  - name: model-file
+    image: quay.io/sallyom/models:llama2-7b-gguf
+    command: ['/usr/bin/bash', '-c', "cp /model/llama-2-7b-chat.Q5_K_S.gguf /shared/ && chmod 777 /shared/llama-2-7b-chat.Q5_K_S.gguf"]
+    volumeMounts:
+    - name: model-file
+      mountPath: /shared
+  containers:
+  - env:
+    - name: MODEL_ENDPOINT
+      value: http://localhost:7860
+    image: quay.io/sallyom/chatbot:inference
+    name: chatbot-inference
+    ports:
+    - containerPort: 7860
+      hostPort: 7860
+    - containerPort: 8080
+      hostPort: 8080
+    securityContext:
+      runAsNonRoot: true
+  - env:
+    - name: MODEL_PATH
+      value: /model/llama-2-7b-chat.Q5_K_S.gguf
+    image: quay.io/sallyom/chatbot:model-service
+    name: chatbot-model-service
+    securityContext:
+      runAsNonRoot: true
+    volumeMounts:
+    - name: model-file
+      mountPath: /model
+  volumes:
+  - name: model-file
+    emptyDir: {}
