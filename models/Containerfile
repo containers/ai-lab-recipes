@@ -1,7 +1,7 @@
 #https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q5_K_S.gguf
-#https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/blob/main/mistral-7b-instruct-v0.1.Q4_K_S.gguf
+#https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_S.gguf
 # podman build --build-arg MODEL_URL=https://... -t quay.io/yourimage .
-FROM scratch
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.3-13
 ARG MODEL_URL
 WORKDIR /model
 ADD $MODEL_URL .
