@@ -20,5 +20,6 @@ if __name__ == "__main__":
     
     model_endpoint = os.getenv('MODEL_ENDPOINT', "http://0.0.0.0:7860")
     client = Client(model_endpoint)
-    demo = gr.Interface(fn=read_file, inputs="file", outputs="textbox")
+    demo = gr.Interface(fn=read_file, inputs="file", outputs="textbox", 
+                        allow_flagging="never")
     demo.launch(server_name="0.0.0.0", server_port=8080)
