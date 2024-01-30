@@ -13,7 +13,11 @@ application:
         - arm64
         - amd64
     - name: chromadb-server
-      image: docker.io/chromadb/chroma
+      contextdir:: builds/chromadb
+      containerfile: Containerfile
+      arch:
+        - arm64
+        - amd64
     - name: rag-inference-app
       contextdir: .
       containerfile: builds/Containerfile
