@@ -13,7 +13,7 @@ Use the existing ChromaDB image to deploy a vector store service.
 ### Deploy Model Service 
 
 Deploy the LLM server and volume mount the model of choice.
-* `podman run -it -p 8001:8001 -v Local/path/to/locallm/models:/locallm/models:Z -e MODEL_PATH=models/llama-2-7b-chat.Q5_K_S.gguf playground`
+* `podman run -it -p 8001:8001 -v Local/path/to/locallm/models:/locallm/models:Z -e MODEL_PATH=models/llama-2-7b-chat.Q5_K_S.gguf -e HOST=0.0.0.0 -e PORT=8001 playground`
 
 ### Build and Deploy RAG app
 Deploy a small application that can populate the data base from the vectorDB and generate a response with the LLM.
