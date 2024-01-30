@@ -7,7 +7,7 @@ RequiresMountsFor=%t/containers
 
 [Kube]
 # Point to the yaml file in the same directory
-Yaml=chatbot.yml
+Yaml=chatbot.yaml
 
 [Service]
 Restart=always
