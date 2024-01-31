@@ -15,6 +15,7 @@ application:
     - name: chromadb-server
       contextdir:: builds/chromadb
       containerfile: Containerfile
+      vectordb: true
       arch:
         - arm64
         - amd64
