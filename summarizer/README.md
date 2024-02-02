@@ -40,7 +40,7 @@ The user should provide the model name, the architecture and image name they wan
 Once the model service image is built, it can be run with the following:
 
 ```bash
-podman run -it -p 7860:7860 summarizer
+podman run --rm -it -p 7860:7860 summarizer
 ```
 ### Interact with the app
 

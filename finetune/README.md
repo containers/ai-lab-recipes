@@ -26,7 +26,7 @@ This also assumes that `<location/of/your/data/>` contains the following 2 files
 ### Run the image
 
 ```bash
-podman run -it -v <location/of/your/data/>:/locallm/data/ finetunellm
+podman run --rm -it -v <location/of/your/data/>:/locallm/data/ finetunellm
 ```
 This will run 10 iterations of LoRA finetuning and generate a new model that can be exported and used in another chat application. I'll caution that 10 iterations is likely insufficient to see a real change in the model outputs, but it serves here for demo purposes.  
 

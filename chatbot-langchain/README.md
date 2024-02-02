@@ -12,5 +12,7 @@ To start the model service, refer to [the playground document](../playground/REA
 
 
 ```bash
-podman run -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 stchat   
+podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 stchat   
 ```
+
+Interact with the application from your local browser at `localhost:8501`
