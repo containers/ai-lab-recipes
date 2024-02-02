@@ -1,0 +1,20 @@
+application:
+  type: language
+  name: ChatBot_Streamlit
+  description: This is a Streamlit chat demo application. 
+  containers:
+    - name: llamacpp-server
+      contextdir: ../playground
+      containerfile: Containerfile
+      model-service: true
+      backend: 
+        - llama
+      arch:
+        - arm64
+        - amd64
+    - name: streamlit-chat-app
+      contextdir: .
+      containerfile: builds/Containerfile
+      arch:
+        - arm64
+        - amd64
