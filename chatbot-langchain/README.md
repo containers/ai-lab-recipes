@@ -7,7 +7,8 @@ podman build -t stchat . -f builds/Containerfile
 ```
 ### Run image locally
 
-Make sure your model service is up and running before starting this container image. 
+Make sure the playground model service is up and running before starting this container image. 
+To start the model service, refer to [the playground document](../playground/README.md)
 
 
 ```bash
