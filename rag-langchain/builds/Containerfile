@@ -16,5 +16,6 @@ COPY builds/requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /rag/requirements.txt
 COPY rag_app.py .
+EXPOSE  8501
 ENV  HF_HUB_CACHE=/rag/models/
-ENTRYPOINT [ "python", "rag_app.py" ]
+ENTRYPOINT [ "streamlit", "run" ,"rag_app.py" ]
