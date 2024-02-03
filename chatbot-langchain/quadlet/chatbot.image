@@ -1,0 +1,7 @@
+[Install]
+WantedBy=chatbot.service
+
+[Image]
+Image=quay.io/sallyom/models:mistral-7b-gguf
+Image=quay.io/sallyom/model-service:llamacpp
+Image=quay.io/sallyom/chatbot:langchain-streamlit
