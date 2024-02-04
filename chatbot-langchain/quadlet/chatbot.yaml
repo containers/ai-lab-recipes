@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: chatbot-langchain
+  name: chatbot-langchain
+spec:
+  initContainers:
+  - name: model-file
+    image: quay.io/sallyom/models:mistral-7b-gguf
+    command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_S.gguf", "/shared/"]
+    volumeMounts:
+    - name: model-file
+      mountPath: /shared
+  containers:
+  - env:
+    - name: MODEL_SERVICE_ENDPOINT
+      value: http://10.88.0.1:8001/v1
+    image: quay.io/sallyom/chatbot:langchain-streamlit
+    name: chatbot-inference
+    ports:
+    - containerPort: 8501
+      hostPort: 8501
+    securityContext:
+      runAsNonRoot: true
+  - env:
+    - name: HOST
+      value: 0.0.0.0
+    - name: PORT
+      value: 8001
+    - name: MODEL_PATH
+      value: /model/mistral-7b-instruct-v0.1.Q4_K_S.gguf
+    image: quay.io/sallyom/model-service:llamacpp
+    name: chatbot-model-service
+    ports:
+    - containerPort: 8001
+      hostPort: 8001
+    securityContext:
+      runAsNonRoot: true
+    volumeMounts:
+    - name: model-file
+      mountPath: /model
+  volumes:
+  - name: model-file
+    emptyDir: {}
