@@ -18,7 +18,6 @@ import os
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-d", "--docs", default="data/fake_meeting.txt")
 parser.add_argument("-c", "--chunk_size", default=150)
 parser.add_argument("-e", "--embedding_model", default="BAAI/bge-base-en-v1.5")
 parser.add_argument("-H", "--vdb_host", default="0.0.0.0")
@@ -27,20 +26,35 @@ parser.add_argument("-n", "--name", default="test_collection")
 parser.add_argument("-m", "--model_url", default="http://0.0.0.0:8001/v1")
 args = parser.parse_args()
 
+def clear_vdb():
+    global client
+    client.delete_collection(args.name)
+    print("clearing DB")
+
+def get_files():
+    file_list = os.listdir("data/")
+    file_list = [f for f in file_list if f.endswith(".txt")]
+    return file_list
+
+st.title("📚 RAG DEMO")
+with st.sidebar:
+    data = st.selectbox(label="📄 Add Context",options=get_files(),on_change=clear_vdb,
+                     placeholder="Select a Document", index=None)
+    
 ### populate the DB ####
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=args.embedding_model)
 e = SentenceTransformerEmbeddings(model_name=args.embedding_model)
+
 client = HttpClient(host=args.vdb_host,
                              port=args.vdb_port,
                              settings=Settings(allow_reset=True,))
 collection = client.get_or_create_collection(args.name,
                                       embedding_function=embedding_func)
-
-if collection.count() < 1:
+if collection.count() < 1 and data != None:
     print("populating db")
-    raw_documents = TextLoader(args.docs).load()
+    raw_documents = TextLoader(f'data/{data}').load()
     text_splitter = CharacterTextSplitter(separator = ".",
                                           chunk_size=int(args.chunk_size),
                                           chunk_overlap=0)
@@ -51,13 +65,12 @@ if collection.count() < 1:
             metadatas=doc.metadata, 
             documents=doc.page_content
             )
+if data == None:
+    print("Empty VectorDB")
 else:
     print("DB already populated")
 ########################
-    
-#### Define RAG App ####
 
-st.title("📚 RAG DEMO")
 if "messages" not in st.session_state:
     st.session_state["messages"] = [{"role": "assistant", 
                                      "content": "How can I help you?"}]
