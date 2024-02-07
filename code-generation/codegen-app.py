@@ -31,17 +31,6 @@ chain = (
     | llm
 )
 
-# Move the query input bar to the bottom
-#query_input_placeholder = st.empty()
-
-# Put the query input bar at the bottom
-#if prompt := query_input_placeholder.text_input("Write your code prompt here:", key="query_input"):
-#    st.session_state.messages.append({"role": "user", "content": prompt})
-#    st.chat_message("user").markdown(prompt)
-#    response = chain.invoke(prompt)
-#    st.chat_message("assistant").markdown(response.content)    
-#    st.session_state.messages.append({"role": "assistant", "content": response.content})
-
 if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").markdown(prompt)
