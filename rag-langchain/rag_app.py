@@ -16,6 +16,7 @@ import streamlit as st
 import uuid
 import os
 import argparse
+import pathlib
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--chunk_size", default=150)
@@ -31,15 +32,23 @@ def clear_vdb():
     client.delete_collection(args.name)
     print("clearing DB")
 
+def is_text_file(file_path):
+    try:
+        with open(file_path,"r") as f:
+            line = f.readline()
+            return True
+    except:
+        return False
+         
 def get_files():
-    file_list = os.listdir("data/")
-    file_list = [f for f in file_list if f.endswith(".txt")]
+    file_list = pathlib.Path("data/")
+    file_list = [f for f in file_list.iterdir() if is_text_file(f)]
     return file_list
 
 st.title("📚 RAG DEMO")
 with st.sidebar:
     data = st.selectbox(label="📄 Add Context",options=get_files(),on_change=clear_vdb,
-                     placeholder="Select a Document", index=None)
+                     placeholder="Select a Document", index=None, format_func=lambda x: x.name)
     
 ### populate the DB ####
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -54,7 +63,7 @@ collection = client.get_or_create_collection(args.name,
                                       embedding_function=embedding_func)
 if collection.count() < 1 and data != None:
     print("populating db")
-    raw_documents = TextLoader(f'data/{data}').load()
+    raw_documents = TextLoader(f'{data}').load()
     text_splitter = CharacterTextSplitter(separator = ".",
                                           chunk_size=int(args.chunk_size),
                                           chunk_overlap=0)
@@ -110,4 +119,3 @@ if prompt := st.chat_input():
     st.chat_message("assistant").markdown(response.content)    
     st.session_state.messages.append({"role": "assistant", "content": response.content})
     st.rerun()
-
