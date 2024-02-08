@@ -15,5 +15,20 @@ cd ../
 
 ### Deploy Model Service
 
-To start the model service, refer to [the playground model-service document](../playground/README.md)
+To start the model service, refer to [the playground model-service document](../playground/README.md). Deploy the LLM server and volumn mount the model of choice.
+
+```
+podman run --rm -it -d \
+        -p 8001:8001 \
+        -v Local/path/to/locallm/models:/locallm/models:ro,Z \
+        -e MODEL_PATH=models/<model-filename> \
+        -e HOST=0.0.0.0 \
+        -e PORT=8001 \
+        playground:image
+```
+Once the model service is deployed, then run 
+
+### 
+
+
 
