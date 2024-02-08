@@ -26,9 +26,10 @@ podman run --rm -it -d \
         -e PORT=8001 \
         playground:image
 ```
-Once the model service is deployed, then run 
 
-### 
+### Build Container Image
 
+Once the model service is deployed, then follow the instruction below to build your container image and run it locally. 
 
-
+- `podman build -t codegen-app code-generation -f code-generation/builds/Containerfile`
+- `podman run -it -p 8501:8501 codegen-app -- -m http://10.88.0.1:8001/v1` 
