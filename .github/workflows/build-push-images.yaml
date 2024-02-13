@@ -1,0 +1,121 @@
+name: Sample applications build & push images
+
+on:
+  push:
+    branches: [ main ]
+    workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  build:
+    env:
+      REGISTRY: quay.io/redhat-et
+      #GH_REGISTRY: ghcr.io
+      # github.repository as <account>/<repo>
+      MODEL_SERVICE_IMAGE: locallm-model-service
+      CHATBOT_IMAGE: locallm-chatbot
+      SUMMARIZER_IMAGE: locallm-text-summarizer
+      RAG_IMAGE: locallm-rag
+    runs-on: ubuntu-latest  # windows-latest || macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+      #- name: Log in to ghcr.io
+      #  uses: redhat-actions/podman-login@v1
+      #  with:
+      #    username: ${{ github.actor }}
+      #    password: ${{ secrets.GITHUB_TOKEN }}
+      #    registry: ${{ env.GH_REGISTRY }}
+
+      - name: Login Quay Container registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build model-service
+        id: build_model_service_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.MODEL_SERVICE_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64 
+          context: ./playground
+          containerfiles: |
+            ./playground/Containerfile
+      
+      - name: Push model-service image
+        id: push_model_service
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_model_service_multiplatform.outputs.image }}
+          tags: ${{ steps.build_model_service_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
+      - name: Build chatbot
+        id: build_chatbot_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.CHATBOT_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64 
+          context: chatbot-langchain
+          containerfiles: |
+            ./chatbot-langchain/builds/Containerfile
+      
+      - name: Push chatbot image
+        id: push_chatbot
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_chatbot_multiplatform.outputs.image }}
+          tags: ${{ steps.build_chatbot_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
+      - name: Build summarizer
+        id: build_summarizer_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.SUMMARIZER_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64 
+          context: ./summarizer-langchain
+          containerfiles: |
+            ./summarizer-langchain/builds/Containerfile
+      
+      - name: Push summarizer image
+        id: push_summarizer
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_summarizer_multiplatform.outputs.image }}
+          tags: ${{ steps.build_summarizer_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
+      - name: Build RAG
+        id: build_rag_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.RAG_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          #TODO: add amd64
+          platforms: linux/arm64 
+          context: ./rag-langchain
+          containerfiles: |
+            ./rag-langchain/builds/Containerfile
+      
+      - name: Push rag image
+        id: push_rag
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_rag_multiplatform.outputs.image }}
+          tags: ${{ steps.build_rag_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
