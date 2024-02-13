@@ -1,0 +1,103 @@
+name: Sample applications build,test,push images
+
+# Build image once the PR is merged to main branch.
+on:
+  pull_request:
+    workflow_dispatch:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # windows-latest || macos-latest
+    env:
+      REGISTRY: quay.io
+      # github.repository as <account>/<repo>
+      MODEL_SERVICE_IMAGE: redhat-et/locallm-model-service
+      CHATBOT_IMAGE: redhat-et/locallm-chatbot
+      SUMMARIZER_IMAGE: redhat-et/locallm-text-summarizer
+      RAG_IMAGE: redhat-et/locallm-rag
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+      - name: Get changed model-service files
+        id: changed-files-model-service
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            playground/**
+
+      - name: Get changed rag files
+        id: changed-files-rag
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            rag-langchain/**
+
+      - name: Get changed summarizer files
+        id: changed-files-summarizer
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            summarizer-langchain/**
+
+      - name: Get changed chatbot files
+        id: changed-files-chatbot
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            chatbot-langchain/**
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build model-service
+        if: steps.changed-files-model-service.outputs.any_changed == 'true'
+        id: build_model_service_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.MODEL_SERVICE_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64 
+          context: playground
+          containerfiles: ./playground/Containerfile
+      
+      - name: Build chatbot
+        id: build_chatbot_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        if: steps.changed-files-chatbot-langchain.outputs.any_changed == 'true'
+        with:
+          image: ${{ env.CHATBOT_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64 
+          context: chatbot-langchain
+          containerfiles: |
+            ./chatbot-langchain/builds/Containerfile
+      
+      - name: Build summarizer
+        if: steps.changed-files-summarizer.outputs.any_changed == 'true'
+        id: build_summarizer_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.SUMMARIZER_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64 
+          context: summarizer-langchain
+          containerfiles: |
+            ./summarizer-langchain/builds/Containerfile
+      
+      - name: Build RAG
+        if: steps.changed-files-rag.outputs.any_changed == 'true'
+        id: build_rag_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.RAG_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          # TODO: add amd64
+          platforms: linux/arm64 
+          context: rag-langchain
+          containerfiles: |
+            ./rag-langchain/builds/Containerfile
