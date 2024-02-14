@@ -1,0 +1,20 @@
+application:
+  type: Multimodal
+  name: image-understanding
+  description: This demo uses a Multimodal model to analyze the content of images.  
+  containers:
+    - name: llamacpp-server
+      contextdir: ../playground
+      containerfile: Containerfile
+      model-service: true
+      backend: 
+        - llama
+      arch:
+        - arm64
+        - amd64
+    - name: image-understanding-inference-app
+      contextdir: .
+      containerfile: builds/Containerfile
+      arch:
+        - arm64
+        - amd64
