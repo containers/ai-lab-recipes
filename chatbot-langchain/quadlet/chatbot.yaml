@@ -16,7 +16,7 @@ spec:
   - env:
     - name: MODEL_SERVICE_ENDPOINT
       value: http://10.88.0.1:8001/v1
-    image: quay.io/sallyom/chatbot:langchain-streamlit
+    image: quay.io/redhat-et/locallm-chatbot:latest
     name: chatbot-inference
     ports:
     - containerPort: 8501
@@ -30,7 +30,7 @@ spec:
       value: 8001
     - name: MODEL_PATH
       value: /model/mistral-7b-instruct-v0.1.Q4_K_S.gguf
-    image: quay.io/sallyom/model-service:llamacpp
+    image: quay.io/redhat-et/locallm-model-service:latest
     name: chatbot-model-service
     ports:
     - containerPort: 8001

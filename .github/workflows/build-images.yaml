@@ -50,6 +50,7 @@ jobs:
             chatbot-langchain/**
 
       - name: Install qemu dependency
+        if: steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
@@ -68,7 +69,7 @@ jobs:
       - name: Build chatbot
         id: build_chatbot_multiplatform
         uses: redhat-actions/buildah-build@v2
-        if: steps.changed-files-chatbot-langchain.outputs.any_changed == 'true'
+        if: steps.changed-files-chatbot.outputs.any_changed == 'true'
         with:
           image: ${{ env.CHATBOT_IMAGE }} 
           tags: latest ${{ github.sha }}
