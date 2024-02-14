@@ -1,0 +1,20 @@
+application:
+  type: language
+  name: codegen-demo
+  description: This is a code-generation demo application. 
+  containers:
+    - name: llamacpp-server
+      contextdir: ../playground
+      containerfile: Containerfile
+      model-service: true
+      backend: 
+        - llama
+      arch:
+        - arm64
+        - amd64
+    - name: codegen-app
+      contextdir: .
+      containerfile: builds/Containerfile
+      arch:
+        - arm64
+        - amd64
