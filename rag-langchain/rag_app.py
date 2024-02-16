@@ -18,14 +18,21 @@ import os
 import argparse
 import pathlib
 
+model_service = os.getenv("MODEL_SERVICE_ENDPOINT",
+                          "http://0.0.0.0:8001/v1")
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--chunk_size", default=150)
 parser.add_argument("-e", "--embedding_model", default="BAAI/bge-base-en-v1.5")
 parser.add_argument("-H", "--vdb_host", default="0.0.0.0")
 parser.add_argument("-p", "--vdb_port", default="8000")
 parser.add_argument("-n", "--name", default="test_collection")
-parser.add_argument("-m", "--model_url", default="http://0.0.0.0:8001/v1")
+parser.add_argument("-m", "--model_url", default=model_service)
 args = parser.parse_args()
+
+client = HttpClient(host=args.vdb_host,
+                    port=args.vdb_port,
+                    settings=Settings(allow_reset=True,))
 
 def clear_vdb():
     global client
@@ -56,9 +63,6 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=args.embedding_model)
 e = SentenceTransformerEmbeddings(model_name=args.embedding_model)
 
-client = HttpClient(host=args.vdb_host,
-                             port=args.vdb_port,
-                             settings=Settings(allow_reset=True,))
 collection = client.get_or_create_collection(args.name,
                                       embedding_function=embedding_func)
 if collection.count() < 1 and data != None:
