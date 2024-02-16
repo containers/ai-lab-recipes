@@ -5,17 +5,24 @@ on:
   pull_request:
     workflow_dispatch:
     branches: [ main ]
+  push:
+    workflow_dispatch:
+    branches: [main]
+
+permissions: write-all
 
 jobs:
   build:
     runs-on: ubuntu-latest  # windows-latest || macos-latest
     env:
-      REGISTRY: quay.io
+      REGISTRY: quay.io/redhat-et
+      #GH_REGISTRY: ghcr.io
       # github.repository as <account>/<repo>
-      MODEL_SERVICE_IMAGE: redhat-et/locallm-model-service
-      CHATBOT_IMAGE: redhat-et/locallm-chatbot
-      SUMMARIZER_IMAGE: redhat-et/locallm-text-summarizer
-      RAG_IMAGE: redhat-et/locallm-rag
+      MODEL_SERVICE_IMAGE: locallm-model-service
+      CHATBOT_IMAGE: locallm-chatbot
+      SUMMARIZER_IMAGE: locallm-text-summarizer
+      RAG_IMAGE: locallm-rag
+      CHROMADB_IMAGE: locallm-chromadb
     steps:
       - uses: actions/checkout@v4
         with:
@@ -49,11 +56,29 @@ jobs:
           files: |
             chatbot-langchain/**
 
+      - name: Get changed chromadb files
+        id: changed-files-chromadb
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            rag-langchain/builds/chromadb/**
+
       - name: Install qemu dependency
         if: steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
+
+      - name: Login Quay Container registry
+        if: >
+          (steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-chromadb.outputs.any_changed == 'true') &&
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Build model-service
         if: steps.changed-files-model-service.outputs.any_changed == 'true'
@@ -66,6 +91,18 @@ jobs:
           context: playground
           containerfiles: ./playground/Containerfile
       
+      - name: Push model-service image
+        id: push_model_service
+        if: >
+          (steps.changed-files-model-service.outputs.any_changed == 'true') && 
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_model_service_multiplatform.outputs.image }}
+          tags: ${{ steps.build_model_service_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
       - name: Build chatbot
         id: build_chatbot_multiplatform
         uses: redhat-actions/buildah-build@v2
@@ -78,6 +115,18 @@ jobs:
           containerfiles: |
             ./chatbot-langchain/builds/Containerfile
       
+      - name: Push chatbot image
+        id: push_chatbot
+        if: >
+          (steps.changed-files-chatbot.outputs.any_changed == 'true') && 
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_chatbot_multiplatform.outputs.image }}
+          tags: ${{ steps.build_chatbot_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
       - name: Build summarizer
         if: steps.changed-files-summarizer.outputs.any_changed == 'true'
         id: build_summarizer_multiplatform
@@ -90,6 +139,18 @@ jobs:
           containerfiles: |
             ./summarizer-langchain/builds/Containerfile
       
+      - name: Push summarizer image
+        id: push_summarizer
+        if: >
+          (steps.changed-files-summarizer.outputs.any_changed == 'true') && 
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_summarizer_multiplatform.outputs.image }}
+          tags: ${{ steps.build_summarizer_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
       - name: Build RAG
         if: steps.changed-files-rag.outputs.any_changed == 'true'
         id: build_rag_multiplatform
@@ -102,3 +163,41 @@ jobs:
           context: rag-langchain
           containerfiles: |
             ./rag-langchain/builds/Containerfile
+
+      - name: Push rag image
+        id: push_rag
+        if: >
+          (steps.changed-files-rag.outputs.any_changed == 'true') && 
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_rag_multiplatform.outputs.image }}
+          tags: ${{ steps.build_rag_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
+      - name: Build chromadb
+        if: steps.changed-files-chromadb.outputs.any_changed == 'true'
+        id: build_chromadb_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.CHROMADB_IMAGE }} 
+          tags: latest ${{ github.sha }}
+          # TODO: add amd64
+          platforms: linux/arm64, linux/amd64
+          context: rag-langchain/builds/chromadb
+          containerfiles: |
+            ./rag-langchain/builds/chromadb/Containerfile
+
+      - name: Push chromadb image
+        id: push_chromadb
+        if: >
+          (steps.changed-files-chromadb.outputs.any_changed == 'true') && 
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_chromadb_multiplatform.outputs.image }}
+          tags: ${{ steps.build_chromadb_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
