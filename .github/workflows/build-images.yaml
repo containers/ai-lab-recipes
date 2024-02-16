@@ -21,6 +21,7 @@ jobs:
       MODEL_SERVICE_IMAGE: locallm-model-service
       CHATBOT_IMAGE: locallm-chatbot
       SUMMARIZER_IMAGE: locallm-text-summarizer
+      CODEGEN_IMAGE: locallm-codegen
       RAG_IMAGE: locallm-rag
       CHROMADB_IMAGE: locallm-chromadb
     steps:
@@ -49,6 +50,13 @@ jobs:
           files: |
             summarizer-langchain/**
 
+      - name: Get changed code-generation files
+        id: changed-files-codegen
+        uses: tj-actions/changed-files@v42
+        with:
+          files: |
+            code-generation/**
+
       - name: Get changed chatbot files
         id: changed-files-chatbot
         uses: tj-actions/changed-files@v42
@@ -64,14 +72,14 @@ jobs:
             rag-langchain/builds/chromadb/**
 
       - name: Install qemu dependency
-        if: steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true'
+        if: steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
       - name: Login Quay Container registry
         if: >
-          (steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-chromadb.outputs.any_changed == 'true') &&
+          (steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-chromadb.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true') &&
           (github.event_name == 'push' || github.event_name == 'schedule') &&
           (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
         uses: redhat-actions/podman-login@v1
@@ -125,6 +133,30 @@ jobs:
         with:
           image: ${{ steps.build_chatbot_multiplatform.outputs.image }}
           tags: ${{ steps.build_chatbot_multiplatform.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
+      - name: Build code-generation
+        if: steps.changed-files-codegen.outputs.any_changed == 'true'
+        id: build_summarizer_multiplatform
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.CODEGEN_IMAGE }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64
+          context: code-generation
+          containerfiles: |
+            ./code-generation/builds/Containerfile
+
+      - name: Push code-generation image
+        id: push_codegen
+        if: >
+          (steps.changed-files-codegen.outputs.any_changed == 'true') &&
+          (github.event_name == 'push' || github.event_name == 'schedule') &&
+          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build_codegen_multiplatform.outputs.image }}
+          tags: ${{ steps.build_codegen_multiplatform.outputs.tags }}
           registry: ${{ env.REGISTRY }}
 
       - name: Build summarizer
