@@ -6,6 +6,7 @@ from langchain.memory import ConversationBufferWindowMemory
 import streamlit as st
 import requests
 import time
+import json
 import os 
 
 model_service = os.getenv("MODEL_SERVICE_ENDPOINT",
@@ -18,17 +19,31 @@ def checking_model_service():
     ready = False
     while not ready:
         try:
-            request = requests.get(f'{model_service}/models')
-            if request.status_code == 200:
+            request_cpp = requests.get(f'{model_service}/models')
+            request_ollama = requests.get(f'{model_service[:-2]}api/tags')
+            if request_cpp.status_code == 200:
+                server = "Llamacpp_Python"
                 ready = True
+            elif request_ollama.status_code == 200:
+                server = "Ollama"
+                ready = True        
         except:
             pass
-        time.sleep(1) 
-    print("Model Service Available")
+        time.sleep(1)
+    print(f"{server} Model Service Available")
     print(f"{time.time()-start} seconds")
+    return server 
+
+def get_models():
+    try:
+        response = requests.get(f"{model_service[:-2]}api/tags")
+        return [i["name"].split(":")[0] for i in  
+            json.loads(response.content)["models"]]
+    except:
+        return None
 
 with st.spinner("Checking Model Service Availability..."):
-    checking_model_service()
+    server = checking_model_service()
 
 st.title("💬 Chatbot")  
 if "messages" not in st.session_state:
@@ -43,8 +58,17 @@ def memory():
     memory = ConversationBufferWindowMemory(return_messages=True,k=10)
     return memory
 
+model_name = "" 
+
+if server == "Ollama":
+    models = get_models()
+    with st.sidebar:
+        model_name = st.radio(label="Select Model",
+            options=models)
+
 llm = ChatOpenAI(base_url=model_service, 
         api_key="sk-no-key-required",
+        model=model_name,
         streaming=True,
         callbacks=[StreamlitCallbackHandler(st.empty(),
                                             expand_new_thoughts=True,
