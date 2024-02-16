@@ -184,10 +184,10 @@ jobs:
           image: ${{ env.CHROMADB_IMAGE }} 
           tags: latest ${{ github.sha }}
           # TODO: add amd64
-          platforms: linux/arm64 
+          platforms: linux/arm64, linux/amd64
           context: rag-langchain/builds/chromadb
           containerfiles: |
-            ./Containerfile
+            ./rag-langchain/builds/chromadb/Containerfile
 
       - name: Push chromadb image
         id: push_chromadb
