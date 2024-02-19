@@ -12,6 +12,8 @@ application:
       arch:
         - arm64
         - amd64
+      ports:
+        - 8001
     - name: chromadb-server
       contextdir:: builds/chromadb
       containerfile: Containerfile
@@ -19,9 +21,13 @@ application:
       arch:
         - arm64
         - amd64
+      ports:
+        - 8000
     - name: rag-inference-app
       contextdir: .
       containerfile: builds/Containerfile
       arch:
         - arm64
         - amd64
+      ports:
+        - 8501
