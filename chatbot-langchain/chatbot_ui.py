@@ -3,11 +3,31 @@ from langchain.chains import LLMChain
 from langchain_community.callbacks import StreamlitCallbackHandler
 from langchain_core.prompts import ChatPromptTemplate
 import streamlit as st
+import requests
+import time
 import os 
-
 
 model_service = os.getenv("MODEL_SERVICE_ENDPOINT",
                           "http://localhost:8001/v1")
+
+@st.cache_resource(show_spinner=False)
+def checking_model_service():
+    start = time.time()
+    print("Checking Model Service Availability...")
+    ready = False
+    while not ready:
+        try:
+            request = requests.get(f'{model_service}/models')
+            if request.status_code == 200:
+                ready = True
+        except:
+            pass
+        time.sleep(1) 
+    print("Model Service Available")
+    print(f"{time.time()-start} seconds")
+
+with st.spinner("Checking Model Service Availability..."):
+    checking_model_service()
 
 st.title("💬 Chatbot")  
 if "messages" not in st.session_state:
