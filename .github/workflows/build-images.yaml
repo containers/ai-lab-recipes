@@ -137,7 +137,7 @@ jobs:
 
       - name: Build code-generation
         if: steps.changed-files-codegen.outputs.any_changed == 'true'
-        id: build_summarizer_multiplatform
+        id: build_codegen_multiplatform
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.CODEGEN_IMAGE }}
