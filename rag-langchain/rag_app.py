@@ -27,10 +27,9 @@ parser.add_argument("-e", "--embedding_model", default="BAAI/bge-base-en-v1.5")
 parser.add_argument("-H", "--vdb_host", default="0.0.0.0")
 parser.add_argument("-p", "--vdb_port", default="8000")
 parser.add_argument("-n", "--name", default="test_collection")
-parser.add_argument("-m", "--model_url", default=model_service)
 args = parser.parse_args()
 
-client = HttpClient(host=args.vdb_host,
+vectorDB_client = HttpClient(host=args.vdb_host,
                     port=args.vdb_port,
                     settings=Settings(allow_reset=True,))
 
@@ -63,7 +62,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=args.embedding_model)
 e = SentenceTransformerEmbeddings(model_name=args.embedding_model)
 
-collection = client.get_or_create_collection(args.name,
+collection = vectorDB_client.get_or_create_collection(args.name,
                                       embedding_function=embedding_func)
 if collection.count() < 1 and data != None:
     print("populating db")
@@ -91,13 +90,13 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
-db = Chroma(client=client,
+db = Chroma(client=vectorDB_client,
             collection_name=args.name,
             embedding_function=e
     )
 retriever = db.as_retriever(threshold=0.75)
 
-llm = ChatOpenAI(base_url=args.model_url, 
+llm = ChatOpenAI(base_url=model_service, 
                  api_key="EMPTY",
                  streaming=True,
                  callbacks=[StreamlitCallbackHandler(st.container(),
