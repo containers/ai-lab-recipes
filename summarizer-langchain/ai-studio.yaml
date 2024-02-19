@@ -12,9 +12,13 @@ application:
       arch:
         - arm64
         - amd64
+      ports:
+        - 8001
     - name: streamlit-summary-app
       contextdir: .
       containerfile: builds/Containerfile
       arch:
         - arm64
         - amd64
+      ports:
+        - 8501
