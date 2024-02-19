@@ -30,5 +30,5 @@ snapshot_download(repo_id="BAAI/bge-base-en-v1.5",
 Follow the instructions below to build you container image and run it locally. 
 
 * `podman build -t ragapp rag-langchain -f rag-langchain/builds/Containerfile`
-* `podman run --rm -it -p 8501:8501 -v Local/path/to/locallm/models/:/rag/models:Z -v Local/path/to/locallm/data:/rag/data:Z ragapp -- -H 10.88.0.1 -m http://10.88.0.1:8001/v1`
+* `podman run --rm -it -p 8501:8501 -v Local/path/to/locallm/models/:/rag/models:Z -v Local/path/to/locallm/data:/rag/data:Z -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 ragapp -- -H 10.88.0.1 `
 

@@ -15,7 +15,7 @@ application:
       ports:
         - 8001
     - name: chromadb-server
-      contextdir:: builds/chromadb
+      contextdir: builds/chromadb
       containerfile: Containerfile
       vectordb: true
       arch:
