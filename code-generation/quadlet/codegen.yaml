@@ -7,8 +7,8 @@ metadata:
 spec:
   initContainers:
   - name: model-file
-    image: quay.io/sallyom/models:mistral-7b-gguf
-    command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_S.gguf", "/shared/"]
+    image: quay.io/redhat-et/locallm-models:codellama-7b-instruct.Q4_K_M.gguf
+    command: ['/usr/bin/install', "/model/codellama-7b-instruct.Q4_K_M.gguf", "/shared/"]
     volumeMounts:
     - name: model-file
       mountPath: /shared
@@ -29,7 +29,7 @@ spec:
     - name: PORT
       value: 8001
     - name: MODEL_PATH
-      value: /model/mistral-7b-instruct-v0.1.Q4_K_S.gguf
+      value: /model/codellama-7b-instruct.Q4_K_M.gguf
     image: quay.io/redhat-et/locallm-model-service:latest
     name: codegen-model-service
     ports:

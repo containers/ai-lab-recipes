@@ -7,7 +7,7 @@ metadata:
 spec:
   initContainers:
   - name: model-file
-    image: quay.io/sallyom/models:mistral-7b-gguf
+    image: quay.io/redhat-et/locallm-models:mistral-7b-instruct-v0.1.Q4_K_S.gguf
     command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_S.gguf", "/shared/"]
     volumeMounts:
     - name: model-file
