@@ -1,0 +1,7 @@
+FROM registry.access.redhat.com/ubi9/python-39:1-158
+WORKDIR /converter
+RUN git clone https://github.com/ggerganov/llama.cpp.git
+RUN cd llama.cpp/ && make
+RUN pip install -r llama.cpp/requirements.txt
+COPY . /converter/
+ENTRYPOINT ["sh", "run.sh"]
