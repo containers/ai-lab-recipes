@@ -1,0 +1,23 @@
+FROM registry.access.redhat.com/ubi9/ubi:latest as builder
+
+WORKDIR /app
+RUN dnf install -y git make gcc gcc-c++
+RUN mkdir whisper && cd whisper && git clone https://github.com/ggerganov/whisper.cpp.git . && \
+    git checkout tags/v1.5.4 && \
+    make && \
+    cp main /app/main && \
+    cp samples/jfk.wav /app/jfk.wav && \
+    cd ../ && rm -rf whisper
+
+FROM registry.access.redhat.com/ubi9-minimal:latest
+WORKDIR /app
+COPY --from=builder /app /app
+
+# https://github.com/wader/static-ffmpeg
+# https://hub.docker.com/r/mwader/static-ffmpeg/
+COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /bin/
+COPY --from=mwader/static-ffmpeg:6.1.1 /ffprobe /bin/
+
+COPY run.sh /app/
+ENV AUDIO_FILE=/app/jfk.wav
+ENTRYPOINT ["sh", "run.sh"]
