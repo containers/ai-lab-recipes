@@ -6,6 +6,7 @@ RUN mkdir whisper && cd whisper && git clone https://github.com/ggerganov/whispe
     git checkout tags/v1.5.4 && \
     make && \
     cp main /app/main && \
+    cp server /app/server && \
     cp samples/jfk.wav /app/jfk.wav && \
     cd ../ && rm -rf whisper
 
