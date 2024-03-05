@@ -1,0 +1,25 @@
+version: v1.0
+application:
+  type: vision
+  name: Object Detection
+  description: This is an example object detection demo
+  containers:
+    - name: object-detection-server
+      contextdir: ./model_server
+      containerfile: Containerfile
+      model-service: true
+      backend: 
+        - torch
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8000
+    - name: object-detection-client
+      contextdir: ./client
+      containerfile: Containerfile
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8501
