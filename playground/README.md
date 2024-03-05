@@ -68,5 +68,5 @@ podman run --rm -it -d \
         -p 8001:8001 \
         -v Local/path/to/locallm/models:/locallm/models:ro,Z \
         -e CONFIG_PATH=models/<config-filename> \
-        playground:image`
+        playground:image
 ```
