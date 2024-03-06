@@ -4,18 +4,31 @@ application:
   name: rag-demo
   description: This is a RAG demo application. 
   containers:
-    - name: rag-demo-service
-      contextdir: model_services
-      containerfile: base/Containerfile
+    - name: llamacpp-server
+      contextdir: ../playground
+      containerfile: Containerfile
       model-service: true
       backend: 
         - llama
       arch:
         - arm64
         - amd64
-    - name: chatbot-inference-app
-      contextdir: ai_applications
-      containerfile: base/Containerfile
+      ports:
+        - 8001
+    - name: chromadb-server
+      contextdir: builds/chromadb
+      containerfile: Containerfile
+      vectordb: true
       arch:
         - arm64
         - amd64
+      ports:
+        - 8000
+    - name: rag-inference-app
+      contextdir: .
+      containerfile: builds/Containerfile
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8501
