@@ -2,34 +2,39 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    app: chatbot-inference-app
-  name: chatbot-inference-app
+    app: chatbot-langchain
+  name: chatbot-langchain
 spec:
   initContainers:
   - name: model-file
-    image: quay.io/sallyom/models:llama2-7b-gguf
-    command: ['/usr/bin/bash', '-c', "cp /model/llama-2-7b-chat.Q5_K_S.gguf /shared/ && chmod 777 /shared/llama-2-7b-chat.Q5_K_S.gguf"]
+    image: quay.io/redhat-et/locallm-models:mistral-7b-instruct-v0.1.Q4_K_S.gguf
+    command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_S.gguf", "/shared/"]
     volumeMounts:
     - name: model-file
       mountPath: /shared
   containers:
   - env:
-    - name: MODEL_ENDPOINT
-      value: http://localhost:7860
-    image: quay.io/sallyom/chatbot:inference
+    - name: MODEL_SERVICE_ENDPOINT
+      value: http://10.88.0.1:8001/v1
+    image: quay.io/redhat-et/locallm-chatbot:latest
     name: chatbot-inference
     ports:
-    - containerPort: 7860
-      hostPort: 7860
-    - containerPort: 8080
-      hostPort: 8080
+    - containerPort: 8501
+      hostPort: 8501
     securityContext:
       runAsNonRoot: true
   - env:
+    - name: HOST
+      value: 0.0.0.0
+    - name: PORT
+      value: 8001
     - name: MODEL_PATH
-      value: /model/llama-2-7b-chat.Q5_K_S.gguf
-    image: quay.io/sallyom/chatbot:model-service
+      value: /model/mistral-7b-instruct-v0.1.Q4_K_S.gguf
+    image: quay.io/redhat-et/locallm-model-service:latest
     name: chatbot-model-service
+    ports:
+    - containerPort: 8001
+      hostPort: 8001
     securityContext:
       runAsNonRoot: true
     volumeMounts:

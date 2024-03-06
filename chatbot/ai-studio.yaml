@@ -1,29 +1,25 @@
-
 version: v1.0
 application:
   type: language
-  name: chatbot
-  description: This is a LLM chatbot application that can interact with a llamacpp model-service
+  name: ChatBot_Streamlit
+  description: This is a Streamlit chat demo application. 
   containers:
-    - name: chatbot-inference-app
-      contextdir: ai_applications
-      containerfile: builds/Containerfile
-    - name: chatbot-model-service
-      contextdir: model_services
-      containerfile: base/Containerfile
+    - name: llamacpp-server
+      contextdir: ../playground
+      containerfile: Containerfile
       model-service: true
       backend: 
         - llama
       arch:
         - arm64
         - amd64
-    - name: chatbot-model-servicecuda
-      contextdir: model_services
-      containerfile: cuda/Containerfile
-      model-service: true 
-      backend: 
-        - llama
-      gpu-env:
-        - cuda
-      arch: 
+      ports:
+        - 8001
+    - name: streamlit-chat-app
+      contextdir: .
+      containerfile: builds/Containerfile
+      arch:
+        - arm64
         - amd64
+      ports:
+        - 8501
