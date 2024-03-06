@@ -31,25 +31,28 @@ ffmpeg -i <input.mp3> -ar 16000 -ac 1 -c:a pcm_s16le <output.wav>
 
 The environment variable `AUDIO_FILE`, can be passed with your own audio file to override the default `/app/jfk.wav` file within the whisper image.
 
-### Deploy Model
+### Deploy Model Service
 
 Deploy the LLM and volume mount the model of choice.
 Here, we are mounting the `ggml-small.bin` model as downloaded from above.
 
-To test with the default `/app/jfk.wav` audio file included in the image:
-
 ```bash
 podman run --rm -it \
+        -p 8001:8001 \
         -v /local/path/to/locallm/models/ggml-small.bin:/models/ggml-small.bin:Z,ro \
+        -e HOST=0.0.0.0 \
+        -e PORT=8001 \
         whisper:image
 ```
 
-To run with another audio file:
+To test with the default `/app/jfk.wav` audio file included in the image:
 
 ```bash
-podman run --rm -it \
-        -v /local/path/to/locallm/models/ggml-small.bin:/models/ggml-small.bin:Z,ro \
-        -v /local/path/to/<audio-file.wav>:/app/<audio-file.wav>:Z,ro \
-        -e AUDIO_FILE=/app/<audio-file.wav>
-        whisper:image
+curl -v http://0.0.0.0:8001/inference -H "Content-Type: multipart/form-data" -F file=@/app/jfk.wav -F response-format="json"
+```
+
+To test with another audio file:
+
+```bash
+curl -v http://0.0.0.0:8001/inference -H "Content-Type: multipart/form-data" -F file=@<path-to-audio-file> -F response-format="json"
 ```
