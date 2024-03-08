@@ -1,9 +1,0 @@
-FROM registry.access.redhat.com/ubi9/python-39:latest
-WORKDIR /chatbot
-COPY builds/requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --upgrade -r /chatbot/requirements.txt
-ENV MODEL_ENDPOINT=http://10.88.0.1:7860
-EXPOSE 8080
-COPY chat_ui.py .
-ENTRYPOINT [ "python", "chat_ui.py" ]

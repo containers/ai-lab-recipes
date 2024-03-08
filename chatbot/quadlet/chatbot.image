@@ -1,7 +1,0 @@
-[Install]
-WantedBy=chatbot.service
-
-[Image]
-Image=quay.io/sallyom/models:llama2-7b-gguf
-Image=quay.io/sallyom/chatbot:model-service
-Image=quay.io/sallyom/chatbot:inference

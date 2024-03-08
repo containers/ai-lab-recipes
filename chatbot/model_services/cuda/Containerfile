@@ -1,9 +1,0 @@
-FROM quay.io/opendatahub/workbench-images:cuda-ubi9-python-3.9-20231206
-WORKDIR /locallm
-COPY src .
-RUN pip install --upgrade pip
-ENV CMAKE_ARGS="-DLLAMA_CUBLAS=on"
-ENV FORCE_CMAKE=1
-RUN pip install --upgrade --force-reinstall --no-cache-dir -r /locallm/requirements.txt
-EXPOSE 7860
-ENTRYPOINT [ "python", "chat_service.py" ]

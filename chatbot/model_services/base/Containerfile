@@ -1,8 +1,0 @@
-# build from chatbot/model-services directory
-FROM registry.access.redhat.com/ubi9/python-39:latest
-WORKDIR /locallm
-COPY src .
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
-EXPOSE 7860
-ENTRYPOINT [ "python", "chat_service.py" ]
