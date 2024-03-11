@@ -1,3 +1,17 @@
+### Pre-Requisites
+
+If you are using an Apple MacBook M-series laptop, you will probably need to do the following configurations:
+
+* `brew tap cfergeau/crc`
+* `brew install vfkit`
+* `export CONTAINERS_MACHINE_PROVIDER=applehv`
+* Edit your `/Users/<your username>/.config/containers/containers.conf` file to include:
+```bash
+[machine]
+provider = "applehv"
+```
+* Ensure you have enough resources on your Podman machine. Recommended to have atleast `CPU: 8, Memory: 10 GB`
+
 ### Build Model Service
 
 From this directory,
