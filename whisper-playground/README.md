@@ -59,14 +59,19 @@ podman run --rm -it \
         whisper:image
 ```
 
-To test with the default `/app/jfk.wav` audio file included in the image:
+### Build and run the client application
+
+We will use Streamlit to create a front end application with which you can interact with the Whisper model through a simple UI.
 
 ```bash
-curl -v http://0.0.0.0:8001/inference -H "Content-Type: multipart/form-data" -F file=@/app/jfk.wav -F response-format="json"
+podman build -t whisper_client whisper-playground/client
 ```
-
-To test with another audio file:
 
 ```bash
-curl -v http://0.0.0.0:8001/inference -H "Content-Type: multipart/form-data" -F file=@<path-to-audio-file> -F response-format="json"
+podman run -p 8501:8501 -e MODEL_ENDPOINT=http://0.0.0.0:8000/inference whisper_client
 ```
+Once the streamlit application is up and running, you should be able to access it at `http://localhost:8501`. From here, you can upload audio files from your local machine and translate the audio files as shown below.
+
+<p align="center">
+<img src="../assets/whisper.png" width="70%">
+</p>
