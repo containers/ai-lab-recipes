@@ -15,7 +15,7 @@ spec:
   containers:
   - env:
     - name: MODEL_SERVICE_ENDPOINT
-      value: http://10.88.0.1:8001/v1
+      value: http://0.0.0.0:8001/v1
     image: quay.io/redhat-et/locallm-codegen:latest
     name: codegen-inference
     ports:
