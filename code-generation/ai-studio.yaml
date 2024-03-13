@@ -15,6 +15,7 @@ application:
         - amd64
       ports:
         - 8001
+      image: quay.io/redhat-et/llamacpp-server
     - name: codegen-app
       contextdir: .
       containerfile: builds/Containerfile
@@ -23,3 +24,4 @@ application:
         - amd64
       ports:
         - 8501
+      image: quay.io/redhat-et/codegen-app
