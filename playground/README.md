@@ -23,7 +23,9 @@ cd ../
 
 ### Deploy Model Service
 
-Deploy the LLM server and volume mount the model of choice.
+#### Single Model Service:
+
+Deploy the LLM server and volume mount the model of choice using the `MODEL_PATH` environment variable.
 
 ```bash
 podman run --rm -it -d \
@@ -33,4 +35,38 @@ podman run --rm -it -d \
         -e HOST=0.0.0.0 \
         -e PORT=8001 \
         playground:image`
+```
+
+#### Multiple Model Service:
+
+To enable dynamic loading and unloading of different models present on your machine, you can start the model service with a `CONFIG_PATH` instead of a `MODEL_PATH`.
+
+Here is an example `models_config.json` with two quantization variants of mistral-7B.
+```json
+{
+    "host": "0.0.0.0",
+    "port": 8001,
+    "models": [
+        {
+            "model": "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+            "model_alias": "mistral_Q4",
+            "chat_format": "mistral",
+        },
+        {
+            "model": "models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
+            "model_alias": "mistral_Q5",
+            "chat_format": "mistral",
+        },
+
+    ]
+}
+```
+
+Now run the container with the specified config file. 
+```bash
+podman run --rm -it -d \
+        -p 8001:8001 \
+        -v Local/path/to/locallm/models:/locallm/models:ro,Z \
+        -e CONFIG_PATH=models/<config-filename> \
+        playground:image
 ```
