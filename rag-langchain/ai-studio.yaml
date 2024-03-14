@@ -15,7 +15,7 @@ application:
         - amd64
       ports:
         - 8001
-      image: quay.io/redhat-et/llamacpp-server
+      image: quay.io/redhat-et/locallm-model-service:latest
     - name: chromadb-server
       contextdir: builds/chromadb
       containerfile: Containerfile
@@ -25,7 +25,7 @@ application:
         - amd64
       ports:
         - 8000
-      image: quay.io/redhat-et/chromadb-server
+      image: quay.io/redhat-et/locallm-chromadb:latest
     - name: rag-inference-app
       contextdir: .
       containerfile: builds/Containerfile
@@ -34,4 +34,4 @@ application:
         - amd64
       ports:
         - 8501
-      image: quay.io/redhat-et/rag-inference-app
+      image: quay.io/redhat-et/locallm-rag:latest
