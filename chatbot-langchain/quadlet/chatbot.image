@@ -2,6 +2,6 @@
 WantedBy=chatbot.service
 
 [Image]
-Image=quay.io/redhat-et/locallm-models:mistral-7b-instruct-v0.1.Q4_K_S.gguf
+Image=quay.io/redhat-et/locallm-mistral-7b-gguf:latest
 Image=quay.io/redhat-et/locallm-model-service:latest
 Image=quay.io/redhat-et/locallm-chatbot:latest

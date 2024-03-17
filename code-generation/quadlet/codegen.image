@@ -2,6 +2,6 @@
 WantedBy=codegen.service
 
 [Image]
-Image=quay.io/redhat-et/locallm-models:codellama-7b-instruct.Q4_K_M.gguf
+Image=quay.io/redhat-et/locallm-codellama-7b-gguf:latest
 Image=quay.io/redhat-et/locallm-model-service:latest
 Image=quay.io/redhat-et/locallm-codegen:latest
