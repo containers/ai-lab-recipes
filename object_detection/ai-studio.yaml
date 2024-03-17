@@ -15,7 +15,7 @@ application:
         - amd64
       ports:
         - 8000
-      image: quay.io/redhat-et/object-detection-server
+      image: quay.io/redhat-et/locallm-object-detection-server:latest
     - name: object-detection-client
       contextdir: ./client
       containerfile: Containerfile
@@ -24,4 +24,4 @@ application:
         - amd64
       ports:
         - 8501
-      image: quay.io/redhat-et/object-detection-client
+      image: quay.io/redhat-et/locallm-object-detection-client:latest
