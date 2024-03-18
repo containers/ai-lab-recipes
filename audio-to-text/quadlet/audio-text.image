@@ -1,0 +1,7 @@
+[Install]
+WantedBy=audio-text.service
+
+[Image]
+Image=quay.io/redhat-et/locallm-whisper-ggml-small:latest
+Image=quay.io/redhat-et/locallm-whisper-service:latest
+Image=quay.io/redhat-et/locallm-audio-to-text:latest
