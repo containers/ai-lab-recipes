@@ -10,7 +10,7 @@ To begin, install the "Continue" extension from the Visual Studio Code Marketpla
 
 ## Step 2: Ensure Model Service is Running
 
-Before configuring the "Continue" extension, ensure that the Model Service is up and running. Follow the instructions provided in the existing (README.md)[README.md] document to build and deploy the Model Service. Note the port and endpoint details for the Model Service.
+Before configuring the "Continue" extension, ensure that the Model Service is up and running. Follow the instructions provided in the existing [README.md](README.md) document to build and deploy the Model Service. Note the port and endpoint details for the Model Service.
 
 ## Step 3: Configure "Continue" config.json File
 
