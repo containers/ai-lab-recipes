@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: audio-to-text
+  name: audio-to-text
+spec:
+  initContainers:
+  - name: model-file
+    image: quay.io/redhat-et/locallm-whisper-ggml-small:latest
+    command: ['/usr/bin/install', "/model/ggml-small.bin", "/shared/"]
+    volumeMounts:
+    - name: model-file
+      mountPath: /shared
+  containers:
+  - env:
+    - name: MODEL_SERVICE_ENDPOINT
+      value: http://0.0.0.0:8001/inference
+    image: quay.io/redhat-et/locallm-audio-to-text:latest
+    name: audio-to-text
+    ports:
+    - containerPort: 8501
+      hostPort: 8501
+    securityContext:
+      runAsNonRoot: true
+  - env:
+    - name: HOST
+      value: 0.0.0.0
+    - name: PORT
+      value: 8001
+    - name: MODEL_PATH
+      value: /model/ggml-small.bin
+    image: quay.io/redhat-et/locallm-whisper-service:latest
+    name: whisper-model-service
+    ports:
+    - containerPort: 8001
+      hostPort: 8001
+    securityContext:
+      runAsNonRoot: true
+    volumeMounts:
+    - name: model-file
+      mountPath: /model
+  volumes:
+  - name: model-file
+    emptyDir: {}
