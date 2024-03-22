@@ -29,7 +29,7 @@ In order to build this application we will need a model, a Model Service and an 
 ### Download a model
 
 If you are just getting started, we recommend using [ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp).
-This is a well performant mid-sized model with an apache-2.0 license.
+This is a well performant model with an MIT license.
 It's simple to download a pre-converted whisper model from [huggingface.co](https://huggingface.co)
 here: https://huggingface.co/ggerganov/whisper.cpp. There are a number of options, but we recommend to start with `ggml-small.bin`. 
 
