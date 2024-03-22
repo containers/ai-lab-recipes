@@ -91,7 +91,6 @@ podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://0.0.0.0:8001/i
 Once the streamlit application is up and running, you should be able to access it at `http://localhost:8501`.
 From here, you can upload audio files from your local machine and translate the audio files as shown below.
 
-Everything should now be up an running with the chat application available at [`http://localhost:8501`](http://localhost:8501).
 By using this recipe and getting this starting point established,
 users should now have an easier time customizing and building their own LLM enabled chatbot applications.   
 
