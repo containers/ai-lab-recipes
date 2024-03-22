@@ -5,10 +5,10 @@
   audio-to-text applications. It consists of two main components; the Model Service and the AI Application.
 
   There are a few options today for local Model Serving, but this recipe will use [`whisper-cpp`](https://github.com/ggerganov/whisper.cpp.git)
-  and their OpenAI compatible Model Service. There is a Containerfile provided that can be used to build this Model Service within the repo,
+  and its included Model Service. There is a Containerfile provided that can be used to build this Model Service within the repo,
   [`model_servers/whispercpp/Containerfile`](/model_servers/whispercpp/Containerfile).
 
-  Our AI Application will connect to our Model Service via it's OpenAI compatible API.
+  Our AI Application will connect to our Model Service via it's API endpoint.
 
 <p align="center">
 <img src="../assets/whisper.png" width="70%">
