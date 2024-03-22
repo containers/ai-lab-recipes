@@ -79,7 +79,7 @@ podman build -t audio-to-text . -f builds/Containerfile
 
 Make sure the Model Service is up and running before starting this container image.
 When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`.
-This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API.
+This could be any appropriately hosted Model Service (running locally or in the cloud) using a compatible API.
 The following podman command can be used to run your AI Application:  
 
 ```bash
