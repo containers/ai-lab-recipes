@@ -30,9 +30,9 @@ Once the Model Service is operational, configure the "Continue" extension. Open 
 
 Now that you've configured the "Continue" extension, let's explore how you can effectively interact with the language model directly within VS Code. Here are several ways to engage with the extension:
 
-1. **Code Autocompletion:** Open the "Continue" panel in VS Code and prompt the extension with a specific task, such as "Write a code to add two numbers." The extension will then provide relevant code autocompletion suggestions based on your input prompt, aiding in code generation and text completion tasks.
+1. **Prompting for code generation:** Open the "Continue" panel in VS Code and prompt the extension with a specific task, such as "Write a code to add two numbers." The extension will then provide relevant code autocompletion suggestions based on your input prompt, aiding in code generation and text completion tasks.
 
-   ![Code Autocompletion](../assets/interaction-vscode1.png)
+   ![Prompt-response](../assets/interaction-vscode1.png)
 
 2. **Querying Working Code:** Copy your existing code snippet or press `⌘ + L` to paste it into the "Continue" panel, then pose a question such as "Explain this section of the code." The extension (LLM) will analyze the code snippet and provide explanations or insights to help you understand it better.
 
@@ -44,3 +44,42 @@ Now that you've configured the "Continue" extension, let's explore how you can e
 
 By exploring these interactions, users can fully leverage the capabilities of language models within VS Code, enhancing their coding experience and productivity.
 
+4. **Tab Autocomplete:**
+
+![autocompletion-config-example](../assets/autocompletion-example.png)
+
+ The "Continue" extension also offers a tab autocomplete feature in its pre-release version. To set up autocomplete with a custom model, you'll need to edit the `config.json` file as shown below:
+
+```
+{
+    "tabAutocompleteModel": {
+        "title": "Tab Autocomplete Model",
+        "provider": "provider name",
+        "model": "model name",
+        "apiBase": "https://<endpoint>"
+    },
+    ...
+}
+```
+
+The tabAutocompleteModel is similar to other objects in the models array of config.json. You have the flexibility to choose any model you prefer, but it's recommended to use a small model for tab autocomplete, such as deepseek-1b, starcoder-1b,  starcoder-3b, or stable-code-3b for optimal performance.
+
+To obtain the endpoint for this model, you can utilize llama-cpp-python, which provides an OpenAI API-compatible server. This web server serves local models and facilitates easy connections with existing clients.
+
+Here's how you can set it up:
+
+```
+pip install llama-cpp-python[server]
+
+# Start the server
+python3 -m llama_cpp.server --model <model_path>
+``` 
+
+With this setup, you'll obtain the server endpoint, which you can include in the config.json. Ensure to set the provider as openai. 
+
+Here is an example of its setup in `config.json` file. Make sure to adjust parameters as per your case. For more reference, please check [here](https://continue.dev/docs/walkthroughs/tab-autocomplete).
+
+![autocompletion-config-example](../assets/autocompletion-config-example.png)
+
+
+_Note: Future updates will illustrate how to interact with VSCode and LLMs without relying on the "Continue" extension for Code Completion._
