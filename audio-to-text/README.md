@@ -92,7 +92,7 @@ Once the streamlit application is up and running, you should be able to access i
 From here, you can upload audio files from your local machine and translate the audio files as shown below.
 
 By using this recipe and getting this starting point established,
-users should now have an easier time customizing and building their own LLM enabled chatbot applications.   
+users should now have an easier time customizing and building their own LLM enabled applications.   
 
 #### Input audio files
 
