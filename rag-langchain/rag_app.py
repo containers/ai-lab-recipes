@@ -18,24 +18,21 @@ import os
 import argparse
 import pathlib
 
-model_service = os.getenv("MODEL_SERVICE_ENDPOINT",
-                          "http://0.0.0.0:8001/v1")
+model_service = os.getenv("MODEL_SERVICE_ENDPOINT","http://0.0.0.0:8001/v1")
+chunk_size = os.getenv("CHUNK_SIZE", 150)
+embedding_model = os.getenv("EMBEDDING_MODEL","BAAI/bge-base-en-v1.5")
+vdb_host = os.getenv("VECTORDB_HOST", "0.0.0.0")
+vdb_port = os.getenv("VECTORDB_PORT", "8000")
+vdb_name = os.getenv("VECTORDB_NAME", "test_collection")
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-c", "--chunk_size", default=150)
-parser.add_argument("-e", "--embedding_model", default="BAAI/bge-base-en-v1.5")
-parser.add_argument("-H", "--vdb_host", default="0.0.0.0")
-parser.add_argument("-p", "--vdb_port", default="8000")
-parser.add_argument("-n", "--name", default="test_collection")
-args = parser.parse_args()
 
-vectorDB_client = HttpClient(host=args.vdb_host,
-                    port=args.vdb_port,
+vectorDB_client = HttpClient(host=vdb_host,
+                    port=vdb_port,
                     settings=Settings(allow_reset=True,))
 
 def clear_vdb():
-    global client
-    client.delete_collection(args.name)
+    global vectorDB_client
+    vectorDB_client.delete_collection(vdb_name)
     print("clearing DB")
 
 def is_text_file(file_path):
@@ -59,16 +56,16 @@ with st.sidebar:
 ### populate the DB ####
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=args.embedding_model)
-e = SentenceTransformerEmbeddings(model_name=args.embedding_model)
+embedding_func = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=embedding_model)
+e = SentenceTransformerEmbeddings(model_name=embedding_model)
 
-collection = vectorDB_client.get_or_create_collection(args.name,
+collection = vectorDB_client.get_or_create_collection(vdb_name,
                                       embedding_function=embedding_func)
 if collection.count() < 1 and data != None:
     print("populating db")
     raw_documents = TextLoader(f'{data}').load()
     text_splitter = CharacterTextSplitter(separator = ".",
-                                          chunk_size=int(args.chunk_size),
+                                          chunk_size=int(chunk_size),
                                           chunk_overlap=0)
     docs = text_splitter.split_documents(raw_documents) 
     for doc in docs:
@@ -91,7 +88,7 @@ for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
 db = Chroma(client=vectorDB_client,
-            collection_name=args.name,
+            collection_name=vdb_name,
             embedding_function=e
     )
 retriever = db.as_retriever(threshold=0.75)
