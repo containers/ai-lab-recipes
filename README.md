@@ -1,11 +1,10 @@
 # Locallm
 
-This repo contains artifacts that can be used to build and run LLM (Large Language Model) services locally on your Mac using podman.
-These containerized LLM services can be used to help developers quickly prototype new LLM based applications, without the need for relying
-on any other externally hosted services. Since they are already containerized, it also helps developers move from their prototype
-to production quicker.
+This repo contains recipes for building and running containerized AI and LLM Applications locally with podman.
 
-## Current Locallm Services: 
+These containerized AI recipes can be used to help developers quickly prototype new AI and LLM based applications, without the need for relying on any other externally hosted services. Since they are already containerized, it also helps developers move quickly from prototype to production.
+
+## Current Recipes: 
 
 * [Model Service](#model-service)
 * [Chatbot](#chatbot)
@@ -25,7 +24,7 @@ A simple chatbot using the [Streamlit UI](https://docs.streamlit.io/). Learn how
 
 ### Text Summarization
 
-An LLM app that can summarize arbitrarily long text inputs with the [streamlit UI](https://docs.streamlit.io/). Learn how to build and run thisapplication here:
+An LLM app that can summarize arbitrarily long text inputs with the [Streamlit UI](https://docs.streamlit.io/). Learn how to build and run thisapplication here:
 [Text Summarization](/summarizer-langchain/).
 
 ### Code generation
@@ -46,13 +45,3 @@ Learn how to build and run this model training job here: [Fine-tuning](/finetune
 
 Images for all sample applications and models are tracked in [locallm-images.md](./locallm-images.md)
 
-## Architecture
-![](/assets/arch.jpg)
-
-The diagram above indicates the general architecture for each of the individual applications contained in this repo.
-The core code available here is the "LLM Task Service" and the "API Server", bundled together under `./playground`.
-With an appropriately chosen model, [./playground/Containerfile] can build an image to run the model-service.
-Model services are intended to be light-weight and run with smaller hardware footprints (hence the `locallm` name),
-but they can be run on any hardware that supports containers and can be scaled up if needed.
-
-Within each sample application folders, there is an inference implementation in the `./builds` folder with a Containerfile for building the image. These examples show how a developer might interact with the model service based on their requirements.
