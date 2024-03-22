@@ -46,7 +46,7 @@ By exploring these interactions, users can fully leverage the capabilities of la
 
 4. **Tab Autocomplete:**
 
-![autocompletion-config-example](../assets/autocompletion-example.png){:height="200px" width="400px"}
+![autocompletion-config-example](../assets/autocompletion-example.png)
 
  The "Continue" extension also offers a tab autocomplete feature in its pre-release version. To set up autocomplete with a custom model, you'll need to edit the `config.json` file as shown below:
 
@@ -79,7 +79,7 @@ With this setup, you'll obtain the server endpoint, which you can include in the
 
 Here is an example of its setup in `config.json` file. Make sure to adjust parameters as per your case. For more reference, please check [here](https://continue.dev/docs/walkthroughs/tab-autocomplete).
 
-![autocompletion-config-example](../assets/autocompletion-config-example.png){:height="100px" width="400px"}
+![autocompletion-config-example](../assets/autocompletion-config-example.png)
 
 
 _Note: Future updates will illustrate how to interact with VSCode and LLMs without relying on the "Continue" extension for Code Completion._
