@@ -1,0 +1,9 @@
+FROM registry.access.redhat.com/ubi9/python-311:1-52
+
+USER root
+
+COPY playground/tests/requirements.txt .
+
+RUN pip3 install -r requirements.txt && \
+    dnf install -y podman buildah && \
+    dnf clean all

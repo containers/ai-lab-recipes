@@ -1,0 +1,4 @@
+pip==24.0
+pytest-container==0.3.0
+pytest-testinfra==10.1.0
+pytest==8.1.1

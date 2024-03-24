@@ -1,0 +1,8 @@
+{
+    "name": "playground",
+    "build": {
+        "dockerfile": "Containerfile",
+        "context": ".."
+    },
+    "privileged": true
+}
