@@ -3,7 +3,11 @@
 From this directory,
 
 ```bash
-podman build -t playground:image .
+podman build -t playground .
+```
+or
+```bash
+make -f Containerfile build
 ```
 
 ### Download Model
@@ -20,6 +24,10 @@ cd ../models
 wget <Download URL>
 cd ../
 ```
+or
+```bash
+make -f Containerfile download
+```
 
 ### Deploy Model Service
 
@@ -34,7 +42,11 @@ podman run --rm -it -d \
         -e MODEL_PATH=models/<model-filename> \
         -e HOST=0.0.0.0 \
         -e PORT=8001 \
-        playground:image`
+        playground`
+```
+or
+```bash
+make -f Containerfile run
 ```
 
 #### Multiple Model Service:
@@ -68,5 +80,14 @@ podman run --rm -it -d \
         -p 8001:8001 \
         -v Local/path/to/locallm/models:/locallm/models:ro,Z \
         -e CONFIG_PATH=models/<config-filename> \
-        playground:image
+        playground
+```
+
+### DEV environment
+
+The environment is implemented with devcontainer technology.
+
+Running tests
+```bash
+make -f Containerfile test
 ```
