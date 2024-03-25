@@ -46,7 +46,7 @@ By exploring these interactions, users can fully leverage the capabilities of la
 
 4. **Tab Autocomplete:**
 
-![autocompletion-config-example](../assets/autocomplete-example.png)
+![autocompletion-config-example](../assets/autocomplete_example.png)
 
 In addition to its core functionalities, the "Continue" extension offers a tab auto complete feature in its pre-release version. This feature enhances the coding experience by providing aut-complete suggestions tailored to your coding context within VS Code. To leverage this functionality with the custom model, follow these steps to configure the `config.json` file:
 
