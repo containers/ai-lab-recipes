@@ -26,7 +26,7 @@ Once the Model Service is operational, configure the "Continue" extension. Open 
 }
 ```
 
-## Step 4: Examples of Interaction
+# Interacting with the "Continue" Extension: Practical Examples
 
 Now that you've configured the "Continue" extension, let's explore how you can effectively interact with the language model directly within VS Code. Here are several ways to engage with the extension:
 
@@ -46,9 +46,11 @@ By exploring these interactions, users can fully leverage the capabilities of la
 
 4. **Tab Autocomplete:**
 
-![autocompletion-config-example](../assets/autocompletion-example.png)
+![autocompletion-config-example](../assets/autocomplete-example.png)
 
- The "Continue" extension also offers a tab autocomplete feature in its pre-release version. To set up autocomplete with a custom model, you'll need to edit the `config.json` file as shown below:
+In addition to its core functionalities, the "Continue" extension offers a tab auto complete feature in its pre-release version. This feature enhances the coding experience by providing aut-complete suggestions tailored to your coding context within VS Code. To leverage this functionality with the custom model, follow these steps to configure the `config.json` file:
+
+**Configure `tabAutoCompleteModel`:** Define the model settings within the `tabAutoCompleteModel` object in the `config.json` file. This includes specifying the title, provider name, model name, and API endpoint. We use the same API endpoint from Step 2.
 
 ```
 {
@@ -62,24 +64,24 @@ By exploring these interactions, users can fully leverage the capabilities of la
 }
 ```
 
-The tabAutocompleteModel is similar to other objects in the models array of config.json. You have the flexibility to choose any model you prefer, but it's recommended to use a small model for tab autocomplete, such as deepseek-1b, starcoder-1b,  starcoder-3b, or stable-code-3b for optimal performance.
-
-To obtain the endpoint for this model, you can utilize llama-cpp-python, which provides an OpenAI API-compatible server. This web server serves local models and facilitates easy connections with existing clients.
-
-Here's how you can set it up:
+**Adjust Configuration Parameters:** Customize the configuration parameters according to your preferences. For example, you can set options such as, `useCopyBuffer`, `useSuffix`, `maxPromptTokens`, `debounceDelay`, `prefixPercentage`, and `multilineCompletion`. 
 
 ```
-pip install llama-cpp-python[server]
+  "tabAutocompleteOptions": {
+    "useCopyBuffer": false,
+    "useSuffix": false,
+    "maxPromptTokens": 100,
+    "debounceDelay": 4000,
+    "prefixPercentage": 0.5,
+    "multilineCompletions": "never"
+  }
+```
+Here's why we chose these parameter values:
 
-# Start the server
-python3 -m llama_cpp.server --model <model_path>
-``` 
+- We set maxPromptTokens to 100 to prioritize processing speed.
 
-With this setup, you'll obtain the server endpoint, which you can include in the config.json. Ensure to set the provider as openai. 
+- The debounceDelay is adjusted to 4000 milliseconds to introduce a delay between consecutive requests. This delay helps prevent frequent crashes of the model caused by excessive requests in a short period, especially considering that the feature is still in its pre-release stage and actively being developed.
 
-Here is an example of its setup in `config.json` file. Make sure to adjust parameters as per your case. For more reference, please check [here](https://continue.dev/docs/walkthroughs/tab-autocomplete).
+With these configurations in place, you'll be able to interact with the models for tab autocomplete effectively within VS Code. Make any necessary adjustments to the parameter values based on your system's capabilities.
 
-![autocompletion-config-example](../assets/autocompletion-config-example.png)
-
-
-_Note: Future updates will illustrate how to interact with VSCode and LLMs without relying on the "Continue" extension for Code Completion._
+By integrating tab autocomplete into your coding workflow, you can streamline code completion tasks and enhance productivity while working within VS Code.
