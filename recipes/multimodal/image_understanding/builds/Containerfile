@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-39:latest
+FROM registry.access.redhat.com/ubi9/python-311:1-52
 WORKDIR /image_understanding
 COPY builds/requirements.txt .
 RUN pip install --upgrade pip && \
