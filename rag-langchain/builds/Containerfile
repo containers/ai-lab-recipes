@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-39:latest
+FROM registry.access.redhat.com/ubi9/python-311:latest
 ### Update sqlite for chroma
 USER root
 RUN dnf remove sqlite3 -y
