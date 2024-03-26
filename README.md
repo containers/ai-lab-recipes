@@ -24,7 +24,7 @@ A simple chatbot using the [Streamlit UI](https://docs.streamlit.io/). Learn how
 
 ### Text Summarization
 
-An LLM app that can summarize arbitrarily long text inputs with the [Streamlit UI](https://docs.streamlit.io/). Learn how to build and run thisapplication here:
+An LLM app that can summarize arbitrarily long text inputs with the [Streamlit UI](https://docs.streamlit.io/). Learn how to build and run this application here:
 [Text Summarization](/summarizer-langchain/).
 
 ### Code generation
