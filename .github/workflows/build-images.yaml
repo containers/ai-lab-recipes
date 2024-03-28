@@ -34,7 +34,7 @@ jobs:
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            playground/**
+            model_servers/llamacpp_python/base/**
 
       - name: Get changed rag files
         id: changed-files-rag
@@ -96,8 +96,8 @@ jobs:
           image: ${{ env.MODEL_SERVICE_IMAGE }} 
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64 
-          context: playground
-          containerfiles: ./playground/Containerfile
+          context: model_servers/llamacpp_python/base
+          containerfiles: ./model_servers/llamacpp_python/base/Containerfile
       
       - name: Push model-service image
         id: push_model_service

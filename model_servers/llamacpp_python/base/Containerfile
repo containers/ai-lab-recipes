@@ -1,7 +1,8 @@
-FROM registry.access.redhat.com/ubi9/python-39:latest
+FROM registry.access.redhat.com/ubi9/python-311:1-52
 WORKDIR /locallm
 COPY src .
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
+COPY requirements.txt /locallm/requirements.txt
+RUN pip install --no-cache-dir --verbose -r /locallm/requirements.txt
+COPY run.sh run.sh
 EXPOSE 8001
 ENTRYPOINT [ "sh", "run.sh" ]
