@@ -5,7 +5,7 @@ application:
   description: This is a Streamlit transcription application. 
   containers:
     - name: whispercpp-server
-      contextdir: ../model_servers/whispercpp
+      contextdir: ../../../model_servers/whispercpp
       containerfile: Containerfile
       model-service: true
       backend: 

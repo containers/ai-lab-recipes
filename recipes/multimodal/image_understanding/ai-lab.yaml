@@ -4,7 +4,7 @@ application:
   description: This demo uses a Multimodal model to analyze the content of images.  
   containers:
     - name: llamacpp-server
-      contextdir: ../model_servers/llamacpp_python
+      contextdir: ../../../model_servers/llamacpp_python
       containerfile: ./base/Containerfile
       model-service: true
       backend: 
