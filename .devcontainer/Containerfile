@@ -2,7 +2,7 @@ FROM quay.io/containers/podman:v4.9.3
 
 USER root
 
-COPY playground/tests/requirements.txt .
+COPY model_servers/llamacpp_python/base/tests/requirements.txt .
 
 RUN dnf install -y python3.11 python3-pip buildah git && \
     dnf clean all && \

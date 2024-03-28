@@ -38,11 +38,11 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: latest
-          containerfiles: ./playground/Containerfile
-          context: playground
+          containerfiles: ./model_servers/llamacpp_python/base/Containerfile
+          context: model_servers/llamacpp_python/base
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
 
       - name: Run tests
-        run: make -f playground/Makefile test
+        run: make -f model_servers/llamacpp_python/base/Makefile test
