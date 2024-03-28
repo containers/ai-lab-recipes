@@ -1,0 +1,12 @@
+{
+    "name": "recipes",
+    "build": {
+        "dockerfile": "Containerfile",
+        "context": ".."
+    },
+    "privileged": true,
+    "containerEnv": {
+        "REGISTRY": "ghcr.io",
+        "IMAGE_NAME": "ai-lab-recipes/playground"
+    }
+}

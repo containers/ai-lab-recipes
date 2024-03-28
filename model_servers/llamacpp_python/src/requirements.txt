@@ -1,1 +1,2 @@
-llama-cpp-python[server]
+llama-cpp-python[server]==0.2.57
+pip==24.0

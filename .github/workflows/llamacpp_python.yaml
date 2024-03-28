@@ -1,0 +1,48 @@
+name: llamacpp_python
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/playground
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    services:
+      registry:
+        image: registry:2.8.3
+        ports:
+          - 5000:5000
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Login to ghcr
+        uses: docker/login-action@v3.1.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Buildah Action
+        uses: redhat-actions/buildah-build@v2.13
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: latest
+          containerfiles: ./model_servers/llamacpp_python/base/Containerfile
+          context: model_servers/llamacpp_python/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.0.0
+
+      - name: Run tests
+        run: make -f model_servers/llamacpp_python/base/Makefile test
