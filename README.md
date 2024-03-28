@@ -19,7 +19,7 @@ However, each sample application can be paired with a variety of model servers.
 
 Learn how to build and run the llamacpp_python model server by following the [llamacpp_python model server README.](/model_servers/llamacpp_python/README.md).
 
-## Current Recipes: 
+## Current Recipes 
 
 There are several sample applications in this repository. They live in the [recipes](./recipes) folder. 
 They fall under the categories:
@@ -35,7 +35,6 @@ Many sample applications utilize the [Streamlit UI](https://docs.streamlit.io/).
 
 Learn how to build and run each application by visiting each of the categories above. For example
 the [chatbot recipe](./recipes/natural_language_processing/chatbot).
-
 
 ## Current Locallm Images built from this repository
 
