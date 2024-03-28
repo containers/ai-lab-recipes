@@ -7,7 +7,7 @@ podman build -t playground .
 ```
 or
 ```bash
-make -f Containerfile build
+make -f Makefile build
 ```
 
 ### Download Model
@@ -26,7 +26,7 @@ cd ../
 ```
 or
 ```bash
-make -f Containerfile download
+make -f Makefile models/llama-2-7b-chat.Q5_K_S.gguf
 ```
 
 ### Deploy Model Service
@@ -46,7 +46,7 @@ podman run --rm -it -d \
 ```
 or
 ```bash
-make -f Containerfile run
+make -f Makefile run
 ```
 
 #### Multiple Model Service:
@@ -89,5 +89,5 @@ The environment is implemented with devcontainer technology.
 
 Running tests
 ```bash
-make -f Containerfile test
+make -f Makefile test
 ```
