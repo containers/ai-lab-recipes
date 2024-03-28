@@ -1,10 +1,10 @@
 .PHONY: build
 build:
-	podman build -f chatbot/Containerfile -t ghcr.io/ai-lab-recipes/chatbot .
+	podman build -t ghcr.io/ai-lab-recipes/chatbot .
 
 .PHONY: install
 install:
-	pip install -r requirements-test.txt
+	pip install -r tests/requirements-test.txt
 
 .PHONY: run
 run: 
@@ -12,4 +12,4 @@ run:
 
 .PHONY: test
 test:
-	pytest --collect-only chatbot/tests --log-cli-level NOTSET
+	pytest --collect-only tests --log-cli-level NOTSET

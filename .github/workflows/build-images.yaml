@@ -41,35 +41,35 @@ jobs:
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            rag-langchain/**
+            recipes/natural_language_processing/rag/**
 
       - name: Get changed summarizer files
         id: changed-files-summarizer
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            summarizer-langchain/**
+            recipes/natural_language_processing/summarizer/**
 
       - name: Get changed code-generation files
         id: changed-files-codegen
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            code-generation/**
+            recipes/natural_language_processing/code-generation/**
 
       - name: Get changed chatbot files
         id: changed-files-chatbot
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            chatbot-langchain/**
+            recipes/natural_language_processing/chatbot/**
 
       - name: Get changed chromadb files
         id: changed-files-chromadb
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            rag-langchain/builds/chromadb/**
+            vector_dbs/chromadb/**
 
       - name: Install qemu dependency
         if: steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true'
@@ -119,9 +119,9 @@ jobs:
           image: ${{ env.CHATBOT_IMAGE }} 
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64 
-          context: chatbot-langchain
+          context: recipes/natural_language_processing/chatbot
           containerfiles: |
-            ./chatbot-langchain/builds/Containerfile
+            recipes/natural_language_processing/chatbot/builds/Containerfile
       
       - name: Push chatbot image
         id: push_chatbot
@@ -143,9 +143,9 @@ jobs:
           image: ${{ env.CODEGEN_IMAGE }}
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64
-          context: code-generation
+          context: recipes/natural_language_processing/code-generation
           containerfiles: |
-            ./code-generation/builds/Containerfile
+            ./recipes/natural_language_processing/code-generation/builds/Containerfile
 
       - name: Push code-generation image
         id: push_codegen
@@ -167,9 +167,9 @@ jobs:
           image: ${{ env.SUMMARIZER_IMAGE }} 
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64 
-          context: summarizer-langchain
+          context: recipes/natural_language_processing/summarizer
           containerfiles: |
-            ./summarizer-langchain/builds/Containerfile
+            ./recipes/natural_language_processing/summarizer/builds/Containerfile
       
       - name: Push summarizer image
         id: push_summarizer
@@ -192,9 +192,9 @@ jobs:
           tags: latest ${{ github.sha }}
           # TODO: add amd64
           platforms: linux/arm64 
-          context: rag-langchain
+          context: recipes/natural_language_processing/rag
           containerfiles: |
-            ./rag-langchain/builds/Containerfile
+            ./recipes/natural_language_processing/rag/builds/Containerfile
 
       - name: Push rag image
         id: push_rag
@@ -217,9 +217,9 @@ jobs:
           tags: latest ${{ github.sha }}
           # TODO: add amd64
           platforms: linux/arm64, linux/amd64
-          context: rag-langchain/builds/chromadb
+          context: vector_dbs/chromadb
           containerfiles: |
-            ./rag-langchain/builds/chromadb/Containerfile
+            ./vector_dbs/chromadb/Containerfile
 
       - name: Push chromadb image
         id: push_chromadb

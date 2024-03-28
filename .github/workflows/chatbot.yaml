@@ -38,14 +38,16 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: latest
-          containerfiles: ./chatbot/builds/Containerfile
-          context: chatbot
+          containerfiles: ./recipes/natural_language_processing/chatbot/builds/Containerfile
+          context: recipes/natural_language_processing/chatbot
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
 
       - name: Install python dependencies
-        run: make -f chatbot/Makefile install
+        working-directory: ./recipes/natural_language_processing/chatbot
+        run: make  install
 
       - name: Run tests
-        run: make -f chatbot/Makefile test
+        working-directory: ./recipes/natural_language_processing/chatbot
+        run: make test

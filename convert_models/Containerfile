@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-39:1-158
+FROM registry.access.redhat.com/ubi9/python-311:1-52
 WORKDIR /converter
 RUN git clone https://github.com/ggerganov/llama.cpp.git
 RUN cd llama.cpp/ && make
