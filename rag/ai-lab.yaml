@@ -17,7 +17,7 @@ application:
         - 8001
       image: quay.io/redhat-et/locallm-model-service:latest
     - name: chromadb-server
-      contextdir: builds/chromadb
+      contextdir: ../vector_dbs/chromadb
       containerfile: Containerfile
       vectordb: true
       arch:
