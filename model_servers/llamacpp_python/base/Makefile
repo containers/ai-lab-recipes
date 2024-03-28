@@ -7,7 +7,7 @@ models/llama-2-7b-chat.Q5_K_S.gguf:
 
 .PHONY: install
 install:
-	pip install -r model_servers/llamacpp_python/base/tests/requirements.txt
+	pip install -r requirements-test.txt
 
 .PHONY: run
 run: models/llama-2-7b-chat.Q5_K_S.gguf install
