@@ -96,7 +96,7 @@ jobs:
           image: ${{ env.MODEL_SERVICE_IMAGE }} 
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64 
-          context: model_servers/llamacpp_python/base
+          context: model_servers/llamacpp_python
           containerfiles: ./model_servers/llamacpp_python/base/Containerfile
       
       - name: Push model-service image

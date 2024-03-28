@@ -1,4 +1,4 @@
-name: playground
+name: llamacpp_python
 
 on:
   pull_request:
@@ -39,7 +39,7 @@ jobs:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: latest
           containerfiles: ./model_servers/llamacpp_python/base/Containerfile
-          context: model_servers/llamacpp_python/base
+          context: model_servers/llamacpp_python/
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0

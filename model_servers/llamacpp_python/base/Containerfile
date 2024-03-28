@@ -1,8 +1,6 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-52
 WORKDIR /locallm
 COPY src .
-COPY requirements.txt /locallm/requirements.txt
-RUN pip install --no-cache-dir --verbose -r /locallm/requirements.txt
-COPY run.sh run.sh
+RUN pip install --no-cache-dir --verbose -r ./requirements.txt
 EXPOSE 8001
-ENTRYPOINT [ "sh", "run.sh" ]
+ENTRYPOINT [ "sh", "./run.sh" ]
