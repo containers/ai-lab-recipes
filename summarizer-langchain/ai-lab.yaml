@@ -5,8 +5,8 @@ application:
   description: This is a Streamlit demo application for summarizing text. 
   containers:
     - name: llamacpp-server
-      contextdir: ../playground
-      containerfile: Containerfile
+      contextdir: ../model_servers/llamacpp_python
+      containerfile: ./base/Containerfile
       model-service: true
       backend: 
         - llama
