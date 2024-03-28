@@ -16,7 +16,7 @@ These containerized AI recipes can be used to help developers quickly prototype 
 ### Model service
 
 A model service that can be used for various applications with various models is included in this repository.
-Learn how to build and run the model service here: [Playground model service](/playground/).
+Learn how to build and run the model service here: [Llamacpp_python model service](/model_servers/llamacpp_python/README.md).
 
 ### Chatbot
 

@@ -5,7 +5,8 @@ This recipe provides an example for running an object detection model service an
 ## Build and run the model service
 
 ```bash
-podman build -t object_detection_service object_detection/model_server 
+cd object_detection/model_server
+podman build -t object_detection_service .
 ```
 
 ```bash
@@ -40,7 +41,8 @@ When using a model other than the default, you will need to set the `MODEL_PATH`
 ## Build and run the client application
 
 ```bash
-podman build -t object_detection_client object_detection/client 
+cd object_detection/client
+podman build -t object_detection_client .
 ```
 
 ```bash

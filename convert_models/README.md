@@ -13,7 +13,8 @@ To avoid these concerns and provide users with the maximum freedom of choice for
 ## Build the Container Image
 
 ```bash
-podman build -t converter convert_models/
+cd convert_models
+podman build -t converter .
 ```
 
 ## Quantize and Convert 
@@ -34,7 +35,7 @@ streamlit run convert_models/ui.py
 
 This process writes the models into a podman volume under a `gguf/` directory and not directly back to the user's host machine (This could be changed in an upcoming update if it is required).
 
-If a user wants to access these models to use with the playground, they would simply point their playground volume mount to the podman volume created here. For example:
+If a user wants to access these models to use with the llamacpp model-service, they would simply point their model-service volume mount to the podman volume created here. For example:
 
 ```
 podman run -it -p 8001:8001 -v models:/locallm/models:Z -e MODEL_PATH=models/gguf/<MODEL_NAME> -e HOST=0.0.0.0 -e PORT=8001 llamacppserver

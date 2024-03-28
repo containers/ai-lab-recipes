@@ -1,13 +1,16 @@
 ### Build Model Service
 
-From this directory,
 
 ```bash
-podman build -t playground .
+cd model_servers/llamacpp_python
+podman build -t playground -f base/Containerfile .
 ```
+
 or
+
 ```bash
-make -f Makefile build
+cd model_servers/llamacpp_python
+make -f base/Makefile build
 ```
 
 ### Download Model
