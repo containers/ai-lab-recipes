@@ -1,4 +1,4 @@
-name: chatbot
+name: model_servers
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/chatbot
+  IMAGE_NAME: ${{ github.repository_owner }}/model_servers
 
 jobs:
   build-and-push-image:
@@ -38,16 +38,20 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: latest
-          containerfiles: ./recipes/natural_language_processing/chatbot/builds/Containerfile
-          context: recipes/natural_language_processing/chatbot
+          containerfiles: ./model_servers/llamacpp_python/base/Containerfile
+          context: model_servers/llamacpp_python/
+
+      - name: Download model
+        working-directory: ./model_servers/llamacpp_python/
+        run: make models/llama-2-7b-chat.Q5_K_S.gguf
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
 
       - name: Install python dependencies
-        working-directory: ./recipes/natural_language_processing/chatbot
+        working-directory: ./model_servers/llamacpp_python/
         run: make install
 
       - name: Run tests
-        working-directory: ./recipes/natural_language_processing/chatbot
+        working-directory: ./model_servers/llamacpp_python/
         run: make test

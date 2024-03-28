@@ -10,9 +10,9 @@ install:
 	pip install -r tests/requirements-test.txt
 
 .PHONY: run
-run: models/llama-2-7b-chat.Q5_K_S.gguf install
+run:
 	podman run -it -d -p 8001:8001 -v ./models:/locallm/models:ro,Z -e MODEL_PATH=models/llama-2-7b-chat.Q5_K_S.gguf -e HOST=0.0.0.0 -e PORT=8001 --net=host ghcr.io/redhat-et/model_servers
 
 .PHONY: test
-test: models/llama-2-7b-chat.Q5_K_S.gguf install
-	pytest --log-cli-level NOTSET
+test:
+	pytest --collect-only tests --log-cli-level NOTSET
