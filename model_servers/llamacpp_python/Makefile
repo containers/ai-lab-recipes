@@ -2,7 +2,7 @@
 build:
 	podman build -t ghcr.io/ai-lab-recipes/model_servers .
 
-models/llama-2-7b-chat.Q5_K_S.gguf:
+llama-2-7b-chat.Q5_K_S.gguf:
 	curl -s -S -L -f https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q5_K_S.gguf -z $@ -o $@.tmp && mv -f $@.tmp $@ 2>/dev/null || rm -f $@.tmp $@
 
 .PHONY: install
@@ -15,4 +15,4 @@ run:
 
 .PHONY: test
 test:
-	pytest --collect-only tests --log-cli-level NOTSET
+	pytest --log-cli-level NOTSET

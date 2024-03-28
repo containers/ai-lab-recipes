@@ -12,4 +12,4 @@ run:
 
 .PHONY: test
 test:
-	pytest --collect-only tests --log-cli-level NOTSET
+	pytest --log-cli-level NOTSET
