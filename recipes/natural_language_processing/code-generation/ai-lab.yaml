@@ -1,11 +1,11 @@
 version: v1.0
 application:
   type: language
-  name: ChatBot_Streamlit
-  description: This is a Streamlit chat demo application. 
+  name: codegen-demo
+  description: This is a code-generation demo application. 
   containers:
     - name: llamacpp-server
-      contextdir: ../model_servers/llamacpp_python
+      contextdir: ../../../model_servers/llamacpp_python
       containerfile: ./base/Containerfile
       model-service: true
       backend: 
@@ -16,7 +16,7 @@ application:
       ports:
         - 8001
       image: quay.io/redhat-et/locallm-model-service:latest
-    - name: streamlit-chat-app
+    - name: codegen-app
       contextdir: .
       containerfile: builds/Containerfile
       arch:
@@ -24,4 +24,4 @@ application:
         - amd64
       ports:
         - 8501
-      image: quay.io/redhat-et/locallm-chatbot:latest
+      image: quay.io/redhat-et/locallm-codegen:latest

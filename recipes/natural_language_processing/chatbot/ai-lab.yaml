@@ -1,11 +1,11 @@
 version: v1.0
 application:
   type: language
-  name: rag-demo
-  description: This is a RAG demo application. 
+  name: ChatBot_Streamlit
+  description: This is a Streamlit chat demo application. 
   containers:
     - name: llamacpp-server
-      contextdir: ../model_servers/llamacpp_python
+      contextdir: ../../../model_servers/llamacpp_python
       containerfile: ./base/Containerfile
       model-service: true
       backend: 
@@ -16,17 +16,7 @@ application:
       ports:
         - 8001
       image: quay.io/redhat-et/locallm-model-service:latest
-    - name: chromadb-server
-      contextdir: ../vector_dbs/chromadb
-      containerfile: Containerfile
-      vectordb: true
-      arch:
-        - arm64
-        - amd64
-      ports:
-        - 8000
-      image: quay.io/redhat-et/locallm-chromadb:latest
-    - name: rag-inference-app
+    - name: streamlit-chat-app
       contextdir: .
       containerfile: builds/Containerfile
       arch:
@@ -34,4 +24,4 @@ application:
         - amd64
       ports:
         - 8501
-      image: quay.io/redhat-et/locallm-rag:latest
+      image: quay.io/redhat-et/locallm-chatbot:latest
