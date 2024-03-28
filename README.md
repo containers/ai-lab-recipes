@@ -1,47 +1,44 @@
-# Locallm
+# AI Lab Recipes
 
 This repo contains recipes for building and running containerized AI and LLM Applications locally with podman.
 
-These containerized AI recipes can be used to help developers quickly prototype new AI and LLM based applications, without the need for relying on any other externally hosted services. Since they are already containerized, it also helps developers move quickly from prototype to production.
+These containerized AI recipes can be used to help developers quickly prototype new AI and LLM based applications, without the need for relying
+on any other externally hosted services. Since they are already containerized, it also helps developers move quickly from prototype to production.
+
+## Model services
+
+[model servers examples](./model_servers)
+
+#### What's a model server?
+
+A model server is a program that serves machine-learning models or LLMs and makes their functions available via API so that
+applications can incorporate AI. This repository provides descriptions and files for building  several model servers.
+
+Many of the sample applications rely on the `llamacpp_python` model server by default. This server can be used for various applications with various models.
+However, each sample application can be paired with a variety of model servers.
+
+Learn how to build and run the llamacpp_python model server by following the [llamacpp_python model server README.](/model_servers/llamacpp_python/README.md).
 
 ## Current Recipes: 
 
-* [Model Service](#model-service)
-* [Chatbot](#chatbot)
-* [Text Summarization](#text-summarization)
-* [Code Generation](#code-generation)
-* [RAG](#rag-application) (Retrieval Augmented Generation)
-* [Fine-tuning](#fine-tuning)
+There are several sample applications in this repository. They live in the [recipes](./recipes) folder. 
+They fall under the categories:
 
-### Model service
+* [audio](./recipes/audio)
+* [computer-vision](./recipes/computer_vision)
+* [multimodal](./recipes/multimodal)
+* [natural language processing](./recipes/natural_language_processing)
 
-A model service that can be used for various applications with various models is included in this repository.
-Learn how to build and run the model service here: [Llamacpp_python model service](/model_servers/llamacpp_python/README.md).
 
-### Chatbot
+Most of the sample applications follow a similar pattern that includes a model-server and an inference application.
+Many sample applications utilize the [Streamlit UI](https://docs.streamlit.io/).
 
-A simple chatbot using the [Streamlit UI](https://docs.streamlit.io/). Learn how to build and run this application here: [Chatbot](/chatbot-langchain/).
+Learn how to build and run each application by visiting each of the categories above. For example
+the [chatbot recipe](./recipes/natural_language_processing/chatbot).
 
-### Text Summarization
-
-An LLM app that can summarize arbitrarily long text inputs with the [Streamlit UI](https://docs.streamlit.io/). Learn how to build and run this application here:
-[Text Summarization](/summarizer-langchain/).
-
-### Code generation
-
-A simple chatbot using the [Streamlit UI](https://docs.streamlit.io/). Learn how to build and run this application here: [Code Generation](/code-generation/).
-
-### RAG
-
-A chatbot using the [Streamlit UI](https://docs.streamlit.io/) and Retrieval Augmented Generation. Learn how to build and run this application here: [RAG](/rag-langchain/).
-
-### Fine Tuning 
-
-This application allows a user to select a model and a data set they'd like to fine-tune that model on.
-Once the application finishes, it outputs a new fine-tuned model for the user to apply to other LLM services.
-Learn how to build and run this model training job here: [Fine-tuning](/finetune/).
 
 ## Current Locallm Images built from this repository
 
-Images for all sample applications and models are tracked in [locallm-images.md](./locallm-images.md)
+Images for many sample applications and models are available in `quay.io`. All currently built images are  tracked in
+[ai-lab-recipes-images.md](./ai-lab-recipes-images.md)
 
