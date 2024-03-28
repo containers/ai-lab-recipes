@@ -2,24 +2,15 @@ import pytest_container
 import os
 
 
-MS = pytest_container.Container(
+CB = pytest_container.Container(
         url=f"containers-storage:{os.environ['REGISTRY']}/{os.environ['IMAGE_NAME']}",
-        volume_mounts=[
-            pytest_container.container.BindMount(
-                container_path="/locallm/models",
-                host_path="./",
-                flags=["ro"]
-            )
-        ],
         extra_environment_variables={
-            "MODEL_PATH": "models/llama-2-7b-chat.Q5_K_S.gguf",
-            "HOST": "0.0.0.0",
-            "PORT": "8001"
+            "MODEL_SERVICE_ENDPOINT": "http://10.88.0.1:8001/v1"
         },
         forwarded_ports=[
             pytest_container.PortForwarding(
-                container_port=8001,
-                host_port=8001
+                container_port=8501,
+                host_port=8501
             )
         ],
         extra_launch_args=["--net=host"]
