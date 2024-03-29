@@ -49,7 +49,7 @@ jobs:
 
       - name: Download model
         working-directory: ./model_servers/llamacpp_python/
-        run: make llama-2-7b-chat.Q5_K_S.gguf
+        run: make mistral-7b-instruct-v0.1.Q4_K_M.gguf
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0

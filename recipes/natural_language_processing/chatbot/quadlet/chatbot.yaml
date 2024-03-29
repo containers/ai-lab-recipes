@@ -8,7 +8,7 @@ spec:
   initContainers:
   - name: model-file
     image: quay.io/ai-lab/mistral-7b-instruct:latest
-    command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_S.gguf", "/shared/"]
+    command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_M.gguf", "/shared/"]
     volumeMounts:
     - name: model-file
       mountPath: /shared
@@ -29,7 +29,7 @@ spec:
     - name: PORT
       value: 8001
     - name: MODEL_PATH
-      value: /model/mistral-7b-instruct-v0.1.Q4_K_S.gguf
+      value: /model/mistral-7b-instruct-v0.1.Q4_K_M.gguf
     image: quay.io/ai-lab/llamacpp-python:latest
     name: chatbot-model-service
     ports:

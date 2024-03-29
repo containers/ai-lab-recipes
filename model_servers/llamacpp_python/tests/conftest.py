@@ -12,7 +12,7 @@ MS = pytest_container.Container(
             )
         ],
         extra_environment_variables={
-            "MODEL_PATH": "models/llama-2-7b-chat.Q5_K_S.gguf",
+            "MODEL_PATH": "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf",
             "HOST": "0.0.0.0",
             "PORT": "8001"
         },
