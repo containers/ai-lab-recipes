@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	podman build -t ghcr.io/ai-lab-recipes/chatbot .
+	podman build -f builds/Containerfile -t ghcr.io/ai-lab-recipes/chatbot .
 
 .PHONY: install
 install:
