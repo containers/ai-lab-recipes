@@ -1,6 +1,11 @@
+SSHPUBKEY := $(shell cat ${HOME}/.ssh/id_rsa.pub;)
 .PHONY: build
 build:
 	podman build -f builds/Containerfile -t ghcr.io/ai-lab-recipes/chatbot .
+
+.PHONY: bootc
+bootc:
+	podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" --build-arg MODEL-IMAGE=${MODEL-IMAGE} -f bootc/Containerfile -t ghcr.io/ai-lab-recipes/chatbot-bootc .
 
 .PHONY: install
 install:

@@ -7,7 +7,7 @@ metadata:
 spec:
   initContainers:
   - name: model-file
-    image: quay.io/redhat-et/locallm-mistral-7b-gguf:latest
+    image: quay.io/ai-lab/mistral-7b-instruct:latest
     command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_S.gguf", "/shared/"]
     volumeMounts:
     - name: model-file
@@ -16,7 +16,7 @@ spec:
   - env:
     - name: MODEL_SERVICE_ENDPOINT
       value: http://0.0.0.0:8001/v1
-    image: quay.io/redhat-et/locallm-chatbot:latest
+    image: quay.io/ai-lab/chatbot:latest
     name: chatbot-inference
     ports:
     - containerPort: 8501
@@ -30,7 +30,7 @@ spec:
       value: 8001
     - name: MODEL_PATH
       value: /model/mistral-7b-instruct-v0.1.Q4_K_S.gguf
-    image: quay.io/redhat-et/locallm-model-service:latest
+    image: quay.io/ai-lab/llamacpp-python:latest
     name: chatbot-model-service
     ports:
     - containerPort: 8001

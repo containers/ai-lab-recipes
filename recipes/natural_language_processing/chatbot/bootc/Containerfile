@@ -8,7 +8,6 @@
 
 FROM quay.io/centos-bootc/centos-bootc:stream9
 ARG SSHPUBKEY
-ARG MODEL-SERVER-IMAGE=quay.io/redhat-et/locallm-model-service:latest
 
 RUN mkdir /usr/etc-system && \
     echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
@@ -17,14 +16,17 @@ RUN mkdir /usr/etc-system && \
 RUN dnf -y update && (dnf install -y vim || true) && dnf clean all
 
 # Add quadlet files to setup system to automatically run AI application on boot
-COPY ../quadlet/chatbot.kube /usr/share/containers/systemd/chatbot.kube
-COPY ../quadlet/chatbot.yaml /usr/share/containers/systemd/chatbot.yaml
-COPY ../quadlet/chatbot.image /usr/share/containers/systemd/chatbot.image
+COPY quadlet/chatbot.kube quadlet/chatbot.yaml quadlet/chatbot.image /usr/share/containers/systemd
 
 # pre-pull workload images:
 # Comment the pull commands to keep bootc image smaller.
 # The quadlet .image file added above pulls following images on boot if not
 # pre-pulled here
-RUN podman pull quay.io/redhat-et/ai-model:latest
-RUN podman pull ${MODEL-SERVER-IMAGE}
-RUN podman pull quay.io/redhat-et/chatbot:latest
+
+ARG MODELIMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
+ARG APPIMAGE=quay.io/ai-lab/chatbot:latest
+ARG SERVERIMAGE=quay.io/ai-lab/llamacpp-python:latest
+
+RUN podman pull --root /usr/lib/containers/storage ${SERVERIMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${APPIMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${MODELIMAGE}
