@@ -1,5 +1,5 @@
 [Unit]
-Description=Python script to run against downloaded LLM
+Description=Kubernetes YAML file used to do chatbot inferencing
 Documentation=man:podman-generate-systemd(1)
 Wants=network-online.target
 After=network-online.target

@@ -6,4 +6,4 @@
 FROM registry.access.redhat.com/ubi9/ubi-micro:9.3-13
 ARG MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
 WORKDIR /model
-ADD $MODEL_URL .
+ADD $MODEL_URL /model/model.file
