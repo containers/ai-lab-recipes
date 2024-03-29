@@ -15,9 +15,6 @@ RUN mkdir /usr/etc-system && \
 
 RUN dnf -y update && (dnf install -y vim || true) && dnf clean all
 
-# Add quadlet files to setup system to automatically run AI application on boot
-COPY quadlet/chatbot.kube quadlet/chatbot.yaml quadlet/chatbot.image /usr/share/containers/systemd
-
 # pre-pull workload images:
 # Comment the pull commands to keep bootc image smaller.
 # The quadlet .image file added above pulls following images on boot if not
@@ -26,6 +23,17 @@ COPY quadlet/chatbot.kube quadlet/chatbot.yaml quadlet/chatbot.image /usr/share/
 ARG MODELIMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
 ARG APPIMAGE=quay.io/ai-lab/chatbot:latest
 ARG SERVERIMAGE=quay.io/ai-lab/llamacpp-python:latest
+
+# Add quadlet files to setup system to automatically run AI application on boot
+COPY quadlet/chatbot.kube quadlet/chatbot.yaml quadlet/chatbot.image /usr/share/containers/systemd
+
+# Modify quadlet files to match the server, model and app image
+RUN sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
+    -e "s|APPIMAGE|${APPIMAGE}|g" \
+    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
+    -i \
+    /usr/share/containers/systemd/chatbot.image \
+    /usr/share/containers/systemd/chatbot.yaml
 
 RUN podman pull --root /usr/lib/containers/storage ${SERVERIMAGE}
 RUN podman pull --root /usr/lib/containers/storage ${APPIMAGE}
