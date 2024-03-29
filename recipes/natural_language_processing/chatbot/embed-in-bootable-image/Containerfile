@@ -1,0 +1,27 @@
+# In this example, an AI powered sample application will be embedded as a systemd service
+# by placing podman quadlet files in /usr/share/containers/systemd
+
+FROM quay.io/centos-bootc/centos-bootc:stream9
+# Build like this:
+# podman build --build-arg "sshpubkey=$(cat ~/.ssh/mykey.pub)" -t quay.io/exampleos/example-image .
+#Substitute YOUR public key for the below-private key holder for the following public key will have root access
+ARG sshpubkey
+ARG model-server-image=quay.io/redhat-et/locallm-model-service:latest
+
+RUN mkdir /usr/etc-system && \
+    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo $sshpubkey > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
+
+RUN dnf install -y vim && dnf clean all
+
+# Code-generation application
+COPY quadlet/chatbot.kube.example /usr/share/containers/systemd/chatbot.kube
+COPY quadlet/chatbot.yaml /usr/share/containers/systemd/chatbot.yaml
+COPY quadlet/chatbot.image /usr/share/containers/systemd/chatbot.image
+
+# pre-load workload images
+# Comment the pull commands to keep bootc image smaller.
+# With above quadlet .image file, these will be pulled on boot if not pre-loaded here
+RUN podman pull quay.io/redhat-et/locallm-mistral-7b-gguf:latest
+RUN podman pull quay.io/redhat-et/locallm-chatbot:latest
+RUN podman pull $model-server-image
