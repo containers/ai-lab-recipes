@@ -1,0 +1,7 @@
+[Install]
+WantedBy=rag.service
+
+[Image]
+Image=APPIMAGE
+Image=MODELIMAGE
+Image=SERVERIMAGE

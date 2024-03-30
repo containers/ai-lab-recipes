@@ -4,7 +4,7 @@
 
 * [Containerfile](./Containerfile) - embeds an LLM-powered sample chat application.
 
-Details on the application can be found [in the chatbot/README.md](../README.md). By default, this Containerfile includes a model-server
+Details on the application can be found [in the rag/README.md](../README.md). By default, this Containerfile includes a model-server
 that is meant to run with CPU - no additional GPU drivers or toolkits are embedded. You can substitute the llamacpp_python model-server image
 for one that has GPU drivers and toolkits with additional build-args. The `FROM` must be replaced with a base image that has the necessary
 kernel drivers and toolkits if building for GPU enabled systems. For an example of an NVIDIA/CUDA base image,
@@ -15,7 +15,7 @@ If not pre-pulling the workload images, you can cross build (ie, build from a Ma
 To build the derived bootc image for x86_64 architecture, run the following:
 
 ```bash
-cd recipes/natural_language_processing/chatbot
+cd recipes/natural_language_processing/rag
 
 # for CPU powered sample LLM application
 # to switch to an alternate platform like aarch64, pass --platform linux/arm64
@@ -61,7 +61,7 @@ bootc upgrade
 
 ### Accessing the embedded workloads
 
-The chatbot can be accessed by visiting port `8150` of the running bootc system.
+The rag can be accessed by visiting port `8150` of the running bootc system.
 They will be running as systemd services from podman quadlet files placed at `/usr/share/containers/systemd/` on the bootc system.
 For more information about running containerized applications as systemd services with podman, refer to this
 [podman quadlet post](https://www.redhat.com/sysadmin/quadlet-podman) or, [podman documentation](https://podman.io/docs)
@@ -69,7 +69,7 @@ For more information about running containerized applications as systemd service
 To monitor the sample applications, SSH into the bootc system and run either:
 
 ```bash
-systemctl status chatbot
+systemctl status rag
 ```
 
 You can also view the pods and containers that are managed with systemd by running:
@@ -82,12 +82,12 @@ podman ps -a
 To stop the sample applications, SSH into the bootc system and run:
 
 ```bash
-systemctl stop chatbot
+systemctl stop rag
 ```
 
 To run the sample application _not_ as a systemd service, stop the services then
 run the appropriate commands based on the application you have embedded.
 
 ```bash
-podman kube play /usr/share/containers/systemd/chatbot.yaml
+podman kube play /usr/share/containers/systemd/rag.yaml
 ```

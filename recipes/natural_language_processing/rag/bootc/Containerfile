@@ -18,7 +18,7 @@ RUN mkdir /usr/etc-system && \
 # The quadlet .image file added above pulls following images on boot if not
 # pre-pulled here
 
-ARG RECIPE=chatbot
+ARG RECIPE=rag
 ARG MODELIMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
 ARG APPIMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVERIMAGE=quay.io/ai-lab/llamacpp-python:latest
