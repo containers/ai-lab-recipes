@@ -4,15 +4,9 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - ./recipes/natural_language_processing/chatbot/**
-      - .github/workflows/chatbot.yaml
   push:
     branches:
       - main
-    paths:
-      - ./recipes/natural_language_processing/chatbot/**
-      - .github/workflows/chatbot.yaml
 
 env:
   REGISTRY: ghcr.io
@@ -49,11 +43,14 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
+        with:
+          python-version: '3.11'
 
-      - name: Install python dependencies
+      - name: Install dependencies
         working-directory: ./recipes/natural_language_processing/chatbot
         run: make install
 
       - name: Run tests
         working-directory: ./recipes/natural_language_processing/chatbot
         run: make test
+
