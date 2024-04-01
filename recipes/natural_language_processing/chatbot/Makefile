@@ -1,8 +1,8 @@
 APP=chatbot
-MODELIMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
-APPIMAGE=quay.io/ai-lab/${APP}:latest
-SERVERIMAGE=quay.io/ai-lab/llamacpp-python:latest
-SSHPUBKEY := $(shell cat ${HOME}/.ssh/id_rsa.pub;)
+MODELIMAGE ?= quay.io/ai-lab/mistral-7b-instruct:latest
+APPIMAGE ?= quay.io/ai-lab/${APP}:latest
+SERVERIMAGE ?= quay.io/ai-lab/llamacpp-python:latest
+SSHPUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
 .PHONY: build
 build:
 	podman build -f builds/Containerfile -t ghcr.io/ai-lab-recipes/${APP} .
@@ -26,7 +26,6 @@ quadlet:
 	    quadlet/${APP}.yaml \
 	    > /tmp/${APP}.yaml
 	cp quadlet/${APP}.kube build/${APP}.kube
-
 
 .PHONY: install
 install:
