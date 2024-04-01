@@ -1,16 +1,21 @@
 ### Build Model Service
 
+For the standard model service image:
 
 ```bash
-cd model_servers/llamacpp_python
-podman build -t playground -f base/Containerfile .
+make -f Makefile build
 ```
 
-or
+For the Cuda variant image:
 
 ```bash
-cd model_servers/llamacpp_python
-make -f base/Makefile build
+make -f Makefile build-cuda
+```
+
+For the Vulkan variant image:
+
+```bash
+make -f Makefile build-vulkan
 ```
 
 ### Download Model
@@ -22,6 +27,8 @@ At the time of this writing, 2 models are known to work with this service
 - **Mistral-7b**
     - Download URL: [https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf)
 
+It is suggested you place models in the [models](../../models/) directory. As for retrieving them, either use `wget` to download them with the download links above, or call the model names from the Makefile.
+
 ```bash
 cd ../models
 wget <Download URL>
@@ -31,30 +38,15 @@ cd ../
 or
 
 ```bash
-make -f Makefile models/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+make -f Makefile mistral-7b-instruct-v0.1.Q4_K_M.gguf
+make -f Makefile llama-2-7b-chat.Q5_K_S.gguf
 ```
 
 ### Deploy Model Service
 
 #### Single Model Service:
 
-Deploy the LLM server and volume mount the model of choice using the `MODEL_PATH` environment variable.
-
-```bash
-podman run --rm -it -d \
-        -p 8001:8001 \
-        -v Local/path/to/locallm/models:/locallm/models:ro,Z \
-        -e MODEL_PATH=models/<model-filename> \
-        -e HOST=0.0.0.0 \
-        -e PORT=8001 \
-        playground`
-```
-
-or
-
-```bash
-make -f Makefile run
-```
+Deploy the LLM server and volume mount the model of choice using the `MODEL_PATH` environment variable. As the volume mount syntax varies between linux and darwin distrobutions, call the make comand for your os, ex: `make -f Makefile run-linux` or `make -f Makefile run-darwin`, or their local variants, ex: `make -f Makefile run-linux-local` or `make -f Makefile run-darwin-local`. The podman equivalent of this is:
 
 #### Multiple Model Service:
 

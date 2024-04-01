@@ -34,39 +34,27 @@ There are a number of options for quantization level, but we recommend `Q4_K_M`.
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
-cd models
-wget https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf
+cd ../../../models
+curl -sLO https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf
 cd ../
 ```
 
 _A full list of supported open models is forthcoming._  
 
 
-### Build the Model Service
+### Build and Run the Model Service
 
-The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
-
-The Model Service can be built from the root directory with the below code snippet:
+The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md), but the following script block should work or Linux or OSX:
 
 ```bash
-cd model_servers/llamacpp_python
-podman build -t llamacppserver -f base/Containerfile .
-```
-
-
-### Deploy the Model Service
-
-The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
-
-The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local Model Service using the following podman command:  
-```
-podman run --rm -it \
-        -p 8001:8001 \
-        -v Local/path/to/locallm/models:/locallm/models \
-        -e MODEL_PATH=models/<model-filename> \
-        -e HOST=0.0.0.0 \
-        -e PORT=8001 \
-        llamacppserver
+cd ../../../model_servers/llamacpp_python
+make build && OS=$(uname)
+if [[ $OS == "Darwin" ]]; then
+  make run-darwin-local
+elif [[ $OS == "linux" ]]; then
+  make run-linux-local
+fi
+cd ../../recipes/natural_language_processing/code-generation
 ```
 
 ### Build the AI Application
@@ -76,8 +64,7 @@ Now that the Model Service is running we want to build and deploy our AI Applica
 Run:
 
 ```bash
-cd code-generation
-podman build -t codegen . -f builds/Containerfile   
+make build
 ```
 ### Deploy the AI Application
 

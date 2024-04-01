@@ -34,52 +34,41 @@ There are a number of options for quantization level, but we recommend `Q4_K_M`.
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
-cd models
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-cd ../
+cd ../../../models
+curl -sLO https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+cd ../recipes/natural_language_processing/chatbot
 ```
 
 _A full list of supported open models is forthcoming._  
 
 
-### Build the Model Service
+### Building and Deploying the model service
 
-The complete instructions for building and deploying the Model Service can be found in the
-[llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
-
-The Model Service can be built from the root directory with the following code snippet:
+The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md), but the following script block should work or Linux or OSX:
 
 ```bash
-cd model_servers/llamacpp_python
-podman build -t llamacppserver -f base/Containerfile .
-```
-
-### Deploy the Model Service
-
-The complete instructions for building and deploying the Model Service can be found in the
-[llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
-
-The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local
-Model Service using the following podman command:  
-
-```
-podman run --rm -it \
-        -p 8001:8001 \
-        -v Local/path/to/locallm/models:/locallm/models \
-        -e MODEL_PATH=models/<model-filename> \
-        -e HOST=0.0.0.0 \
-        -e PORT=8001 \
-        llamacppserver
+cd ../../../model_servers/llamacpp_python
+make build && OS=$(uname)
+if [[ $OS == "Darwin" ]]; then
+  make run-darwin-local
+elif [[ $OS == "linux" ]]; then
+  make run-linux-local
+fi
+cd ../../recipes/natural_language_processing/chatbot/
 ```
 
 ### Build the AI Application
 
-Now that the Model Service is running we want to build and deploy our AI Application. Use the provided Containerfile to build the AI Application image from the `chatbot-langchain/` directory.
+Now that the Model Service is running we want to build and deploy our AI Application. Use the provided Containerfile to build the AI Application image from the [`chatbot` directory](./).
 
 ```bash
-cd chatbot
-podman build -t chatbot . -f builds/Containerfile   
+podman build -f builds/Containerfile -t quay.io/ai-lab-recipes/chatbot:latest .
 ```
+
+or: 
+
+`make build`
+
 ### Deploy the AI Application
 
 Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the podman machine so we need to provide it with the appropriate address `10.88.0.1`. The following podman command can be used to run your AI Application:  
@@ -87,6 +76,10 @@ Make sure the Model Service is up and running before starting this container ima
 ```bash
 podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 chatbot   
 ```
+
+or:
+
+`make run`
 
 ### Interact with the AI Application
 
