@@ -48,18 +48,12 @@ def pytest_addoption(parser):
     pytest_container.add_logging_level_options(parser)
 
 @pytest.fixture
-def firefox_options(firefox_options):
-    firefox_options.headless = True
-    firefox_options.set_preference("webdriver.log.file", "/tmp/driver.log")
-    return firefox_options
+def chrome_options(chrome_options):
+    chrome_options.add_argument("--headless")
+    return chrome_options
 
 @pytest.fixture
 def custom_selenium(selenium, firefox_options):
     selenium.webdriver = webdriver.Firefox(firefox_options=firefox_options)
     yield selenium
     selenium.webdriver.quit()
-
-@pytest.fixture
-def chrome_options(chrome_options):
-    chrome_options.add_argument("--headless")
-    return chrome_options
