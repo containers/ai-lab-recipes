@@ -4,9 +4,15 @@ on:
   pull_request:
     branches:
       - main
+    # paths:
+    #   - ./recipes/natural_language_processing/chatbot/**
+    #   - .github/workflows/chatbot.yaml
   push:
     branches:
       - main
+    # paths:
+    #   - ./recipes/natural_language_processing/chatbot/**
+    #   - .github/workflows/chatbot.yaml
 
 env:
   REGISTRY: ghcr.io

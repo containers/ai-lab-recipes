@@ -29,9 +29,6 @@ quadlet:
 
 .PHONY: install
 install:
-	# wget -qO- https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz | tar xvz
-	# sudo apt update
-	# sudo apt upgrade
 	wget https://www.slimjetbrowser.com/chrome/files/103.0.5060.53/google-chrome-stable_current_amd64.deb
 	sudo dpkg -i google-chrome-stable_current_amd64.deb
 	wget https://chromedriver.storage.googleapis.com/103.0.5060.53/chromedriver_linux64.zip

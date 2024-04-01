@@ -4,9 +4,15 @@ on:
   pull_request:
     branches:
       - main
+    # paths:
+    #   - ./model_servers/llamacpp_python/**
+    #   - .github/workflows/model_servers.yaml
   push:
     branches:
       - main
+    # paths:
+    #   - ./model_servers/llamacpp_python/**
+    #   - .github/workflows/model_servers.yaml
 
 env:
   REGISTRY: ghcr.io
