@@ -28,13 +28,6 @@ jobs:
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
-      - name: Get changed llamacpp-python files
-        id: changed-files-llamacpp-python
-        uses: tj-actions/changed-files@v42
-        with:
-          files: |
-            model_servers/llamacpp_python/base/**
-
       - name: Get changed rag files
         id: changed-files-rag
         uses: tj-actions/changed-files@v42
@@ -79,29 +72,6 @@ jobs:
           registry: quay.io
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Build llamacpp-python
-        if: steps.changed-files-llamacpp-python.outputs.any_changed == 'true'
-        id: build_model_service_multiplatform
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.MODEL_SERVICE_IMAGE }} 
-          tags: latest ${{ github.sha }}
-          platforms: linux/amd64, linux/arm64 
-          context: model_servers/llamacpp_python
-          containerfiles: ./model_servers/llamacpp_python/base/Containerfile
-      
-      - name: Push llamacpp-python image
-        id: push_model_service
-        if: >
-          (steps.changed-files-llamacpp-python.outputs.any_changed == 'true') && 
-          (github.event_name == 'push' || github.event_name == 'schedule') &&
-          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build_model_service_multiplatform.outputs.image }}
-          tags: ${{ steps.build_model_service_multiplatform.outputs.tags }}
-          registry: ${{ env.REGISTRY }}
 
       - name: Build code-generation
         if: steps.changed-files-codegen.outputs.any_changed == 'true'
