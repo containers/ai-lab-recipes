@@ -1,0 +1,55 @@
+name: Update quay.io/ai-lab images
+
+on:
+  schedule: # schedule the job to run at 12 AM daily
+   - cron: '0 0 * * *'
+  
+  workflow_dispatch:
+
+
+env:
+  QUAY: quay.io
+  CHATBOT_IMAGE_NAME: ai-lab/chatbot
+
+
+jobs:
+  build-and-push-chatbot-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build AILAB Image
+        id: build_ailab_image
+        uses: redhat-actions/buildah-build@v2.13
+        with:
+          registry: ${{ env.QUAY }}
+          image: ${{ env.CHATBOT_IMAGE_NAME }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64
+          containerfiles: ./recipes/natural_language_processing/chatbot/builds/Containerfile
+          context: recipes/natural_language_processing/chatbot
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push ai-lab image
+        id: push_ailab_image
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ${{ steps.build_ailab_image.outputs.image }}
+          tags: ${{ steps.build_ailab_image.outputs.tags }}
+          registry: ${{ env.QUAY }}

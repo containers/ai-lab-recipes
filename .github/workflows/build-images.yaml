@@ -19,7 +19,6 @@ jobs:
       #GH_REGISTRY: ghcr.io
       # github.repository as <account>/<repo>
       LLAMACPP_PYTHON_MODEL_SERVICE: llamacpp-python
-      CHATBOT_IMAGE: chatbot
       SUMMARIZER_IMAGE: summarizer
       CODEGEN_IMAGE: codegen
       RAG_IMAGE: rag
@@ -57,13 +56,6 @@ jobs:
           files: |
             recipes/natural_language_processing/code-generation/**
 
-      - name: Get changed chatbot files
-        id: changed-files-chatbot
-        uses: tj-actions/changed-files@v42
-        with:
-          files: |
-            recipes/natural_language_processing/chatbot/**
-
       - name: Get changed chromadb files
         id: changed-files-chromadb
         uses: tj-actions/changed-files@v42
@@ -72,14 +64,14 @@ jobs:
             vector_dbs/chromadb/**
 
       - name: Install qemu dependency
-        if: steps.changed-files-llamacpp-python.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true'
+        if: steps.changed-files-llamacpp-python.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
       - name: Login Quay Container registry
         if: >
-          (steps.changed-files-llamacpp-python.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-chromadb.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true') &&
+          (steps.changed-files-llamacpp-python.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-chromadb.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true') &&
           (github.event_name == 'push' || github.event_name == 'schedule') &&
           (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
         uses: redhat-actions/podman-login@v1
@@ -109,30 +101,6 @@ jobs:
         with:
           image: ${{ steps.build_model_service_multiplatform.outputs.image }}
           tags: ${{ steps.build_model_service_multiplatform.outputs.tags }}
-          registry: ${{ env.REGISTRY }}
-
-      - name: Build chatbot
-        id: build_chatbot_multiplatform
-        uses: redhat-actions/buildah-build@v2
-        if: steps.changed-files-chatbot.outputs.any_changed == 'true'
-        with:
-          image: ${{ env.CHATBOT_IMAGE }} 
-          tags: latest ${{ github.sha }}
-          platforms: linux/amd64, linux/arm64 
-          context: recipes/natural_language_processing/chatbot
-          containerfiles: |
-            recipes/natural_language_processing/chatbot/builds/Containerfile
-      
-      - name: Push chatbot image
-        id: push_chatbot
-        if: >
-          (steps.changed-files-chatbot.outputs.any_changed == 'true') && 
-          (github.event_name == 'push' || github.event_name == 'schedule') &&
-          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build_chatbot_multiplatform.outputs.image }}
-          tags: ${{ steps.build_chatbot_multiplatform.outputs.tags }}
           registry: ${{ env.REGISTRY }}
 
       - name: Build code-generation

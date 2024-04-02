@@ -32,12 +32,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
 
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@v2.13
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: latest
+          platforms: linux/amd64, linux/arm64
           containerfiles: ./recipes/natural_language_processing/chatbot/builds/Containerfile
           context: recipes/natural_language_processing/chatbot
 
@@ -54,7 +61,7 @@ jobs:
         working-directory: ./recipes/natural_language_processing/chatbot
         run: make test
 
-      - name: Login to container registry
+      - name: Login to github container registry
         if: >
           (github.event_name == 'push' || github.event_name == 'schedule') &&
           (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
