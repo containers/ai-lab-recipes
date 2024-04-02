@@ -3,5 +3,8 @@
 *_pycache_*
 port_check.lock
 recipes/natural_language_processing/chatbot/chromedriver*
-models/.locks/
-models/models--BAAI--bge-base-en-v1.5/
+models/*
+!models/convert_models/*
+!models/Containerfile
+!models/README.md
+recipes/natural_language_processing/rag/.venv/

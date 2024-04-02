@@ -34,9 +34,9 @@ ways to get a GGUF version of Mistral-7B, but the simplest is to download a pre-
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
-cd models
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-cd ../
+cd ../../../models
+curl -sLO https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+cd ../recipes/natural_language_processing/chatbot
 ```
 
 _A full list of supported open models is forthcoming._  
@@ -45,10 +45,14 @@ In addition to the LLM, RAG applications also require an embedding model to conv
 
 The code snippet below can be used to pull a copy of the `BAAI/bge-base-en-v1.5` embedding model and store it in your `models/` directory. 
 
+First make sure you have installed `huggingface` via pip:
+
+`python3 -m pip install huggingface-hub==0.22.2`
+
 ```python 
 from huggingface_hub import snapshot_download
 snapshot_download(repo_id="BAAI/bge-base-en-v1.5",
-                cache_dir="models/",
+                cache_dir="../../../models/",
                 local_files_only=False)
 ```
 
@@ -60,7 +64,7 @@ To deploy the Vector Database service locally, simply use the existing ChromaDB 
 podman pull chromadb/chroma
 ```
 ```bash
-podman run --rm -it -p 8000:8000 chroma
+podman run -d --rm -it -p 8000:8000 chroma
 ```
 
 This Vector Database is ephemeral and will need to be re-populated each time the container restarts. When implementing RAG in production, you will want a long running and backed up Vector Database.
