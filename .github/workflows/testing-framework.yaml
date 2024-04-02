@@ -10,6 +10,15 @@ on:
   #   branches:
   #     - main
 
+env:
+  TF_VAR_aws_region: "eu-west-2"
+  TF_VAR_aws_instance_type: "t3.large"
+  TF_VAR_aws_ami_owners: '["125523088429"]'
+  TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
+  TF_VAR_aws_volume_size: 100
+  TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
 jobs:
   spin-test-environment:
     runs-on: ubuntu-latest
@@ -36,25 +45,13 @@ jobs:
         id: init
         working-directory: terraform-test-environment-module
 
-      - name: Plan
-        run: terraform plan
+      - name: Spin Test Environment
+        id: apply
+        run: terraform apply -auto-approve -lock=false
         working-directory: terraform-test-environment-module
-        env:
-          TF_VAR_aws_region: "eu-west-2"
-          TF_VAR_aws_instance_type: "t3.large"
-          TF_VAR_aws_ami_owners: '["125523088429"]'
-          TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
-          TF_VAR_aws_volume_size: 100
-          TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      # - name: Spin Test Environment
-      #   id: apply
-      #   run: TF_LOG=DEBUG terraform apply -auto-approve -lock=false
-      #   working-directory: terraform-test-environment-module
       
-      # - name: Destroy Test Environment
-      #   id: destroy
-      #   if: always()
-      #   run: TF_LOG=DEBUG terraform destroy -auto-approve -lock=false
-      #   working-directory: terraform-test-environment-module
+      - name: Destroy Test Environment
+        id: destroy
+        if: always()
+        run: terraform destroy -auto-approve -lock=false
+        working-directory: terraform-test-environment-module
