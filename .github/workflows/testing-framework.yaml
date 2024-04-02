@@ -3,6 +3,9 @@ name: Testing Framework
 on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
+  
+  workflow_dispatch:
+
 
 env:
   REGISTRY: ghcr.io
