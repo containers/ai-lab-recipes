@@ -15,22 +15,22 @@ jobs:
   build:
     runs-on: ubuntu-latest  # windows-latest || macos-latest
     env:
-      REGISTRY: quay.io/redhat-et
+      REGISTRY: quay.io/ai-lab
       #GH_REGISTRY: ghcr.io
       # github.repository as <account>/<repo>
-      MODEL_SERVICE_IMAGE: locallm-model-service
-      CHATBOT_IMAGE: locallm-chatbot
-      SUMMARIZER_IMAGE: locallm-text-summarizer
-      CODEGEN_IMAGE: locallm-codegen
-      RAG_IMAGE: locallm-rag
-      CHROMADB_IMAGE: locallm-chromadb
+      LLAMACPP_PYTHON_MODEL_SERVICE: llamacpp-python
+      CHATBOT_IMAGE: chatbot
+      SUMMARIZER_IMAGE: summarizer
+      CODEGEN_IMAGE: codegen
+      RAG_IMAGE: rag
+      CHROMADB_IMAGE: chromadb
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
 
-      - name: Get changed model-service files
-        id: changed-files-model-service
+      - name: Get changed llamacpp-python files
+        id: changed-files-llamacpp-python
         uses: tj-actions/changed-files@v42
         with:
           files: |
@@ -72,14 +72,14 @@ jobs:
             vector_dbs/chromadb/**
 
       - name: Install qemu dependency
-        if: steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true'
+        if: steps.changed-files-llamacpp-python.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
       - name: Login Quay Container registry
         if: >
-          (steps.changed-files-model-service.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-chromadb.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true') &&
+          (steps.changed-files-llamacpp-python.outputs.any_changed == 'true' || steps.changed-files-chatbot.outputs.any_changed == 'true' || steps.changed-files-summarizer.outputs.any_changed == 'true' || steps.changed-files-rag.outputs.any_changed == 'true' || steps.changed-files-chromadb.outputs.any_changed == 'true' || steps.changed-files-codegen.outputs.any_changed == 'true') &&
           (github.event_name == 'push' || github.event_name == 'schedule') &&
           (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
         uses: redhat-actions/podman-login@v1
@@ -88,8 +88,8 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build model-service
-        if: steps.changed-files-model-service.outputs.any_changed == 'true'
+      - name: Build llamacpp-python
+        if: steps.changed-files-llamacpp-python.outputs.any_changed == 'true'
         id: build_model_service_multiplatform
         uses: redhat-actions/buildah-build@v2
         with:
@@ -99,10 +99,10 @@ jobs:
           context: model_servers/llamacpp_python
           containerfiles: ./model_servers/llamacpp_python/base/Containerfile
       
-      - name: Push model-service image
+      - name: Push llamacpp-python image
         id: push_model_service
         if: >
-          (steps.changed-files-model-service.outputs.any_changed == 'true') && 
+          (steps.changed-files-llamacpp-python.outputs.any_changed == 'true') && 
           (github.event_name == 'push' || github.event_name == 'schedule') &&
           (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
         uses: redhat-actions/push-to-registry@v2
@@ -215,7 +215,6 @@ jobs:
         with:
           image: ${{ env.CHROMADB_IMAGE }} 
           tags: latest ${{ github.sha }}
-          # TODO: add amd64
           platforms: linux/arm64, linux/amd64
           context: vector_dbs/chromadb
           containerfiles: |
