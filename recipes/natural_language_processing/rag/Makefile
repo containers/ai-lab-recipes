@@ -29,7 +29,7 @@ quadlet:
 
 .PHONY: install
 install:
-	pip install -r tests/requirements-test.txt
+	pip install -r tests/requirements.txt
 
 .PHONY: run
 run:

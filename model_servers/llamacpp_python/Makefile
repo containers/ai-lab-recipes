@@ -10,7 +10,7 @@ mistral-7b-instruct-v0.1.Q4_K_M.gguf:
 
 .PHONY: install
 install:
-	pip install -r tests/requirements-test.txt
+	pip install -r tests/requirements.txt
 
 .PHONY: run
 run:

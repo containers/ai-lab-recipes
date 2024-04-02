@@ -33,7 +33,7 @@ install:
 	sudo dpkg -i google-chrome-stable_current_amd64.deb
 	wget https://chromedriver.storage.googleapis.com/103.0.5060.53/chromedriver_linux64.zip
 	unzip chromedriver_linux64.zip
-	pip install -r tests/requirements-test.txt
+	pip install -r tests/requirements.txt
 
 .PHONY: run
 run: 
