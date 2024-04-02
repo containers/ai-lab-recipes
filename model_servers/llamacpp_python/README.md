@@ -27,7 +27,9 @@ cd ../models
 wget <Download URL>
 cd ../
 ```
+
 or
+
 ```bash
 make -f Makefile models/mistral-7b-instruct-v0.1.Q4_K_M.gguf
 ```
@@ -47,7 +49,9 @@ podman run --rm -it -d \
         -e PORT=8001 \
         playground`
 ```
+
 or
+
 ```bash
 make -f Makefile run
 ```
@@ -57,6 +61,7 @@ make -f Makefile run
 To enable dynamic loading and unloading of different models present on your machine, you can start the model service with a `CONFIG_PATH` instead of a `MODEL_PATH`.
 
 Here is an example `models_config.json` with two quantization variants of mistral-7B.
+
 ```json
 {
     "host": "0.0.0.0",
@@ -78,6 +83,7 @@ Here is an example `models_config.json` with two quantization variants of mistra
 ```
 
 Now run the container with the specified config file. 
+
 ```bash
 podman run --rm -it -d \
         -p 8001:8001 \
@@ -91,6 +97,7 @@ podman run --rm -it -d \
 The environment is implemented with devcontainer technology.
 
 Running tests
+
 ```bash
 make -f Makefile test
 ```

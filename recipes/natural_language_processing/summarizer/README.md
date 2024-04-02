@@ -25,7 +25,11 @@ In order to build this application we will need a model, a Model Service and an 
 
 ### Download a model
 
-If you are just getting started, we recommend using [Mistral-7B-Instruct](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1). This is a well performant mid-sized model with an apache-2.0 license. In order to use it with our Model Service we need it converted and quantized into the [GGUF format](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md). There are a number of ways to get a GGUF version of Mistral-7B, but the simplest is to download a pre-converted one from [huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF. There are a number of options for quantization level, but we recommend `Q4_K_M`. 
+If you are just getting started, we recommend using [Mistral-7B-Instruct](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1). This is a well
+performant mid-sized model with an apache-2.0 license. In order to use it with our Model Service we need it converted
+and quantized into the [GGUF format](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md). There are a number of
+ways to get a GGUF version of Mistral-7B, but the simplest is to download a pre-converted one from
+[huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF.
 
 The recommended model can be downloaded using the code snippet below:
 
