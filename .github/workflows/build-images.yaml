@@ -127,8 +127,7 @@ jobs:
         with:
           image: ${{ env.RAG_IMAGE }} 
           tags: latest ${{ github.sha }}
-          # TODO: add amd64
-          platforms: linux/arm64 
+          platforms: linux/arm64, linux/amd64 
           context: recipes/natural_language_processing/rag
           containerfiles: |
             ./recipes/natural_language_processing/rag/builds/Containerfile
