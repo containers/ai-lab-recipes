@@ -26,7 +26,7 @@ quadlet:
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
 	    quadlet/${APP}.yaml \
-	    > /tmp/${APP}.yaml
+	    > build/${APP}.yaml
 	cp quadlet/${APP}.kube build/${APP}.kube
 
 .PHONY: install
