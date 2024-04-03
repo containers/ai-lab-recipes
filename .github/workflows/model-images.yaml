@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: quay.io/ai-lab
   MISTRAL_MODEL_IMAGE_NAME: mistral-7b-instruct
-  MISTRAL_TAG: v0.1.Q4_K_M.gguf
+  MISTRAL_LABEL: v0.1.Q4_K_M.gguf
   MISTRAL_MODEL_URL: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
 
 jobs:
@@ -39,9 +39,11 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.MISTRAL_MODEL_IMAGE_NAME }}
-          tags: latest ${{ env.MISTRAL_TAG }}
+          tags: latest
           platforms: linux/amd64, linux/arm64
           context: models
+          labels: |
+            ${{ env.MISTRAL_LABEL }}
           build-args: |
             MODEL_URL=${{ env.MISTRAL_MODEL_URL }}
           containerfiles: ./models/Containerfile
