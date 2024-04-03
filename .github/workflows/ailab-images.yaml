@@ -10,59 +10,8 @@ env:
   REGISTRY: quay.io/ai-lab
   CHATBOT_IMAGE_NAME: chatbot
   LLAMACPP_PYTHON_IMAGE_NAME: llamacpp-python
-  MISTRAL_MODEL_IMAGE_NAME: mistral-7b-instruct
-  MISTRAL_TAG: v0.1.Q4_K_M.gguf
-  MISTRAL_MODEL_URL: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
 
 jobs:
-  build-and-push-mistral-model-image:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      # need enough disk space to download model
-      - name: Remove unnecessary files
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
-      - uses: actions/checkout@v4.1.1
-
-      # required for multi-arch builds
-      - name: Install qemu dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-
-      - name: Build mistral model image
-        id: build_mistral_model_image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.MISTRAL_MODEL_IMAGE_NAME }}
-          tags: latest ${{ env.MISTRAL_TAG }}
-          platforms: linux/amd64, linux/arm64
-          context: models
-          build-args: |
-            MODEL_URL=${{ env.MISTRAL_MODEL_URL }}
-          containerfiles: ./models/Containerfile
-
-      - name: Login to quay.io
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: quay.io
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Push mistral model image
-        id: push_mistral_model_image
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          image: ${{ steps.build_mistral_model_image.outputs.image }}
-          tags: ${{ steps.build_mistral_model_image.outputs.tags }}
-
   build-and-push-llamacpp-python-base-image:
     runs-on: ubuntu-latest
     permissions:
