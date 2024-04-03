@@ -10,9 +10,11 @@ env:
   REGISTRY: quay.io/ai-lab
   CHATBOT_IMAGE_NAME: chatbot
   LLAMACPP_PYTHON_IMAGE_NAME: llamacpp-python
+  CHROMADB_IMAGE_NAME: chromadb
+  RAG_IMAGE_NAME: rag
 
 jobs:
-  build-and-push-llamacpp-python-base-image:
+  build-and-push-rag-image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,22 +22,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4.1.1
-
       # required for multi-arch builds
       - name: Install qemu dependency
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
-      - name: Build llamacpp-python-base
-        id: build_llamacpp_python_base
+      - name: Build rag
+        id: build_rag
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ${{ env.LLAMACPP_PYTHON_IMAGE_NAME }}
+          image: ${{ env.RAG_IMAGE_NAME }}
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64
-          context: model_servers/llamacpp_python
-          containerfiles: ./model_servers/llamacpp_python/base/Containerfile
+          containerfiles: ./recipes/natural_language_processing/rag/builds/Containerfile
+          context: recipes/natural_language_processing/rag
 
       - name: Login to quay.io
         uses: redhat-actions/podman-login@v1
@@ -44,13 +45,52 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Push llamacpp-python image
-        id: push_llamacpp_python
+      - name: Push rag image
+        id: push_rag
         uses: redhat-actions/push-to-registry@v2
         with:
           registry: ${{ env.REGISTRY }}
-          image: ${{ steps.build_llamacpp_python_base.outputs.image }}
-          tags: ${{ steps.build_llamacpp_python_base.outputs.tags }}
+          image: ${{ steps.build_rag.outputs.image }}
+          tags: ${{ steps.build_rag.outputs.tags }}
+
+  build-and-push-chromadb-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build chromadb
+        id: build_chromadb
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.CHROMADB_IMAGE_NAME }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64
+          context: vector_dbs/chromadb
+          containerfiles: ./vector_dbs/chromadb/Containerfile
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push chromadb image
+        id: push_chromadb
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_chromadb.outputs.image }}
+          tags: ${{ steps.build_chromadb.outputs.tags }}
 
   build-and-push-chatbot-image:
     runs-on: ubuntu-latest
