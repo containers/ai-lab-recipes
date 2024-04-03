@@ -1,30 +1,35 @@
 APP=rag
+CHROMADBIMAGE ?= quay.io/ai-lab/chromadb:latest
 MODELIMAGE ?= quay.io/ai-lab/mistral-7b-instruct:latest
 APPIMAGE ?= quay.io/ai-lab/${APP}:latest
 SERVERIMAGE ?= quay.io/ai-lab/llamacpp-python:latest
 SSHPUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
+BOOTCIMAGE ?= quay.io/ai-lab/${APP}-bootc:latest
+
 .PHONY: build
 build:
-	podman build -f builds/Containerfile -t ghcr.io/ai-lab-recipes/${APP} .
+	podman build -f builds/Containerfile -t ${APPIMAGE} .
 
 .PHONY: bootc
 bootc:
-	sudo podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ghcr.io/ai-lab-recipes/${APP}-bootc .
+	podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
 
 .PHONY: quadlet
 quadlet:
-# Modify quadlet files to match the server, model and app image
+	# Modify quadlet files to match the server, model and app image
 	mkdir -p build
 	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
+	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
 	    quadlet/${APP}.image \
 	    > build/${APP}.image
 	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
+	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
 	    quadlet/${APP}.yaml \
-	    > /tmp/${APP}.yaml
+	    > build/${APP}.yaml
 	cp quadlet/${APP}.kube build/${APP}.kube
 
 .PHONY: install

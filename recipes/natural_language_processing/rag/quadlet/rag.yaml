@@ -24,6 +24,16 @@ spec:
     securityContext:
       runAsNonRoot: true
   - env:
+    - name: CHROMADB_ENDPOINT
+      value: http://0.0.0.0:800O/v1
+    image: CHROMADBIMAGE
+    name: rag-chromadb
+    ports:
+    - containerPort: 8000
+      hostPort: 8000
+    securityContext:
+      runAsNonRoot: true
+  - env:
     - name: HOST
       value: 0.0.0.0
     - name: PORT
