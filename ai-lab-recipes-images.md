@@ -9,7 +9,7 @@
 - quay.io/redhat-et/locallm-object-detection-client:latest
 - quay.io/redhat-et/locallm-object-detection-server:latest
 
-## Model Images (x86_64, aarch64) currently in `quay.io/redhat-et/locallm-*`
+## Model Images (x86_64, aarch64)
 
 - quay.io/ai-lab/mistral-7b-instruct:latest
     - [model download link](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf)
