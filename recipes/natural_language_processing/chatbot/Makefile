@@ -1,15 +1,17 @@
-APP=chatbot
+APP ?= chatbot
 MODELIMAGE ?= quay.io/ai-lab/mistral-7b-instruct:latest
 APPIMAGE ?= quay.io/ai-lab/${APP}:latest
 SERVERIMAGE ?= quay.io/ai-lab/llamacpp-python:latest
 SSHPUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
+BOOTCIMAGE ?= quay.io/ai-lab/${APP}-bootc:latest
+
 .PHONY: build
 build:
-	podman build -f builds/Containerfile -t ghcr.io/ai-lab-recipes/${APP} .
+	podman build -f builds/Containerfile -t ${APPIMAGE} .
 
 .PHONY: bootc
 bootc:
-	podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ghcr.io/ai-lab-recipes/${APP}-bootc .
+	podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
 
 .PHONY: quadlet
 quadlet:
