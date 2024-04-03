@@ -2,3 +2,4 @@
 *.bin
 *_pycache_*
 port_check.lock
+build
