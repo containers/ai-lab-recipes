@@ -3,3 +3,7 @@
 *_pycache_*
 port_check.lock
 *build
+models/*
+!models/convert_models/*
+!models/Containerfile
+!models/README.md

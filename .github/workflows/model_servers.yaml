@@ -43,7 +43,7 @@ jobs:
 
       - name: Download model
         working-directory: ./model_servers/llamacpp_python/
-        run: make mistral-7b-instruct-v0.1.Q4_K_M.gguf
+        run: make download-model-mistral
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
