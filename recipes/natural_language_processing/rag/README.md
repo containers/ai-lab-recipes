@@ -82,7 +82,7 @@ podman build -t llamacppserver -f ./base/Containerfile .
 
 The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
 
-The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local Model Service using the following podman command:  
+The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local Model Service using the following Podman command:
 ```
 podman run --rm -it \
         -p 8001:8001 \
@@ -103,11 +103,11 @@ podman build -t rag -f builds/Containerfile  .
 ```
 ### Deploy the AI Application
 
-Make sure the Model Service and the Vector Database are up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the podman machine so we need to provide it with the appropriate address `10.88.0.1`. The same goes for the Vector Database. Make sure the `VECTORDB_HOST` is correctly set to `10.88.0.1` for communication within the podman virtual machine.   
+Make sure the Model Service and the Vector Database are up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. The same goes for the Vector Database. Make sure the `VECTORDB_HOST` is correctly set to `10.88.0.1` for communication within the Podman virtual machine.
 
 There also needs to be a volume mount into the `models/` directory so that the application can access the embedding model as well as a volume mount into the `data/` directory where it can pull documents from to populate the Vector Database.  
 
-The following podman command can be used to run your AI Application:  
+The following Podman command can be used to run your AI Application:
 
 ```bash
 podman run --rm -it -p 8501:8501 

@@ -19,7 +19,7 @@ cd recipes/natural_language_processing/rag
 
 # for CPU powered sample LLM application
 # to switch to an alternate platform like aarch64, pass --platform linux/arm64
-# the --cap-add SYS_ADMIN switch is needed when you are embedding podman
+# the --cap-add SYS_ADMIN switch is needed when you are embedding Podman
 # commands within the container build. If the registry you are pulling images
 # from requires authentication, then you will need to volume mount the
 # auth_json file with SELinux separation disabled.
@@ -62,9 +62,9 @@ bootc upgrade
 ### Accessing the embedded workloads
 
 The rag can be accessed by visiting port `8150` of the running bootc system.
-They will be running as systemd services from podman quadlet files placed at `/usr/share/containers/systemd/` on the bootc system.
-For more information about running containerized applications as systemd services with podman, refer to this
-[podman quadlet post](https://www.redhat.com/sysadmin/quadlet-podman) or, [podman documentation](https://podman.io/docs)
+They will be running as systemd services from Podman quadlet files placed at `/usr/share/containers/systemd/` on the bootc system.
+For more information about running containerized applications as systemd services with Podman, refer to this
+[Podman quadlet post](https://www.redhat.com/sysadmin/quadlet-podman) or, [Podman documentation](https://podman.io/docs)
 
 To monitor the sample applications, SSH into the bootc system and run either:
 
