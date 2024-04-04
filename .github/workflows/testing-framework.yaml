@@ -18,17 +18,17 @@ env:
   TF_VAR_aws_volume_size: 100
   TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
   TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  TF_VAR_provision_script: ./main/.github/scripts/provision.sh
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_DEFAULT_REGION: "eu-west-2"
+  TF_VAR_provision_script: ../main/.github/scripts/provision.sh
+  # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  # AWS_DEFAULT_REGION: "eu-west-2"
 
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
   cancel-in-progress: false
 
 jobs:
-  spin-test-environment:
+  integration-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.1
@@ -49,8 +49,8 @@ jobs:
           terraform_version: "1.7.5"
           terraform_wrapper: false
 
-      - run: terraform init
-        id: init
+      - name: Init Terraform
+        run: terraform init
         working-directory: terraform-test-environment-module
 
       - name: Spin Test Environment
@@ -58,12 +58,29 @@ jobs:
         run: terraform apply -auto-approve -lock=false
         working-directory: terraform-test-environment-module
       
-      - id: id
-        run: echo "id=$(terraform output id | xargs)" >> $GITHUB_OUTPUT
+      - name: Terraform Output
+        id: terraform-output
+        run: |
+          echo "id=$(terraform output id | xargs)" >> $GITHUB_OUTPUT
+          echo "url=$(terraform output host | xargs)" >> $GITHUB_OUTPUT
         working-directory: terraform-test-environment-module
-      
-      - run: aws ec2 wait instance-status-ok --instance-ids ${{ steps.id.outputs.id }}
 
+      - name: Set up Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        working-directory: ./main/recipes/natural_language_processing/chatbot
+        run: make install
+
+      - name: Wait for the user data script to finish
+        run: sleep 240
+
+      - name: Run Integration Tests
+        working-directory: ./main/recipes/natural_language_processing/chatbot
+        run: make URL=${{ steps.terraform-output.outputs.url }} integration_tests
+ 
       - name: Destroy Test Environment
         id: down
         if: always()

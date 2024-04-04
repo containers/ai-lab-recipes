@@ -57,9 +57,9 @@ jobs:
         working-directory: ./recipes/natural_language_processing/chatbot
         run: make install
 
-      - name: Run tests
+      - name: Run Functional Tests
         working-directory: ./recipes/natural_language_processing/chatbot
-        run: make test
+        run: make functional_tests
 
       - name: Login to github container registry
         if: >

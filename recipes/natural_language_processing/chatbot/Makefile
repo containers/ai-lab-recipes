@@ -41,9 +41,13 @@ install:
 run: 
 	podman run -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 ghcr.io/ai-lab-recipes/${APP}
 
-.PHONY: test
-test:
-	python3 -m pytest -vvv --driver=Chrome --driver-path=./chromedriver tests
+.PHONY: functional_tests
+functional_tests:
+	python3 -m pytest -vvv --driver=Chrome --driver-path=./chromedriver tests/functional
+
+.PHONY: integration_test
+integration_tests:
+	URL=${URL} python3 -m pytest -vvv --driver=Chrome --driver-path=./chromedriver tests/integration
 
 .PHONY: clean
 clean:
