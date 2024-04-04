@@ -1,4 +1,5 @@
 APP=rag
+HOSTDATADIR ?= ${HOME}/rag/data
 CHROMADBIMAGE ?= quay.io/ai-lab/chromadb:latest
 MODELIMAGE ?= quay.io/ai-lab/mistral-7b-instruct:latest
 APPIMAGE ?= quay.io/ai-lab/${APP}:latest
@@ -28,6 +29,7 @@ quadlet:
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
 	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
+		-e "s|HOSTDATADIR|${HOSTDATADIR}|g" \
 	    quadlet/${APP}.yaml \
 	    > build/${APP}.yaml
 	cp quadlet/${APP}.kube build/${APP}.kube
