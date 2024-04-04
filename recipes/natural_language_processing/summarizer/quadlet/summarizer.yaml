@@ -7,7 +7,7 @@ metadata:
 spec:
   initContainers:
   - name: model-file
-    image: quay.io/ai-lab/mistral-7b-instruct:latest
+    image: MODELIMAGE
     command: ['/usr/bin/install', "/model/mistral-7b-instruct-v0.1.Q4_K_M.gguf", "/shared/"]
     volumeMounts:
     - name: model-file
@@ -16,7 +16,7 @@ spec:
   - env:
     - name: MODEL_SERVICE_ENDPOINT
       value: http://0.0.0.0:8001/v1
-    image: quay.io/redhat-et/locallm-text-summarizer:latest
+    image: APPIMAGE
     name: summarizer-inference
     ports:
     - containerPort: 8501
@@ -30,7 +30,7 @@ spec:
       value: 8001
     - name: MODEL_PATH
       value: /model/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-    image: quay.io/ai-lab/llamacpp-python:latest
+    image: SERVERIMAGE
     name: summarizer-model-service
     ports:
     - containerPort: 8001
