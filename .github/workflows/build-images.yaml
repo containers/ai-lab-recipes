@@ -9,8 +9,6 @@ on:
     workflow_dispatch:
     branches: [main]
 
-permissions: write-all
-
 jobs:
   build:
     runs-on: ubuntu-latest  # windows-latest || macos-latest
@@ -23,6 +21,11 @@ jobs:
       RAG_IMAGE: rag
       CHROMADB_IMAGE: chromadb
     steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
@@ -127,8 +130,7 @@ jobs:
         with:
           image: ${{ env.RAG_IMAGE }} 
           tags: latest ${{ github.sha }}
-          # TODO: add amd64
-          platforms: linux/arm64 
+          platforms: linux/arm64, linux/amd64 
           context: recipes/natural_language_processing/rag
           containerfiles: |
             ./recipes/natural_language_processing/rag/builds/Containerfile
