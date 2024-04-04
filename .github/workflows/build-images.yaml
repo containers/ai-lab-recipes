@@ -9,8 +9,6 @@ on:
     workflow_dispatch:
     branches: [main]
 
-permissions: write-all
-
 jobs:
   build:
     runs-on: ubuntu-latest  # windows-latest || macos-latest
@@ -23,6 +21,11 @@ jobs:
       RAG_IMAGE: rag
       CHROMADB_IMAGE: chromadb
     steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.

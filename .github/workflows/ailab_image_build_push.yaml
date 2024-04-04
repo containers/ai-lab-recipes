@@ -21,6 +21,10 @@ jobs:
       packages: write
 
     steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - uses: actions/checkout@v4.1.1
       # required for multi-arch builds
       - name: Install qemu dependency
