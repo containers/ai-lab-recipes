@@ -8,11 +8,58 @@ on:
 
 env:
   REGISTRY: quay.io/ai-lab
+  MODEL_CONVERTER_IMAGE_NAME: model-converter
   MISTRAL_MODEL_IMAGE_NAME: mistral-7b-instruct
   MISTRAL_LABEL: v0.1.Q4_K_M.gguf
   MISTRAL_MODEL_URL: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
 
 jobs:
+  build-and-push-model-converter-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # recover disk space
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - uses: actions/checkout@v4.1.1
+
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build model-converter image
+        id: build_convert_models_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.MODEL_CONVERTER_IMAGE_NAME }}
+          tags: latest
+          platforms: linux/amd64, linux/arm64
+          context: models/convert_models
+          containerfiles: ./models/convert_models/Containerfile
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push model-converter image
+        id: push_convert_models_image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_convert_models_image.outputs.image }}
+          tags: ${{ steps.build_convert_models_image.outputs.tags }}
+
   build-and-push-mistral-model-image:
     runs-on: ubuntu-latest
     permissions:
