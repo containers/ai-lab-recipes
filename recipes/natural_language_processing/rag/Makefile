@@ -1,5 +1,4 @@
 APP=rag
-HOSTDATADIR ?= ${HOME}/rag/data
 CHROMADBIMAGE ?= quay.io/ai-lab/chromadb:latest
 MODELIMAGE ?= quay.io/ai-lab/mistral-7b-instruct:latest
 APPIMAGE ?= quay.io/ai-lab/${APP}:latest
@@ -13,8 +12,7 @@ build:
 
 .PHONY: bootc
 bootc: quadlet
-	sed -i '' -e "s|$(HOSTDATADIR)|/usr/share/rag/data|g" bootc/build/${APP}.yaml
-	podman build --cap-add SYS_ADMIN --build-arg "HOSTDATADIR=${HOSTDATADIR}" --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
+	podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
 
 .PHONY: quadlet
 quadlet:
@@ -30,7 +28,6 @@ quadlet:
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
 	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
-		-e "s|HOSTDATADIR|${HOSTDATADIR}|g" \
 	    quadlet/${APP}.yaml \
 	    > bootc/build/${APP}.yaml
 	cp quadlet/${APP}.kube bootc/build/${APP}.kube

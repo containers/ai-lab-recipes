@@ -110,11 +110,10 @@ There also needs to be a volume mount into the `models/` directory so that the a
 The following Podman command can be used to run your AI Application:
 
 ```bash
-podman run --rm -it -p 8501:8501 
--e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 
--e VECTORDB_HOST=10.88.0.1 
--v Local/path/to/locallm/models/:/rag/models 
--v Local/path/to/locallm/data:/rag/data
+podman run --rm -it -p 8501:8501 \
+-e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 \
+-e VECTORDB_HOST=10.88.0.1 \
+-v Local/path/to/locallm/models/:/rag/models \
 rag   
 ```
 
