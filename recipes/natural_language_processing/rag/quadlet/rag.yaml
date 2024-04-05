@@ -23,9 +23,6 @@ spec:
       hostPort: 8501
     securityContext:
       runAsNonRoot: true
-    volumeMounts:
-    - name: data
-      mountPath: /rag/data
   - env:
     - name: CHROMADB_ENDPOINT
       value: http://0.0.0.0:800O/v1
@@ -36,9 +33,6 @@ spec:
       hostPort: 8000
     securityContext:
       runAsNonRoot: true
-    volumeMounts:
-    - name: data
-      mountPath: /rag/data
   - env:
     - name: HOST
       value: 0.0.0.0
@@ -57,9 +51,5 @@ spec:
     - name: model-file
       mountPath: /model
   volumes:
-  - name: data
-    hostPath:
-      path: HOSTDATADIR
-      type: File
   - name: model-file
     emptyDir: {}
