@@ -1,22 +1,17 @@
 # Example: an AI powered sample application is embedded as a systemd service
 # via Podman quadlet files in /usr/share/containers/systemd
 #
-# Use build command:
-# podman build --build-arg "sshpubkey=$(cat $HOME/.ssh/id_rsa.pub)" -t quay.io/exampleos/myos .
-# The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
-# public key into the image, allowing root access via ssh.
+# from recipes/natural_language_processing/summarizer, run
+# 'make bootc'
 
 FROM quay.io/centos-bootc/centos-bootc:stream9
 ARG SSHPUBKEY
 
+# The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
+# public key into the image, allowing root access via ssh.
 RUN mkdir /usr/etc-system && \
     echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
     echo ${SSHPUBKEY} > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
-
-# pre-pull workload images:
-# Comment the pull commands to keep bootc image smaller.
-# The quadlet .image file added above pulls following images on boot if not
-# pre-pulled here
 
 ARG RECIPE=summarizer
 ARG MODELIMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
@@ -24,22 +19,12 @@ ARG APPIMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVERIMAGE=quay.io/ai-lab/llamacpp-python:latest
 
 # Add quadlet files to setup system to automatically run AI application on boot
-COPY quadlet/${RECIPE}.kube quadlet/${RECIPE}.yaml /usr/share/containers/systemd
-
-# Modify quadlet files to match the server, model and app image
-RUN sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
-    -e "s|APPIMAGE|${APPIMAGE}|g" \
-    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
-    -i \
-    /usr/share/containers/systemd/${RECIPE}.yaml
+COPY build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
 
 # Because images are prepulled, no need for .image quadlet
-# COPY quadlet/${RECIPE}.image /usr/share/containers/systemd
-# RUN sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
-#    -e "s|APPIMAGE|${APPIMAGE}|g" \
-#    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
-#    -i \
-#    /usr/share/containers/systemd/${RECIPE}.image
+# If commenting out the pulls below, uncomment this to track the images
+# so the systemd service will wait for the images with the service startup
+# COPY build/${RECIPE}.image /usr/share/containers/systemd
 
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
@@ -50,6 +35,8 @@ RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 VOLUME /var/lib/containers
 
 # Prepull the model, model_server & application images to populate the system.
+# Comment the pull commands to keep bootc image smaller.
+# The quadlet .image file added above pulls following images with service startup
 RUN podman pull --root /usr/lib/containers/storage ${SERVERIMAGE}
 RUN podman pull --root /usr/lib/containers/storage ${APPIMAGE}
 RUN podman pull --root /usr/lib/containers/storage ${MODELIMAGE}
