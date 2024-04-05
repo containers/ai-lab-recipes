@@ -6,7 +6,7 @@ application:
   containers:
     - name: whispercpp-server
       contextdir: ../../../model_servers/whispercpp
-      containerfile: Containerfile
+      containerfile: ./base/Containerfile
       model-service: true
       backend: 
         - llama
