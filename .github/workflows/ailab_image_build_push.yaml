@@ -9,11 +9,139 @@ on:
 env:
   REGISTRY: quay.io/ai-lab
   CHATBOT_IMAGE_NAME: chatbot
+  SUMMARIZER_IMAGE_NAME: summarizer
   LLAMACPP_PYTHON_IMAGE_NAME: llamacpp-python
+  LLAMACPP_PYTHON_VULKAN_IMAGE_NAME: llamacpp-python-vulkan
+  LLAMACPP_PYTHON_CUDA_IMAGE_NAME: llamacpp-python-cuda
   CHROMADB_IMAGE_NAME: chromadb
   RAG_IMAGE_NAME: rag
 
 jobs:
+  build-and-push-llamacpp-python-cuda-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - uses: actions/checkout@v4.1.1
+
+      - name: Build llamacpp_python cuda
+        id: build_llamacpp_python_cuda
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.LLAMACPP_PYTHON_CUDA_IMAGE_NAME }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64
+          containerfiles: ./model_servers/llamacpp_python/cuda/Containerfile
+          context: model_servers/llamacpp_python
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push llamacpp_python cuda image
+        id: push_llamacpp_python_cuda
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_llamacpp_python_cuda.outputs.image }}
+          tags: ${{ steps.build_llamacpp_python_cuda.outputs.tags }}
+
+  build-and-push-llamacpp-python-vulkan-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - uses: actions/checkout@v4.1.1
+
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build llamacpp_python vulkan
+        id: build_llamacpp_python_vulkan
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.LLAMACPP_PYTHON_VULKAN_IMAGE_NAME }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/arm64
+          containerfiles: ./model_servers/llamacpp_python/vulkan/Containerfile
+          context: model_servers/llamacpp_python
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push llamacpp_python vulkan image
+        id: push_llamacpp_python_vulkan
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_llamacpp_python_vulkan.outputs.image }}
+          tags: ${{ steps.build_llamacpp_python_vulkan.outputs.tags }}
+
+  build-and-push-llamacpp-python-base-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - uses: actions/checkout@v4.1.1
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build llamacpp_python base
+        id: build_llamacpp_python_base
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.LLAMACPP_PYTHON_IMAGE_NAME }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64
+          containerfiles: ./model_servers/llamacpp_python/base/Containerfile
+          context: model_servers/llamacpp_python
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push llamacpp_python image
+        id: push_llamacpp_python_base
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_llamacpp_python_base.outputs.image }}
+          tags: ${{ steps.build_llamacpp_python_base.outputs.tags }}
+
   build-and-push-rag-image:
     runs-on: ubuntu-latest
     permissions:
@@ -135,3 +263,43 @@ jobs:
           registry: ${{ env.REGISTRY }}
           image: ${{ steps.build_chatbot_image.outputs.image }}
           tags: ${{ steps.build_chatbot_image.outputs.tags }}
+
+  build-and-push-summarizer-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build summarizer image
+        id: build_summarizer_image
+        uses: redhat-actions/buildah-build@v2.13
+        with:
+          image: ${{ env.SUMMARIZER_IMAGE_NAME }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64
+          containerfiles: ./recipes/natural_language_processing/summarizer/builds/Containerfile
+          context: recipes/natural_language_processing/summarizer
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push summarizer image
+        id: push_summarizer_image
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_summarizer_image.outputs.image }}
+          tags: ${{ steps.build_summarizer_image.outputs.tags }}
