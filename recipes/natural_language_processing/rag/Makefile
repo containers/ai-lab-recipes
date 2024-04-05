@@ -12,27 +12,28 @@ build:
 	podman build -f builds/Containerfile -t ${APPIMAGE} .
 
 .PHONY: bootc
-bootc:
-	podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
+bootc: quadlet
+	sed -i '' -e "s|$(HOSTDATADIR)|/usr/share/rag/data|g" bootc/build/${APP}.yaml
+	podman build --cap-add SYS_ADMIN --build-arg "HOSTDATADIR=${HOSTDATADIR}" --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
 
 .PHONY: quadlet
 quadlet:
 	# Modify quadlet files to match the server, model and app image
-	mkdir -p build
+	mkdir -p bootc/build
 	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
 	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
 	    quadlet/${APP}.image \
-	    > build/${APP}.image
+	    > bootc/build/${APP}.image
 	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
 	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
 		-e "s|HOSTDATADIR|${HOSTDATADIR}|g" \
 	    quadlet/${APP}.yaml \
-	    > build/${APP}.yaml
-	cp quadlet/${APP}.kube build/${APP}.kube
+	    > bootc/build/${APP}.yaml
+	cp quadlet/${APP}.kube bootc/build/${APP}.kube
 
 .PHONY: install
 install:
