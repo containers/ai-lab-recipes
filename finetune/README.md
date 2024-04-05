@@ -32,9 +32,9 @@ This will run 10 iterations of LoRA finetuning and generate a new model that can
 
 ### Export the model
 
-Now that we have our finedtuned model we will want to move it out of the podman machine and onto our local host for use by another application. Again, I'm sure there are better ways to do this long term. 
+Now that we have our finedtuned model we will want to move it out of the Podman machine and onto our local host for use by another application. Again, I'm sure there are better ways to do this long term.
 
-Here we will rely on podman's copy function to move the model. 
+Here we will rely on Podman's copy function to move the model.
 ```bash
 podman cp <container name>:<model_file> <location/of/your/data>
 ```

@@ -19,7 +19,7 @@ podman build -t converter .
 
 ## Quantize and Convert 
 
-You can run the conversion image directly with podman in the terminal. You just need to provide it with the huggingface model you want to download, the quantization level you want to use and whether or not you want to keep the raw files after conversion. 
+You can run the conversion image directly with Podman in the terminal. You just need to provide it with the huggingface model you want to download, the quantization level you want to use and whether or not you want to keep the raw files after conversion.
 
 ```bash
 podman run -it --rm -v models:/converter/converted_models -e HF_MODEL_URL=<ORG/MODEL_NAME> -e QUANTIZATION=Q4_K_M -e KEEP_ORIGINAL_MODEL="False"
@@ -33,9 +33,9 @@ streamlit run convert_models/ui.py
 
 ## Model Storage and Use
 
-This process writes the models into a podman volume under a `gguf/` directory and not directly back to the user's host machine (This could be changed in an upcoming update if it is required).
+This process writes the models into a Podman volume under a `gguf/` directory and not directly back to the user's host machine (This could be changed in an upcoming update if it is required).
 
-If a user wants to access these models to use with the llamacpp model-service, they would simply point their model-service volume mount to the podman volume created here. For example:
+If a user wants to access these models to use with the llamacpp model-service, they would simply point their model-service volume mount to the Podman volume created here. For example:
 
 ```
 podman run -it -p 8001:8001 -v models:/locallm/models:Z -e MODEL_PATH=models/gguf/<MODEL_NAME> -e HOST=0.0.0.0 -e PORT=8001 llamacppserver
