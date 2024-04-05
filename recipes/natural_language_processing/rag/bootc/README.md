@@ -23,9 +23,10 @@ cd recipes/natural_language_processing/rag
 # commands within the container build. If the registry you are pulling images
 # from requires authentication, then you will need to volume mount the
 # auth_json file with SELinux separation disabled.
+podman login --auth-file auth.json quay.io/yourrepo
 podman build --build-arg "sshpubkey=$(cat ~/.ssh/id_rsa.pub)" \
            --security-opt label=disable \
-	   -v ${XDG_RUNTIME_DIR}/containers/auth.json:/run/containers/0/auth.json \
+	   -v ./auth.json:/run/containers/0/auth.json \
 	   --cap-add SYS_ADMIN \
 	   -t quay.io/yourrepo/youros:tag .
 
