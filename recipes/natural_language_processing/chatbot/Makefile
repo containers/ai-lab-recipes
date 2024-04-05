@@ -10,7 +10,7 @@ build:
 	podman build -f builds/Containerfile -t ${APPIMAGE} .
 
 .PHONY: bootc
-bootc:
+bootc: quadlet
 	podman build --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
 
 .PHONY: quadlet

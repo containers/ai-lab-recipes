@@ -17,20 +17,20 @@ bootc: quadlet
 .PHONY: quadlet
 quadlet:
 	# Modify quadlet files to match the server, model and app image
-	mkdir -p bootc/build
+	mkdir -p build
 	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
 	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
 	    quadlet/${APP}.image \
-	    > bootc/build/${APP}.image
+	    > build/${APP}.image
 	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
 	    -e "s|APPIMAGE|${APPIMAGE}|g" \
 	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
 	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
 	    quadlet/${APP}.yaml \
-	    > bootc/build/${APP}.yaml
-	cp quadlet/${APP}.kube bootc/build/${APP}.kube
+	    > build/${APP}.yaml
+	cp quadlet/${APP}.kube build/${APP}.kube
 
 .PHONY: install
 install:
