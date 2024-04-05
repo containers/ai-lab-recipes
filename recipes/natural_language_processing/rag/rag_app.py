@@ -4,7 +4,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.callbacks import StreamlitCallbackHandler
-from langchain_community.document_loaders import TextLoader
+from langchain.schema.document import Document
 from langchain_community.vectorstores import Chroma
 
 from chromadb import HttpClient
@@ -32,27 +32,16 @@ vectorDB_client = HttpClient(host=vdb_host,
 
 def clear_vdb():
     global vectorDB_client
-    vectorDB_client.delete_collection(vdb_name)
-    print("clearing DB")
-
-def is_text_file(file_path):
     try:
-        with open(file_path,"r") as f:
-            line = f.readline()
-            return True
+        vectorDB_client.delete_collection(vdb_name)
+        print("Cleared DB")
     except:
-        return False
-         
-def get_files():
-    file_list = pathlib.Path("data/")
-    file_list = [f for f in file_list.iterdir() if is_text_file(f)]
-    return file_list
+        pass
 
 st.title("📚 RAG DEMO")
 with st.sidebar:
-    data = st.selectbox(label="📄 Add Context",options=get_files(),on_change=clear_vdb,
-                     placeholder="Select a Document", index=None, format_func=lambda x: x.name)
-    
+    data = st.file_uploader(label="📄 Upload Document",type=['txt'], on_change=clear_vdb)
+
 ### populate the DB ####
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -63,7 +52,8 @@ collection = vectorDB_client.get_or_create_collection(vdb_name,
                                       embedding_function=embedding_func)
 if collection.count() < 1 and data != None:
     print("populating db")
-    raw_documents = TextLoader(f'{data}').load()
+    raw_documents = [Document(page_content=data.getvalue().decode("utf-8"),
+                              metadata={"":""})]
     text_splitter = CharacterTextSplitter(separator = ".",
                                           chunk_size=int(chunk_size),
                                           chunk_overlap=0)
