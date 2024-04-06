@@ -10,6 +10,35 @@
 ![](/assets/chatbot_ui.png) 
 
 
+## Try the chat application
+
+Podman desktop [AI Lab extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this application as a sample recipe.
+Choose `Recipes Catalog` -> `Chatbot` to launch from the AI Lab extension in podman desktop.
+
+There are also published images to try out this application as a local pod without the need to build anything yourself.
+Start a local pod by running the following from this directory:
+
+```
+make quadlet
+podman kube play build/chatbot.yaml
+```
+
+To monitor this application running as a local pod, run:
+
+```
+podman pod list
+podman ps
+```
+
+And, to stop the application:
+
+```
+podman pod stop chatbot
+podman pod rm chatbot
+```
+
+After the pod is running, refer to the section below to [interact with the chatbot application](#interact-with-the-ai-application).
+
 # Build the Application
 
 In order to build this application we will need a model, a Model Service and an AI Application.  
@@ -20,6 +49,7 @@ In order to build this application we will need a model, a Model Service and an 
 * [Build the AI Application](#build-the-ai-application)
 * [Deploy the AI Application](#deploy-the-ai-application)
 * [Interact with the AI Application](#interact-with-the-ai-application)
+* [Embed the AI Application in a Bootable Container Image](#embed-the-ai-application-in-a-bootable-container-image)
 
 ### Download a model
 
@@ -78,8 +108,9 @@ Now that the Model Service is running we want to build and deploy our AI Applica
 
 ```bash
 cd chatbot
-podman build -t chatbot . -f builds/Containerfile   
+make APPIMAGE=chatbot build
 ```
+
 ### Deploy the AI Application
 
 Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. The following Podman command can be used to run your AI Application:
@@ -91,3 +122,44 @@ podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001
 ### Interact with the AI Application
 
 Everything should now be up an running with the chat application available at [`http://localhost:8501`](http://localhost:8501). By using this recipe and getting this starting point established, users should now have an easier time customizing and building their own LLM enabled chatbot applications.   
+
+### Embed the AI Application in a Bootable Container Image
+
+To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, cd into this folder
+and run:
+
+
+```
+make BOOTCIMAGE=quay.io/your/bootc-chatbot:latest bootc
+```
+
+The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
+with the chatbot application, it's as simple as ssh-ing into the bootc system and running:
+
+```
+bootc switch quay.io/your/bootc-chatbot:latest
+```
+
+Upon a reboot, you'll see that the chatbot service is running on the system.
+
+Check on the service with
+
+```
+ssh user@bootc-system-ip
+sudo systemctl status chatbot
+```
+
+#### What are bootable containers?
+
+What's a [bootable OCI container](https://containers.github.io/bootc/) and what's it got to do with AI?
+
+That's a good question! We think it's a good idea to embed AI workloads (or any workload!) into bootable images at _build time_ rather than
+at _runtime_. This extends the benefits, such as portability and predictability, that containerizing applications provides to the operating system.
+Bootable OCI images bake exactly what you need to run your workloads into the operating system at build time by using your favorite containerization
+tools. Might I suggest [podman](https://podman.io/)?
+
+Once installed, a bootc enabled system can be updated by providing an updated bootable OCI image from any OCI
+image registry with a single `bootc` command. This works especially well for fleets of devices that have fixed workloads - think
+factories or appliances. Who doesn't want to add a little AI to their appliance, am I right?
+
+Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!

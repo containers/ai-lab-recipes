@@ -11,6 +11,35 @@ Our AI Application will connect to our Model Service via it's OpenAI compatible 
 ![](/assets/rag_ui.png)
 
 
+## Try the RAG chat application
+
+_COMING SOON to AI LAB_
+Podman desktop [AI Lab extension](https://github.com/containers/podman-desktop-extension-ai-lab) will include this application as a sample recipe.
+Choose `Recipes Catalog` -> `RAG Chatbot` to launch from the AI Lab extension in podman desktop when it's available.
+
+There are also published images to try out this application as a local pod without the need to build anything yourself.
+Start a local pod by running the following from this directory:
+
+```
+make quadlet
+podman kube play build/rag.yaml
+```
+
+To monitor this application running as a local pod, run:
+
+```
+podman pod list
+podman ps
+```
+
+And, to stop the application:
+
+```
+podman pod stop rag
+podman pod rm rag
+```
+
+After the pod is running, refer to the section below to [interact with the RAG chat application](#interact-with-the-ai-application).
 # Build the Application
 
 In order to build this application we will need two models, a Vector Database, a Model Service and an AI Application.  
@@ -99,8 +128,9 @@ Now that the Model Service is running we want to build and deploy our AI Applica
 
 ```bash
 cd rag
-podman build -t rag -f builds/Containerfile  .
+make APPIMAGE=rag build
 ```
+
 ### Deploy the AI Application
 
 Make sure the Model Service and the Vector Database are up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. The same goes for the Vector Database. Make sure the `VECTORDB_HOST` is correctly set to `10.88.0.1` for communication within the Podman virtual machine.
@@ -120,3 +150,44 @@ rag
 ### Interact with the AI Application
 
 Everything should now be up an running with the rag application available at [`http://localhost:8501`](http://localhost:8501). By using this recipe and getting this starting point established, users should now have an easier time customizing and building their own LLM enabled RAG applications.   
+
+### Embed the AI Application in a Bootable Container Image
+
+To build a bootable container image that includes this sample RAG chatbot workload as a service that starts when a system is booted, cd into this folder
+and run:
+
+
+```
+make BOOTCIMAGE=quay.io/your/bootc-rag-chatbot:latest bootc
+```
+
+The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
+with the RAG chatbot application, it's as simple as ssh-ing into the bootc system and running:
+
+```
+bootc switch quay.io/your/bootc-rag-chatbot:latest
+```
+
+Upon a reboot, you'll see that the RAG chatbot service is running on the system.
+
+Check on the service with
+
+```
+ssh user@bootc-system-ip
+sudo systemctl status rag
+```
+
+#### What are bootable containers?
+
+What's a [bootable OCI container](https://containers.github.io/bootc/) and what's it got to do with AI?
+
+That's a good question! We think it's a good idea to embed AI workloads (or any workload!) into bootable images at _build time_ rather than
+at _runtime_. This extends the benefits, such as portability and predictability, that containerizing applications provides to the operating system.
+Bootable OCI images bake exactly what you need to run your workloads into the operating system at build time by using your favorite containerization
+tools. Might I suggest [podman](https://podman.io/)?
+
+Once installed, a bootc enabled system can be updated by providing an updated bootable OCI image from any OCI
+image registry with a single `bootc` command. This works especially well for fleets of devices that have fixed workloads - think
+factories or appliances. Who doesn't want to add a little AI to their appliance, am I right?
+
+Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!
