@@ -6,9 +6,9 @@ on:
   
   workflow_dispatch:
 
-  # pull_request: ## temporary for debugging development purposes
-  #   branches:
-  #     - main
+  pull_request: ## temporary for debugging development purposes
+    branches:
+      - main
 
 env:
   TF_VAR_aws_region: "eu-west-2"
@@ -94,7 +94,26 @@ jobs:
         with:
           payload: |
             {
-              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              "blocks": [
+                {
+                  "type": "rich_text",
+                  "elements": [
+                    {
+                      "type": "rich_text_section",
+                      "elements": [
+                        {
+                          "type": "link",
+                          "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                          "text": "${{ github.workflow }} workflow status: ${{ job.status }}",
+                          "style": {
+                            "bold": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
