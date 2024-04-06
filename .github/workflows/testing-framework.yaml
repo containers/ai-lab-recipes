@@ -94,7 +94,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "${{ github.workflow }} workflow status: ${{ job.status }}"
+              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
