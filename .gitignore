@@ -4,6 +4,7 @@
 port_check.lock
 *build
 models/*
+model_servers/llamacpp_python/model.gguf
 !models/convert_models/*
 !models/Containerfile
 !models/README.md
