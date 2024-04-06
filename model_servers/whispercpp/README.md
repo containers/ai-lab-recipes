@@ -10,6 +10,11 @@ To build a Whisper model service container image from this directory,
 ```bash
 podman build -t whisper:image .
 ```
+or
+
+```bash
+make -f Makefile build 
+```
 
 ### Download Whisper model
 
@@ -19,10 +24,13 @@ You can to download the model from HuggingFace. There are various Whisper models
 - **small**
     - Download URL: [https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin)
 
+- **base.en**
+    - Download URL: [https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin)
+
 ```bash
-cd ../models
-wget --no-config --quiet --show-progress -O ggml-small.bin <Download URL>
-cd ../
+cd ../../models
+curl -sLO <Download URL>
+cd ../model_servers/whispercpp
 ```
 
 ### Deploy Model Service
@@ -41,6 +49,10 @@ podman run --rm -it \
         -e PORT=8001 \
         whisper:image
 ```
+
+or using the make command:
+
+`make -f Makefile run`
 
 By default, a sample `jfk.wav` file is included in the whisper image. This can be used to test with.
 The environment variable `AUDIO_FILE`, can be passed with your own audio file to override the default `/app/jfk.wav` file within the whisper image.
