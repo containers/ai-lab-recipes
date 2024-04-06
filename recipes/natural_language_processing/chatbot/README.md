@@ -130,14 +130,20 @@ and run:
 
 
 ```
-make BOOTCIMAGE=quay.io/your/bootc-chatbot:latest bootc
+make BOOTCIMAGE=quay.io/your/chatbot-bootc:latest bootc
+```
+
+Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
+
+```
+make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTCIMAGE=quay.io/your/chatbot-bootc:latest bootc
 ```
 
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
 with the chatbot application, it's as simple as ssh-ing into the bootc system and running:
 
 ```
-bootc switch quay.io/your/bootc-chatbot:latest
+bootc switch quay.io/your/chatbot-bootc:latest
 ```
 
 Upon a reboot, you'll see that the chatbot service is running on the system.

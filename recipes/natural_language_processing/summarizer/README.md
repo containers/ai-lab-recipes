@@ -126,14 +126,23 @@ To build a bootable container image that includes this sample summarizer workloa
 and run:
 
 ```
-make BOOTCIMAGE=quay.io/your/bootc-summarizer:latest bootc
+make BOOTCIMAGE=quay.io/your/summarizer-bootc:latest bootc
+```
+
+You can easily swap out the bootc/Containerfile FROM option with the following make command:
+```
+
+Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
+
+```
+make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTCIMAGE=quay.io/your/summarizer-bootc:latest bootc
 ```
 
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
 with the summarizer application, it's as simple as ssh-ing into the bootc system and running:
 
 ```
-bootc switch quay.io/your/bootc-summarizer:latest
+bootc switch quay.io/your/summarizer-bootc:latest
 ```
 
 Upon a reboot, you'll see that the summarizer service is running on the system.
