@@ -1,8 +1,8 @@
 name: Testing Framework
 
 on:
-  schedule: # schedule the job to run at 12 AM daily
-   - cron: '0 0 * * *'
+  schedule: # schedule the job to run every hour
+   - cron: '0 * * * *'
   
   workflow_dispatch:
 
@@ -86,3 +86,15 @@ jobs:
         if: always()
         run: terraform destroy -auto-approve -lock=false
         working-directory: terraform-test-environment-module
+
+      - name: Publish Job Results to Slack
+        id: slack
+        if: always()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "${{ github.workflow }} workflow status: ${{ job.status }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
