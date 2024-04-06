@@ -158,14 +158,20 @@ and run:
 
 
 ```
-make BOOTCIMAGE=quay.io/your/bootc-rag-chatbot:latest bootc
+make BOOTCIMAGE=quay.io/your/rag-bootc:latest bootc
+```
+
+Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
+
+```
+make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTCIMAGE=quay.io/your/rag-bootc:latest bootc
 ```
 
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
 with the RAG chatbot application, it's as simple as ssh-ing into the bootc system and running:
 
 ```
-bootc switch quay.io/your/bootc-rag-chatbot:latest
+bootc switch quay.io/your/rag-bootc:latest
 ```
 
 Upon a reboot, you'll see that the RAG chatbot service is running on the system.
