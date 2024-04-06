@@ -25,7 +25,7 @@ ifeq ($(OS),Linux)
 endif
 
 .Phony: all
-all: build  download-mistral-7b-instruct-v0.1.Q4_K_M.gguf run
+all: build  download-model-mistral
 
 .PHONY: build
 build:
