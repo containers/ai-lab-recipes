@@ -16,7 +16,7 @@ podman ps
 podman logs <name of container from the above>
 ```
 
-The application should be acessible at `http://localhost:8501`. It will take a few minutes for the model to load. 
+The application should be accessible at `http://localhost:8501`. It will take a few minutes for the model to load.
 
 ### Run audio-text as a systemd service
 
