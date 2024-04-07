@@ -1,18 +1,17 @@
 import pytest_container
 import os
 
-
 MS = pytest_container.Container(
         url=f"containers-storage:{os.environ['REGISTRY']}/{os.environ['IMAGE_NAME']}",
         volume_mounts=[
             pytest_container.container.BindMount(
-                container_path="/locallm/models",
-                host_path="./",
+                container_path="/locallm/models/model.gguf",
+                host_path=f"./model.gguf",
                 flags=["ro"]
             )
         ],
         extra_environment_variables={
-            "MODEL_PATH": "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+            "MODEL_PATH": "/locallm/models/model.gguf",
             "HOST": "0.0.0.0",
             "PORT": "8001"
         },
@@ -22,7 +21,6 @@ MS = pytest_container.Container(
                 host_port=8001
             )
         ],
-        extra_launch_args=["--net=host"]
     )
 
 def pytest_generate_tests(metafunc):
