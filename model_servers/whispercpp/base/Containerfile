@@ -19,6 +19,6 @@ COPY --from=builder /app /app
 COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /bin/
 COPY --from=mwader/static-ffmpeg:6.1.1 /ffprobe /bin/
 
-COPY run.sh /app/
+COPY src /app/
 ENV AUDIO_FILE=/app/jfk.wav
 ENTRYPOINT ["sh", "run.sh"]

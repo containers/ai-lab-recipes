@@ -1,0 +1,8 @@
+pip==24.0
+pytest-container==0.4.0
+pytest-selenium==4.1.0
+pytest-testinfra==10.1.0
+pytest==8.1.1
+requests==2.31.0
+selenium==4.19.0
+tenacity==8.2.3

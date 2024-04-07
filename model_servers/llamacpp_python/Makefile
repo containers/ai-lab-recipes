@@ -31,7 +31,7 @@ ifeq ($(OS),Linux)
 endif
 
 .Phony: all
-all: build download-model-mistral run
+all: build mistral run
 
 .PHONY: build
 build:
@@ -54,8 +54,8 @@ download-model-llama:
 	curl -H "Cache-Control: no-cache" -s -S -L -f $(LLAMA_MODEL_URL) -z $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME) -o $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME).tmp && mv -f $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME) 2>/dev/null || rm -f $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME)
 
 
-.PHONY: download-model-mistral
-download-model-mistral:
+.PHONY: mistral
+mistral:
 	curl -H "Cache-Control: no-cache" -s -S -L -f $(MISTRAL_MODEL_URL) -z $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) -o $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp && mv -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) 2>/dev/null || rm -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME)
 
 .PHONY: install
