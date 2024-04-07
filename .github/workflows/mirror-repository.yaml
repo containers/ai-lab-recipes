@@ -24,7 +24,7 @@ jobs:
 
       - name: Push to mirror Repository
         run: |
-          git remote add mirror https://github.com/containers-mirror/ai-lab-recipes.git
+          git remote add mirror https://${{ TOKEN }}@github.com/containers-mirror/ai-lab-recipes.git
           git push mirror main
 
       - name: Publish Job Results to Slack
