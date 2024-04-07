@@ -21,11 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
 
-      - name: Push to mirror Repository
-        run: |
-          git remote add mirror https://${{ secrets.TOKEN }}@github.com/containers-mirror/ai-lab-recipes.git
-          git push mirror main
+      - uses: pixta-dev/repository-mirroring-action@v1.1.1
+        with:
+          target_repo_url:
+            git@github.com:containers-mirror/ai-lab-recipes.git
+          ssh_private_key:
+            ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Publish Job Results to Slack
         id: slack
