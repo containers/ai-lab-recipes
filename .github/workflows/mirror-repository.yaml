@@ -1,0 +1,40 @@
+name: Mirror Repository
+
+on:
+  push:
+    branches: 
+    - main
+
+  pull_request: ## temporary for debugging development purposes
+    branches:
+      - main
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  mirror-repository:
+    if: github.repository == 'containers/ai-lab-recipes'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: Push to mirror Repository
+        run: |
+          git remote add mirror https://${{ TOKEN }}@github.com/containers-mirror/ai-lab-recipes.git
+          git push mirror main
+
+      - name: Publish Job Results to Slack
+        id: slack
+        if: always()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
