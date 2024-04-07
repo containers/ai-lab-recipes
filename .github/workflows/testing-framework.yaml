@@ -101,7 +101,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   test-make-targets:
-    if: github.repository != 'containers-mirror/ai-lab-recipes'
+    if: github.repository == 'containers-mirror/ai-lab-recipes'
     runs-on: ubuntu-22.04-2core
     steps:
       - uses: actions/checkout@v4.1.1
