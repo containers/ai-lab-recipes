@@ -14,7 +14,8 @@ ollama pull mistral
 
 Run the model server and create a volume mount into your localhost where the ollama models are stored. 
 ```bash
-podman run -it --rm -v /<LOCAL_PATH>/.ollama/:/root/.ollama:Z -p 11434:11434 ollama/ollama
+# Notes: $HOME/.ollama is the default ollama installation directory, but this may be different per person
+podman run -d -it --rm -v $HOME/.ollama:/root/.ollama:Z -p 11434:11434 ollama/ollama
 ```
 
 ### Interact with your models
