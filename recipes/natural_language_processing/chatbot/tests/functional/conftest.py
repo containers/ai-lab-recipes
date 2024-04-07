@@ -1,11 +1,9 @@
 import pytest_container
 import os
-import pytest
-from selenium import webdriver
 
 
 MS = pytest_container.Container(
-        url=f"containers-storage:{os.environ['REGISTRY']}/model_servers",
+        url=f"containers-storage:{os.environ['REGISTRY']}/llamacpp_python",
         volume_mounts=[
             pytest_container.container.BindMount(
                 container_path="/locallm/models",
