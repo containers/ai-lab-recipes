@@ -24,7 +24,7 @@ env:
   # AWS_DEFAULT_REGION: "eu-west-2"
 
 concurrency:
-  group: ${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}
   cancel-in-progress: false
 
 jobs:
