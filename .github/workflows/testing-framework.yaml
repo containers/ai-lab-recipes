@@ -6,9 +6,9 @@ on:
   
   workflow_dispatch:
 
-  pull_request: ## temporary for debugging development purposes
-    branches:
-      - main
+  # pull_request: ## temporary for debugging development purposes
+  #   branches:
+  #     - main
 
 env:
   TF_VAR_aws_region: "eu-west-2"
@@ -99,3 +99,13 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  test-make-targets:
+    if: github.repository = 'containers-mirror/ai-lab-recipes'
+    runs-on: ubuntu-22.04-2core
+    steps:
+      - uses: actions/checkout@v4.1.1
+
+      - name: chatbot
+        working-directory: ./recipes/natural_language_processing/chatbot
+        run: make bootc
