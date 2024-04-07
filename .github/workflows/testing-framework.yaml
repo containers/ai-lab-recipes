@@ -80,7 +80,9 @@ jobs:
 
       - name: Run Integration Tests
         working-directory: ./main/recipes/natural_language_processing/chatbot
-        run: make URL=${{ steps.terraform-output.outputs.url }} integration_tests
+        run: make integration-tests
+        env:
+          URL: ${{ steps.terraform-output.outputs.url }}
  
       - name: Destroy Test Environment
         id: down

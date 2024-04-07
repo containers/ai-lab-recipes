@@ -3,43 +3,34 @@ PORT ?= 8501
 
 include ../../common/Makefile.common
 
-CHROMEDRIVER_EXISTS ?= $(shell command -v chromedriver)
-UNZIP_EXISTS ?= $(shell command -v unzip)
-
-CHROMEDRIVER_VERSION := 103.0.5060.53
-CHROMEDRIVER_MIRROR := https://chromedriver.storage.googleapis.com
-CHROMEDRIVER_DOWNLOAD_PATH := 
-
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-
-ifeq ($(OS),Darwin) # This structure may vary if we upgrade chromedriver, see index: https://chromedriver.storage.googleapis.com/index.html
-	ifeq ($(ARCH),amd64)
-		CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_mac64.zip
-	else ifeq ($(ARCH),arm64)
-		CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_mac64_m1.zip
-	endif
-else ifeq ($(OS),Linux)
-	CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_linux64.zip
-endif
+CHROMEDRIVER_INSTALLATION_PATH := $(shell realpath ../..)
 
 .PHONY: install
 install:
-	@if [[ -z "$(CHROMEDRIVER_EXISTS)" ]]; then \
-		if [[ -n "$(UNZIP_EXISTS)" ]]; then \
-			curl -sLO $(CHROMEDRIVER_MIRROR)/$(CHROMEDRIVER_VERSION)/$(CHROMEDRIVER_DOWNLOAD_PATH); \
-			unzip $(CHROMEDRIVER_DOWNLOAD_PATH); \
-			mv chromedriver /usr/local/bin/chromedriver; \
-		elif [[ -z "$(UNZIP_EXISTS)" ]]; then \
-			echo "Install make target requires unizp binary."; \
-		fi; \
-	fi; \
-	pip install -r tests/requirements.txt
+	$(MAKE) install-chromedriver CHROMEDRIVER_INSTALLATION_PATH=${CHROMEDRIVER_INSTALLATION_PATH}
+	pip install -q -r tests/requirements.txt
 
-.PHONY: functional_tests
-functional_tests:
-	IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_EXISTS) tests/functional
+.PHONY: functional-tests
+functional-tests:
+	@if [[ -n "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+		IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver tests/functional; \
+	elif [[ -n "$(CHROMEDRIVER_EXISTS)" ]] && [[ -z "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+		IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_EXISTS) tests/functional; \
+	else \
+		echo "fetching chromedriver"; \
+		make install; \
+		IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver tests/functional; \
+	fi;
 
-.PHONY: integration_test
-integration_tests:
-	URL=${URL} IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_EXISTS) tests/integration
+.PHONY: integration-tests
+integration-tests:
+	@if [[ -n "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+		URL=${URL} IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver tests/integration; \
+	elif [[ -n "$(CHROMEDRIVER_EXISTS)" ]] && [[ -z "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+		URL=${URL} IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_EXISTS) tests/integration; \
+	else \
+		echo "fetching chromedriver"; \
+		make install; \
+		URL=${URL} IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_EXISTS) tests/integration
+	fi;
+	
