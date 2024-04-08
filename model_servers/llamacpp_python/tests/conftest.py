@@ -2,7 +2,7 @@ import pytest_container
 import os
 
 MS = pytest_container.Container(
-        url=f"containers-storage:{os.environ['REGISTRY']}/{os.environ['IMAGE_NAME']}",
+        url=f"containers-storage:{os.environ['REGISTRY']}/containers/{os.environ['IMAGE_NAME']}",
         volume_mounts=[
             pytest_container.container.BindMount(
                 container_path="/locallm/models/model.gguf",

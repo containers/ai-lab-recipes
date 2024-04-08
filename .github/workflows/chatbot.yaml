@@ -18,7 +18,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/chatbot
+  IMAGE_NAME: chatbot
 
 jobs:
   build-and-push-image:
@@ -43,11 +43,11 @@ jobs:
         id: build_image
         uses: redhat-actions/buildah-build@v2.13
         with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          image: ${{ env.REGISTRY }}/containers/${{ env.IMAGE_NAME }}
           tags: latest
           platforms: linux/amd64, linux/arm64
-          containerfiles: ./recipes/natural_language_processing/chatbot/builds/Containerfile
-          context: recipes/natural_language_processing/chatbot
+          containerfiles: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}/builds/Containerfile
+          context: recipes/natural_language_processing/${{ env.IMAGE_NAME }}
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
@@ -55,13 +55,13 @@ jobs:
           python-version: '3.11'
 
       - name: Install Dependencies
-        working-directory: ./recipes/natural_language_processing/chatbot
+        working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
         run: make install
 
       - name: Run Functional Tests
-        working-directory: ./recipes/natural_language_processing/chatbot
         shell: bash
         run: make functional-tests
+        working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
 
       - name: Login to Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
