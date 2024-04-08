@@ -14,6 +14,8 @@ on:
     #   - ./recipes/natural_language_processing/chatbot/**
     #   - .github/workflows/chatbot.yaml
 
+  workflow_dispatch:
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/chatbot
@@ -32,7 +34,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.1
 
-      # required for multi-arch builds
       - name: Install qemu dependency
         run: |
           sudo apt-get update
@@ -53,7 +54,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         working-directory: ./recipes/natural_language_processing/chatbot
         run: make install
 
@@ -61,21 +62,17 @@ jobs:
         working-directory: ./recipes/natural_language_processing/chatbot
         run: make functional_tests
 
-      - name: Login to github container registry
-        if: >
-          (github.event_name == 'push' || github.event_name == 'schedule') &&
-          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-        uses: docker/login-action@v3.1.0
+      - name: Login to Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/podman-login@v1.7
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push image
+      - name: Push Image
         id: push_image
-        if: >
-          (github.event_name == 'push' || github.event_name == 'schedule') &&
-          (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: redhat-actions/push-to-registry@v2.8
         with:
           image: ${{ steps.build_image.outputs.image }}
