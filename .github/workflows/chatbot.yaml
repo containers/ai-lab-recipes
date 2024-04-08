@@ -60,7 +60,7 @@ jobs:
 
       - name: Run Functional Tests
         working-directory: ./recipes/natural_language_processing/chatbot
-        run: make functional_tests
+        run: make functional-tests
 
       - name: Login to Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

@@ -8,3 +8,4 @@ model_servers/llamacpp_python/model.gguf
 !models/convert_models/*
 !models/Containerfile
 !models/README.md
+recipes/chromedriver

@@ -64,59 +64,35 @@ There are a number of options for quantization level, but we recommend `Q4_K_M`.
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
-cd models
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-cd ../
+cd ../../../models
+curl -sLO https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+cd ../recipes/natural_language_processing/chatbot
 ```
 
 _A full list of supported open models is forthcoming._  
 
 
-### Build the Model Service
+### Build and Deploy the Model Service
 
 The complete instructions for building and deploying the Model Service can be found in the
-[llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
+[llamacpp_python model-service document](../../../model_servers/llamacpp_python/README.md).
 
-The Model Service can be built from the root directory with the following code snippet:
-
-```bash
-cd model_servers/llamacpp_python
-podman build -t llamacppserver -f base/Containerfile .
-```
-
-### Deploy the Model Service
-
-The complete instructions for building and deploying the Model Service can be found in the
-[llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
-
-The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local
-Model Service using the following Podman command:
-
-```
-podman run --rm -it \
-        -p 8001:8001 \
-        -v Local/path/to/locallm/models:/locallm/models \
-        -e MODEL_PATH=models/<model-filename> \
-        -e HOST=0.0.0.0 \
-        -e PORT=8001 \
-        llamacppserver
-```
-
-### Build the AI Application
-
-Now that the Model Service is running we want to build and deploy our AI Application. Use the provided Containerfile to build the AI Application image from the `chatbot-langchain/` directory.
+The Model Service can be built and ran from make commands from the [llamacpp_python directory](../../../model_servers/llamacpp_python/).
 
 ```bash
-cd chatbot
-make APPIMAGE=chatbot build
+# from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
+make -f Makefile build && make -f Makefile run
 ```
 
-### Deploy the AI Application
+If you wish to run this as a codesnippet instead of a make command checkout the [Makefile](../../../model_servers/llamacpp_python/Makefile) to get a sense of what the code for that would look like.
 
-Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. The following Podman command can be used to run your AI Application:
+### Build and Deploy the AI Application
+
+Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To build and deploy the AI application use the following:
 
 ```bash
-podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 chatbot   
+# Run this from the current directory (path recipes/natural_language_processing/chatbot from repo containers/ai-lab-recipes)
+make -f Makefile build && make -f Makefile run 
 ```
 
 ### Interact with the AI Application
@@ -125,18 +101,12 @@ Everything should now be up an running with the chat application available at [`
 
 ### Embed the AI Application in a Bootable Container Image
 
-To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, cd into this folder
-and run:
-
-
-```
-make BOOTCIMAGE=quay.io/your/chatbot-bootc:latest bootc
-```
+To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, run: `make -f Makefile bootc`. You can optionally override the default image / tag you want to give the make command by specifiying it as follows: `make -f Makefile BOOTC_IMAGE=<your_bootc_image> bootc`.
 
 Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
 
-```
-make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTCIMAGE=quay.io/your/chatbot-bootc:latest bootc
+```bash
+make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 bootc
 ```
 
 Selecting the ARCH for the bootc/Containerfile is simple using the Makefile ARCH= option.
@@ -148,15 +118,13 @@ make ARCH=x86_64 bootc
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
 with the chatbot application, it's as simple as ssh-ing into the bootc system and running:
 
-```
-bootc switch quay.io/your/chatbot-bootc:latest
+```bash
+bootc switch quay.io/ai-lab/chatbot-bootc:latest
 ```
 
-Upon a reboot, you'll see that the chatbot service is running on the system.
+Upon a reboot, you'll see that the chatbot service is running on the system. Check on the service with:
 
-Check on the service with
-
-```
+```bash
 ssh user@bootc-system-ip
 sudo systemctl status chatbot
 ```

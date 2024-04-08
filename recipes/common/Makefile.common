@@ -1,58 +1,84 @@
-CHROMADBIMAGE ?= quay.io/ai-lab/chromadb:latest
-MODELIMAGE ?= quay.io/ai-lab/mistral-7b-instruct:latest
-APPIMAGE ?= quay.io/ai-lab/${APP}:latest
-SERVERIMAGE ?= quay.io/ai-lab/llamacpp-python:latest
-SSHPUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
-BOOTCIMAGE ?= quay.io/ai-lab/${APP}-bootc:latest
+REGISTRY ?= quay.io
+REGISTRY_ORG ?= ai-lab
+
+IMAGE_NAME ?= $(REGISTRY_ORG)/${APP}:latest
+CHROMADB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest
+MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest
+APP_IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
+SERVER_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/llamacpp-python:latest
+
+SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
+BOOTC_IMAGE ?= quay.io/$(REGISTRY_ORG)/${APP}-bootc:latest
+
 FROM ?=
 ARCH ?=
 
+CHROMEDRIVER_VERSION := 103.0.5060.53
+CHROMEDRIVER_MIRROR := https://chromedriver.storage.googleapis.com
+CHROMEDRIVER_DOWNLOAD_PATH := 
+CHROMEDRIVER_INSTALLATION_PATH ?=
+
+OS := $(shell uname -s)
+ARCH := $(shell uname -m)
+
+ifeq ($(OS),Darwin) # This structure may vary if we upgrade chromedriver, see index: https://chromedriver.storage.googleapis.com/index.html
+	ifeq ($(ARCH),amd64)
+		CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_mac64.zip
+	else ifeq ($(ARCH),arm64)
+		CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_mac64_m1.zip
+	endif
+else ifeq ($(OS),Linux)
+	CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_linux64.zip
+endif
+
+CHROMEDRIVER_EXISTS ?= $(shell command -v chromedriver)
+LOCAL_CHROMEDRIVER_EXISTS ?= $(shell command -v $(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver)
+UNZIP_EXISTS ?= $(shell command -v unzip)
+
 .PHONY: build
 build:
-	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APPIMAGE} .
+	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APP_IMAGE} .
 
 .PHONY: bootc
 bootc: quadlet
-	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
+	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} --cap-add SYS_ADMIN --build-arg "SSH_PUBKEY=$(SSH_PUBKEY)" -f bootc/Containerfile -t ${BOOTC_IMAGE} .
+
+.PHONY: install-chromedriver
+install-chromedriver:
+	@if [[ -z "$(CHROMEDRIVER_EXISTS)" ]] && [[ -z "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+		if [[ -n "$(UNZIP_EXISTS)" ]]; then \
+			curl -sLO $(CHROMEDRIVER_MIRROR)/$(CHROMEDRIVER_VERSION)/$(CHROMEDRIVER_DOWNLOAD_PATH); \
+			unzip $(CHROMEDRIVER_DOWNLOAD_PATH); \
+			mv chromedriver $(CHROMEDRIVER_INSTALLATION_PATH); \
+			rm ./$(CHROMEDRIVER_DOWNLOAD_PATH); \
+		elif [[ -z "$(UNZIP_EXISTS)" ]]; then \
+			echo "Install make target requires unizp binary."; \
+		fi; \
+	fi;
 
 .PHONY: quadlet
 quadlet:
 	# Modify quadlet files to match the server, model and app image
 	mkdir -p build
-	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
-	    -e "s|APPIMAGE|${APPIMAGE}|g" \
-	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
-	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
+	sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
+	    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
+	    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
+	    -e "s|CHROMADB_IMAGE|${CHROMADB_IMAGE}|g" \
 	    quadlet/${APP}.image \
 	    > build/${APP}.image
-	sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
-	    -e "s|APPIMAGE|${APPIMAGE}|g" \
-	    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
-	    -e "s|CHROMADBIMAGE|${CHROMADBIMAGE}|g" \
+	sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
+	    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
+	    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
+	    -e "s|CHROMADB_IMAGE|${CHROMADB_IMAGE}|g" \
 	    quadlet/${APP}.yaml \
 	    > build/${APP}.yaml
 	cp quadlet/${APP}.kube build/${APP}.kube
 
-.PHONY: install
-install:
-	wget https://www.slimjetbrowser.com/chrome/files/103.0.5060.53/google-chrome-stable_current_amd64.deb
-	sudo dpkg -i google-chrome-stable_current_amd64.deb
-	wget https://chromedriver.storage.googleapis.com/103.0.5060.53/chromedriver_linux64.zip
-	unzip chromedriver_linux64.zip
-	pip install -r tests/requirements.txt
-
 .PHONY: run
 run: 
-	podman run -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 ${APPIMAGE}
-
-.PHONY: functional_tests
-functional_tests:
-	python3 -m pytest -vvv --driver=Chrome --driver-path=./chromedriver tests/functional
-
-.PHONY: integration_test
-integration_tests:
-	URL=${URL} python3 -m pytest -vvv --driver=Chrome --driver-path=./chromedriver tests/integration
+	podman run -it -p $(PORT):$(PORT) -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 ${APP_IMAGE}
 
 .PHONY: clean
 clean:
 	rm -rf build
+	-rm -rf tests/__pycache__
