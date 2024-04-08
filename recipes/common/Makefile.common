@@ -5,14 +5,15 @@ SERVERIMAGE ?= quay.io/ai-lab/llamacpp-python:latest
 SSHPUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
 BOOTCIMAGE ?= quay.io/ai-lab/${APP}-bootc:latest
 FROM ?=
+ARCH ?=
 
 .PHONY: build
 build:
-	podman build -f builds/Containerfile -t ${APPIMAGE} .
+	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APPIMAGE} .
 
 .PHONY: bootc
 bootc: quadlet
-	podman build $${FROM:+--from $${FROM}} --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
+	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} --cap-add SYS_ADMIN --build-arg "SSHPUBKEY=$(SSHPUBKEY)" -f bootc/Containerfile -t ${BOOTCIMAGE} .
 
 .PHONY: quadlet
 quadlet:

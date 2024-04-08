@@ -139,6 +139,12 @@ Substituting the bootc/Containerfile FROM command is simple using the Makefile F
 make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTCIMAGE=quay.io/your/chatbot-bootc:latest bootc
 ```
 
+Selecting the ARCH for the bootc/Containerfile is simple using the Makefile ARCH= option.
+
+```
+make ARCH=x86_64 bootc
+```
+
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
 with the chatbot application, it's as simple as ssh-ing into the bootc system and running:
 
