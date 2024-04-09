@@ -1,10 +1,10 @@
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
 
-IMAGE_NAME ?= $(REGISTRY_ORG)/${APP}:latest
-CHROMADB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest
-MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest
 APP_IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
+CHROMADB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest
+IMAGE_NAME ?= $(REGISTRY_ORG)/${APP}:latest
+MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest
 SERVER_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/llamacpp-python:latest
 
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
@@ -41,7 +41,16 @@ build:
 
 .PHONY: bootc
 bootc: quadlet
-	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} --cap-add SYS_ADMIN --build-arg "SSH_PUBKEY=$(SSH_PUBKEY)" -f bootc/Containerfile -t ${BOOTC_IMAGE} .
+	podman build \
+	  $${ARCH:+--arch $${ARCH}} \
+	  $${FROM:+--from $${FROM}} \
+	  --cap-add SYS_ADMIN \
+	  --build-arg MODEL_IMAGE=$(MODEL_IMAGE) \
+	  --build-arg APP_IMAGE=$(APP_IMAGE) \
+	  --build-arg SERVER_IMAGE=$(SERVER_IMAGE) \
+	  --build-arg "SSHPUBKEY=$(SSHPUBKEY)" \
+	  -f bootc/Containerfile \
+	  -t ${BOOTC_IMAGE} .
 	@echo ""
 	@echo "Successfully built bootc image '${BOOTC_IMAGE}'."
 	@echo "You may now convert the image into a disk image via bootc-image-builder"

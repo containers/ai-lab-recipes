@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    app: codegen-langchain
-  name: codegen-langchain
+    app: codegen
+  name: codegen
 spec:
   initContainers:
   - name: model-file
@@ -16,7 +16,7 @@ spec:
   - env:
     - name: MODEL_SERVICE_ENDPOINT
       value: http://0.0.0.0:8001/v1
-    image: quay.io/redhat-et/locallm-codegen:latest
+    image: APP_IMAGE
     name: codegen-inference
     ports:
     - containerPort: 8501
@@ -30,7 +30,7 @@ spec:
       value: 8001
     - name: MODEL_PATH
       value: /model/codellama-7b-instruct.Q4_K_M.gguf
-    image: quay.io/redhat-et/locallm-model-service:latest
+    image: SERVICE_IMAGE
     name: codegen-model-service
     ports:
     - containerPort: 8001

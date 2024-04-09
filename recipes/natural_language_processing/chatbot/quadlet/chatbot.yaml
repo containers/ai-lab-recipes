@@ -7,7 +7,7 @@ metadata:
 spec:
   initContainers:
   - name: model-file
-    image: MODELIMAGE
+    image: MODEL_IMAGE
     command: ['/usr/bin/install', "/model/model.file", "/shared/"]
     volumeMounts:
     - name: model-file
@@ -16,7 +16,7 @@ spec:
   - env:
     - name: MODEL_SERVICE_ENDPOINT
       value: http://0.0.0.0:8001/v1
-    image: APPIMAGE
+    image: APP_IMAGE
     name: chatbot-inference
     ports:
     - containerPort: 8501
@@ -30,7 +30,7 @@ spec:
       value: 8001
     - name: MODEL_PATH
       value: /model/model.file
-    image: SERVERIMAGE
+    image: SERVER_IMAGE
     name: chatbot-model-service
     ports:
     - containerPort: 8001

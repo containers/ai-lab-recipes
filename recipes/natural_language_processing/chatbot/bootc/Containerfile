@@ -14,9 +14,9 @@ RUN mkdir /usr/etc-system && \
     echo ${SSHPUBKEY} > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
 
 ARG RECIPE=chatbot
-ARG MODELIMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
-ARG APPIMAGE=quay.io/ai-lab/${RECIPE}:latest
-ARG SERVERIMAGE=quay.io/ai-lab/llamacpp-python:latest
+ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
+ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
+ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp-python:latest
 
 # Add quadlet files to setup system to automatically run AI application on boot
 COPY build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
@@ -37,8 +37,8 @@ VOLUME /var/lib/containers
 # Prepull the model, model_server & application images to populate the system.
 # Comment the pull commands to keep bootc image smaller.
 # The quadlet .image file added above pulls following images with service startup
-RUN podman pull --root /usr/lib/containers/storage ${SERVERIMAGE}
-RUN podman pull --root /usr/lib/containers/storage ${APPIMAGE}
-RUN podman pull --root /usr/lib/containers/storage ${MODELIMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${SERVER_IMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${APP_IMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${MODEL_IMAGE}
 
 RUN podman system reset --force 2>/dev/null

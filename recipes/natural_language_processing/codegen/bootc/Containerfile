@@ -19,25 +19,25 @@ RUN mkdir /usr/etc-system && \
 # pre-pulled here
 
 ARG RECIPE=codegen
-ARG MODELIMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
-ARG APPIMAGE=quay.io/ai-lab/${RECIPE}:latest
-ARG SERVERIMAGE=quay.io/ai-lab/llamacpp-python:latest
+ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
+ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
+ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp-python:latest
 
 # Add quadlet files to setup system to automatically run AI application on boot
 COPY build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
 
 # Modify quadlet files to match the server, model and app image
-RUN sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
-    -e "s|APPIMAGE|${APPIMAGE}|g" \
-    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
+RUN sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
+    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
+    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
     -i \
     /usr/share/containers/systemd/${RECIPE}.yaml
 
 # Because images are prepulled, no need for .image quadlet
 # COPY build/${RECIPE}.image /usr/share/containers/systemd
-# RUN sed -e "s|SERVERIMAGE|${SERVERIMAGE}|" \
-#    -e "s|APPIMAGE|${APPIMAGE}|g" \
-#    -e "s|MODELIMAGE|${MODELIMAGE}|g" \
+# RUN sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
+#    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
+#    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
 #    -i \
 #    /usr/share/containers/systemd/${RECIPE}.image
 
@@ -50,8 +50,8 @@ RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 VOLUME /var/lib/containers
 
 # Prepull the model, model_server & application images to populate the system.
-RUN podman pull --root /usr/lib/containers/storage ${SERVERIMAGE}
-RUN podman pull --root /usr/lib/containers/storage ${APPIMAGE}
-RUN podman pull --root /usr/lib/containers/storage ${MODELIMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${SERVER_IMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${APP_IMAGE}
+RUN podman pull --root /usr/lib/containers/storage ${MODEL_IMAGE}
 
 RUN podman system reset --force 2>/dev/null
