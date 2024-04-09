@@ -2,6 +2,7 @@
 WantedBy=codegen.service
 
 [Image]
-Image=quay.io/redhat-et/locallm-codellama-7b-gguf:latest
-Image=quay.io/ai-lab/llamacpp-python:latest
-Image=quay.io/redhat-et/locallm-codegen:latest
+Image=APP_IMAGE
+Image=MODEL_IMAGE
+Image=SERVER_IMAGE
+

@@ -2,9 +2,9 @@ REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
 
 IMAGE_NAME ?= $(REGISTRY_ORG)/${APP}:latest
+APP_IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
 CHROMADB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest
 MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest
-APP_IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
 SERVER_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/llamacpp-python:latest
 
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
@@ -12,6 +12,19 @@ BOOTC_IMAGE ?= quay.io/$(REGISTRY_ORG)/${APP}-bootc:latest
 
 FROM ?=
 ARCH ?=
+
+ROOTLESS_AUTH_JSON=${XDG_RUNTIME_DIR}/containers/auth.json
+ROOTFUL_AUTH_JSON=/run/containers/0/auth.json
+NONLINUX_AUTH_JSON=${HOME}/.config/containers/auth.json
+AUTH_JSON=
+
+ifneq ("$(wildcard $(NONLINUX_AUTH_JSON))","")
+	AUTH_JSON=$(NONINUX_AUTH_JSON);
+else ifneq ("$(wildcard $(ROOTLESS_AUTH_JSON))","")
+	AUTH_JSON=$(ROOTLESS_AUTH_JSON);
+else ifneq ("$(wildcard $(ROOTFUL_AUTH_JSON))","")
+	AUTH_JSON=$(ROOTFUL_AUTH_JSON);
+endif
 
 CHROMEDRIVER_VERSION := 103.0.5060.53
 CHROMEDRIVER_MIRROR := https://chromedriver.storage.googleapis.com
@@ -37,11 +50,22 @@ UNZIP_EXISTS ?= $(shell command -v unzip)
 
 .PHONY: build
 build:
-	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APP_IMAGE} .
+	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APP_IMAGE} .
 
 .PHONY: bootc
 bootc: quadlet
-	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} --cap-add SYS_ADMIN --build-arg "SSH_PUBKEY=$(SSH_PUBKEY)" -f bootc/Containerfile -t ${BOOTC_IMAGE} .
+	podman build \
+	  $${ARCH:+--arch $${ARCH}} \
+	  $${FROM:+--from $${FROM}} \
+	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  --cap-add SYS_ADMIN \
+	  --build-arg MODEL_IMAGE=$(MODEL_IMAGE) \
+	  --build-arg APP_IMAGE=$(APP_IMAGE) \
+	  --build-arg SERVER_IMAGE=$(SERVER_IMAGE) \
+	  --build-arg "SSHPUBKEY=$(SSHPUBKEY)" \
+	  -v /etc/containers/policy.json:/etc/containers/policy.json \
+	  -f bootc/Containerfile \
+	  -t ${BOOTC_IMAGE} .
 	@echo ""
 	@echo "Successfully built bootc image '${BOOTC_IMAGE}'."
 	@echo "You may now convert the image into a disk image via bootc-image-builder"

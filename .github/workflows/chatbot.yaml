@@ -60,6 +60,7 @@ jobs:
 
       - name: Run Functional Tests
         working-directory: ./recipes/natural_language_processing/chatbot
+        shell: bash
         run: make functional-tests
 
       - name: Login to Registry

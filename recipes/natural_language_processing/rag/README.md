@@ -128,7 +128,7 @@ Now that the Model Service is running we want to build and deploy our AI Applica
 
 ```bash
 cd rag
-make APPIMAGE=rag build
+make APP_IMAGE=rag build
 ```
 
 ### Deploy the AI Application
@@ -158,13 +158,13 @@ and run:
 
 
 ```
-make BOOTCIMAGE=quay.io/your/rag-bootc:latest bootc
+make BOOTC_IMAGE=quay.io/your/rag-bootc:latest bootc
 ```
 
 Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
 
 ```
-make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTCIMAGE=quay.io/your/rag-bootc:latest bootc
+make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTC_IMAGE=quay.io/your/rag-bootc:latest bootc
 ```
 
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built

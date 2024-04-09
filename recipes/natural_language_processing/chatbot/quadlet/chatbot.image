@@ -2,6 +2,6 @@
 WantedBy=chatbot.service
 
 [Image]
-Image=APPIMAGE
-Image=MODELIMAGE
-Image=SERVERIMAGE
+Image=APP_IMAGE
+Image=MODEL_IMAGE
+Image=SERVER_IMAGE
