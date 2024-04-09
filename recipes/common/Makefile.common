@@ -92,7 +92,7 @@ bootc-image-builder: bootc
 	  --privileged \
 	  --pull newer \
 	  -v /etc/containers/policy.json:/etc/containers/policy.json \
-	  -v .:/output \
+	  -v ./build:/output \
 	  -v ./build/store:/store \
 	  $(BOOTC_IMAGE_BUILDER) \
 	  $${ARCH:+--target-arch $${ARCH}} \
