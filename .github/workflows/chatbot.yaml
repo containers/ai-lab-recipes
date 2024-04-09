@@ -58,6 +58,10 @@ jobs:
         working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
         run: make install
 
+      - name: Download model
+        working-directory: ./model_servers/llamacpp_python
+        run: make mistral
+
       - name: Run Functional Tests
         shell: bash
         run: make functional-tests

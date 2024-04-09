@@ -1,18 +1,32 @@
 import pytest_container
 import os
+import logging
+
+REGISTRY=os.environ['REGISTRY']
+IMAGE_NAME=os.environ['IMAGE_NAME']
+MODEL_NAME=os.environ['MODEL_NAME']
+
+logging.info("""
+Starting pytest with the following ENV vars:
+    REGISTRY: {REGISTRY}
+    IMAGE_NAME: {IMAGE_NAME}
+    MODEL_NAME: {MODEL_NAME}
+For:
+    model_server: whispercpp
+""".format(REGISTRY=REGISTRY, IMAGE_NAME=IMAGE_NAME, MODEL_NAME=MODEL_NAME))
 
 
 MS = pytest_container.Container(
-        url=f"containers-storage:{os.environ['REGISTRY']}/containers/llamacpp_python",
+        url=f"containers-storage:{REGISTRY}/{IMAGE_NAME}",
         volume_mounts=[
             pytest_container.container.BindMount(
-                container_path="/locallm/models",
-                host_path="./",
+                container_path=f"/locallm/models/${MODEL_NAME}",
+                host_path=f"./{MODEL_NAME}",
                 flags=["ro"]
             )
         ],
         extra_environment_variables={
-            "MODEL_PATH": "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf",
+            "MODEL_PATH": f"/locall/models/{MODEL_NAME}",
             "HOST": "0.0.0.0",
             "PORT": "8001"
         },
@@ -22,7 +36,7 @@ MS = pytest_container.Container(
                 host_port=8001
             )
         ],
-        extra_launch_args=["--net=host"]
+        extra_launch_args=["--network=host"]
     )
 
 CB = pytest_container.Container(
