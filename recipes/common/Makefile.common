@@ -42,6 +42,12 @@ build:
 .PHONY: bootc
 bootc: quadlet
 	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} --cap-add SYS_ADMIN --build-arg "SSH_PUBKEY=$(SSH_PUBKEY)" -f bootc/Containerfile -t ${BOOTC_IMAGE} .
+	@echo ""
+	@echo "Successfully built bootc image '${BOOTC_IMAGE}'."
+	@echo "You may now convert the image into a disk image via bootc-image-builder"
+	@echo "or the Podman Desktop Bootc Extension.  For more information, please refer to"
+	@echo "   * https://github.com/osbuild/bootc-image-builder"
+	@echo "   * https://github.com/containers/podman-desktop-extension-bootc"
 
 .PHONY: install-chromedriver
 install-chromedriver:
