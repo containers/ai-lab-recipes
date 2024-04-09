@@ -89,7 +89,44 @@ jobs:
         if: always()
         run: terraform destroy -auto-approve -lock=false
         working-directory: terraform-test-environment-module
+      
+      - name: Publish Job Results to Slack
+        id: slack
+        if: always()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
+  release-images:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: success()
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: llamacpp_python
+          - image: whispercpp
+          - image: chatbot
+    steps:
+      - name: Login to registry
+        uses: redhat-actions/podman-login@v1.7
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Copy image from one registry to another one
+        run: skopeo copy --all docker://${{ env.SOURCE_REGISTRY }}/${{ matrix.image }} docker://${{ env.TARGET_REGISTRY }}/${{ matrix.image }}
+        env:
+          SOURCE_REGISTRY: ghcr.io/containers
+          TARGET_REGISTRY: quay.io/ai-lab
+      
       - name: Publish Job Results to Slack
         id: slack
         if: always()

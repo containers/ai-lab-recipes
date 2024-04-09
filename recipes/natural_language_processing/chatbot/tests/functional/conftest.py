@@ -3,7 +3,7 @@ import os
 
 
 MS = pytest_container.Container(
-        url=f"containers-storage:{os.environ['REGISTRY']}/llamacpp_python",
+        url=f"containers-storage:{os.environ['REGISTRY']}/containers/llamacpp_python",
         volume_mounts=[
             pytest_container.container.BindMount(
                 container_path="/locallm/models",
@@ -26,7 +26,7 @@ MS = pytest_container.Container(
     )
 
 CB = pytest_container.Container(
-        url=f"containers-storage:{os.environ['REGISTRY']}/{os.environ['IMAGE_NAME']}",
+        url=f"containers-storage:{os.environ['REGISTRY']}/containers/{os.environ['IMAGE_NAME']}",
         extra_environment_variables={
             "MODEL_SERVICE_ENDPOINT": "http://10.88.0.1:8001/v1"
         },
