@@ -19,12 +19,12 @@ ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp-python:latest
 
 # Add quadlet files to setup system to automatically run AI application on boot
-COPY quadlet/${RECIPE}.kube quadlet/${RECIPE}.yaml /usr/share/containers/systemd
+COPY build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
 
 # Because images are prepulled, no need for .image quadlet
 # If commenting out the pulls below, uncomment this to track the images
 # so the systemd service will wait for the images with the service startup
-# COPY quadlet/${RECIPE}.image /usr/share/containers/systemd
+# COPY build/${RECIPE}.image /usr/share/containers/systemd
 
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
