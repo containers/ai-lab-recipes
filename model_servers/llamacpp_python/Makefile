@@ -1,9 +1,9 @@
 APP := llamacpp_python
 PORT := 8001
 
-IMAGE := quay.io/ai-lab/model_servers/$(APP):latest
-CUDA_IMAGE := quay.io/ai-lab/model_servers/$(APP)_cuda:latest
-VULKAN_IMAGE := quay.io/ai-lab/model_servers/$(APP)_vulkan:latest
+IMAGE := quay.io/ai-lab/$(APP):latest
+CUDA_IMAGE := quay.io/ai-lab/$(APP)_cuda:latest
+VULKAN_IMAGE := quay.io/ai-lab/$(APP)_vulkan:latest
 
 # ----- MODEL OPTIONS -----
 
@@ -35,15 +35,15 @@ all: build mistral run
 
 .PHONY: build
 build:
-	podman build -t $(IMAGE) . -f base/Containerfile
+	podman build --squash-all -t $(IMAGE) . -f base/Containerfile
 
 .PHONY: build-cuda
 build-cuda:
-	podman build -t $(CUDA_IMAGE) . -f cuda/Containerfile
+	podman build --squash-all -t $(CUDA_IMAGE) . -f cuda/Containerfile
 
 .PHONY: build-vulkan
 build-vulkan:
-	podman build -t $(VULKAN_IMAGE) . -f cuda/Containerfile
+	podman build --squash-all -t $(VULKAN_IMAGE) . -f cuda/Containerfile
 
 .PHONY: download-model-tiny-llama
 download-model-tiny-llama:
