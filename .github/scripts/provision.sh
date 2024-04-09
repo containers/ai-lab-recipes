@@ -2,8 +2,14 @@
 
 set -x
 
+if [[ "$(uname -m)" == "aarch64" ]]; then
+    arch="arm64"
+else
+    arch="amd64"
+fi
+
 dnf install -y podman wget \
-        https://s3.us-east-2.amazonaws.com/amazon-ssm-us-east-2/latest/linux_amd64/amazon-ssm-agent.rpm
+        https://s3.us-east-2.amazonaws.com/amazon-ssm-us-east-2/latest/linux_${arch}/amazon-ssm-agent.rpm
 dnf clean all
 
 wget -P locallm/models https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q5_K_S.gguf
