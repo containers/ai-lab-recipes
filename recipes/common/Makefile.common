@@ -6,17 +6,19 @@ APP_IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
 CHROMADB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest
 MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest
 SERVER_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/llamacpp-python:latest
-
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
 BOOTC_IMAGE ?= quay.io/$(REGISTRY_ORG)/${APP}-bootc:latest
-
+BOOTC_IMAGE_BUILDER ?= quay.io/centos-bootc/bootc-image-builder
+DISK_TYPE ?= qcow2
 FROM ?=
 ARCH ?=
+CONTAINERFILE ?= Containerfile
+GRAPH_ROOT=$(shell podman info --format '{{ .Store.GraphRoot }}')
 
 ROOTLESS_AUTH_JSON=${XDG_RUNTIME_DIR}/containers/auth.json
 ROOTFUL_AUTH_JSON=/run/containers/0/auth.json
 NONLINUX_AUTH_JSON=${HOME}/.config/containers/auth.json
-AUTH_JSON=
+AUTH_JSON ?=
 
 ifneq ("$(wildcard $(NONLINUX_AUTH_JSON))","")
 	AUTH_JSON=$(NONINUX_AUTH_JSON);
@@ -58,13 +60,14 @@ bootc: quadlet
 	  $${ARCH:+--arch $${ARCH}} \
 	  $${FROM:+--from $${FROM}} \
 	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  --security-opt label=disable \
 	  --cap-add SYS_ADMIN \
 	  --build-arg MODEL_IMAGE=$(MODEL_IMAGE) \
 	  --build-arg APP_IMAGE=$(APP_IMAGE) \
 	  --build-arg SERVER_IMAGE=$(SERVER_IMAGE) \
 	  --build-arg "SSHPUBKEY=$(SSHPUBKEY)" \
 	  -v /etc/containers/policy.json:/etc/containers/policy.json \
-	  -f bootc/Containerfile \
+	  -f bootc/$(CONTAINERFILE) \
 	  -t ${BOOTC_IMAGE} .
 	@echo ""
 	@echo "Successfully built bootc image '${BOOTC_IMAGE}'."
@@ -72,6 +75,26 @@ bootc: quadlet
 	@echo "or the Podman Desktop Bootc Extension.  For more information, please refer to"
 	@echo "   * https://github.com/osbuild/bootc-image-builder"
 	@echo "   * https://github.com/containers/podman-desktop-extension-bootc"
+
+.PHONY: bootc-image-builder
+bootc-image-builder: bootc
+	mkdir -p build/store
+	podman run \
+	  --rm \
+	  -ti \
+	  -v $(GRAPH_ROOT):/var/lib/containers/storage \
+	  $${ARCH:+--arch $${ARCH}} \
+	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  --privileged \
+	  --pull newer \
+	  -v /etc/containers/policy.json:/etc/containers/policy.json \
+	  -v .:/output \
+	  -v ./build/store:/store \
+	  $(BOOTC_IMAGE_BUILDER) \
+	  $${ARCH:+--target-arch $${ARCH}} \
+	  --type $(DISK_TYPE) \
+	  --local \
+	  $(BOOTC_IMAGE)
 
 .PHONY: install-chromedriver
 install-chromedriver:
