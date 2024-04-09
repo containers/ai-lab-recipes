@@ -12,7 +12,6 @@ on:
 
 env:
   TF_VAR_aws_region: "eu-west-2"
-  TF_VAR_aws_instance_type: "t3.large"
   TF_VAR_aws_ami_owners: '["125523088429"]'
   TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
   TF_VAR_aws_volume_size: 100
@@ -31,6 +30,16 @@ jobs:
   integration-tests:
     if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            aws_image_type: t3a.medium	
+            aws_ami_architecture: x86_64
+          - arch: arm64
+            aws_image_type: m7g.medium
+            aws_ami_architecture: arm64
     steps:
       - uses: actions/checkout@v4.1.1
         with:
@@ -58,6 +67,9 @@ jobs:
         id: up
         run: terraform apply -auto-approve -lock=false
         working-directory: terraform-test-environment-module
+        env:
+          TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
+          TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
       
       - name: Terraform Output
         id: terraform-output
@@ -89,6 +101,9 @@ jobs:
         if: always()
         run: terraform destroy -auto-approve -lock=false
         working-directory: terraform-test-environment-module
+        env:
+          TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
+          TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
       
       - name: Publish Job Results to Slack
         id: slack
