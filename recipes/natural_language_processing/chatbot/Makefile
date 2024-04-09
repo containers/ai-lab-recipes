@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 APP ?= chatbot
 PORT ?= 8501
 
