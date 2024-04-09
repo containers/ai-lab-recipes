@@ -37,7 +37,7 @@ UNZIP_EXISTS ?= $(shell command -v unzip)
 
 .PHONY: build
 build:
-	podman build $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APP_IMAGE} .
+	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APP_IMAGE} .
 
 .PHONY: bootc
 bootc: quadlet
