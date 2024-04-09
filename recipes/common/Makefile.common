@@ -30,6 +30,7 @@ CHROMEDRIVER_VERSION := 103.0.5060.53
 CHROMEDRIVER_MIRROR := https://chromedriver.storage.googleapis.com
 CHROMEDRIVER_DOWNLOAD_PATH := 
 CHROMEDRIVER_INSTALLATION_PATH ?=
+CHROME_DOWNLOAD_PATH ?=
 
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)
@@ -40,11 +41,14 @@ ifeq ($(OS),Darwin) # This structure may vary if we upgrade chromedriver, see in
 	else ifeq ($(ARCH),arm64)
 		CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_mac64_m1.zip
 	endif
+	CHROME_DOWNLOAD_PATH := googlechrome.dmg
 else ifeq ($(OS),Linux)
 	CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_linux64.zip
+	CHROME_DOWNLOAD_PATH := google-chrome-stable_current_amd64.deb
 endif
 
-CHROMEDRIVER_EXISTS ?= $(shell command -v chromedriver)
+CHROME_MIRROR := https://www.slimjet.com/chrome/files/$(CHROMEDRIVER_VERSION)/$(CHROME_DOWNLOAD_PATH)
+
 LOCAL_CHROMEDRIVER_EXISTS ?= $(shell command -v $(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver)
 UNZIP_EXISTS ?= $(shell command -v unzip)
 
@@ -75,7 +79,7 @@ bootc: quadlet
 
 .PHONY: install-chromedriver
 install-chromedriver:
-	@if [[ -z "$(CHROMEDRIVER_EXISTS)" ]] && [[ -z "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+	@if [[ -z "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
 		if [[ -n "$(UNZIP_EXISTS)" ]]; then \
 			curl -sLO $(CHROMEDRIVER_MIRROR)/$(CHROMEDRIVER_VERSION)/$(CHROMEDRIVER_DOWNLOAD_PATH); \
 			unzip $(CHROMEDRIVER_DOWNLOAD_PATH); \
@@ -83,7 +87,20 @@ install-chromedriver:
 			rm ./$(CHROMEDRIVER_DOWNLOAD_PATH); \
 		elif [[ -z "$(UNZIP_EXISTS)" ]]; then \
 			echo "Install make target requires unizp binary."; \
+			exit 1; \
 		fi; \
+	fi;
+
+.PHONY: install-chrome
+install-chrome:
+	curl -sLO $(CHROME_MIRROR)
+	@if [[ "$(OS)" == "Linux" ]]; then \
+		sudo dpkg -i $(CHROME_DOWNLOAD_PATH); \
+	elif [[ "$(OS)" == "Darwin" ]]; then \
+		open $(CHROME_DOWNLOAD_PATH); \
+		rm $(CHROME_DOWNLOAD_PATH); \
+		mv /Volumes/Google\ Chrome/Google\ Chrome.app $(CHROMEDRIVER_INSTALLATION_PATH); \
+		diskutil unmount /Volumes/Google\ Chrome; \
 	fi;
 
 .PHONY: quadlet
@@ -110,5 +127,17 @@ run:
 
 .PHONY: clean
 clean:
-	rm -rf build
+	-rm -rf build
 	-rm -rf tests/__pycache__
+	-rm ./$(MODEL_NAME) &> /dev/null
+
+.PHONY: check-model-in-path
+check-model-in-path:
+	@if [ ! -f "../../../models/$(MODEL_NAME)" ]; then \
+		echo "Model file -- $(MODEL_NAME) -- not present in the models directory."; \
+		exit 1; \
+	else \
+		if [ ! -f "./$(MODEL_NAME)" ]; then \
+            ln -s ../../../models/$(MODEL_NAME) ./$(MODEL_NAME); \
+        fi; \
+	fi;
