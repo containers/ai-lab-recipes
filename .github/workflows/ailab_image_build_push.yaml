@@ -247,8 +247,8 @@ jobs:
           image: ${{ env.CODEGEN_IMAGE_NAME }}
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64
-          containerfiles: ./recipes/natural_language_processing/codegen/builds/Containerfile
-          context: recipes/natural_language_processing/codegen
+          containerfiles: ./recipes/natural_language_processing/codegen/app/Containerfile
+          context: recipes/natural_language_processing/codegen/app
 
       - name: Login to quay.io
         uses: redhat-actions/podman-login@v1
