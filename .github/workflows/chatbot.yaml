@@ -46,8 +46,8 @@ jobs:
           image: ${{ env.REGISTRY }}/containers/${{ env.IMAGE_NAME }}
           tags: latest
           platforms: linux/amd64, linux/arm64
-          containerfiles: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}/builds/Containerfile
-          context: recipes/natural_language_processing/${{ env.IMAGE_NAME }}
+          containerfiles: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app/Containerfile
+          context: recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
