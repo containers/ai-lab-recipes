@@ -30,5 +30,3 @@ RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 
 # Added for running as an OCI Container to prevent Overlay on Overlay issues.
 VOLUME /var/lib/containers
-
-RUN podman system reset --force 2>/dev/null
