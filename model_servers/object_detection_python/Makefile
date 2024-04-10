@@ -3,20 +3,14 @@ PORT ?= 8000
 
 include ../common/Makefile.common
 
-IMAGE_NAME ?= $(REGISTRY_ORG)/$(COMPONENT)/$(APP):latest
-IMAGE := $(REGISTRY)/$(IMAGE_NAME)
-CUDA_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/$(APP)_cuda:latest
-VULKAN_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/$(APP)_vulkan:latest
-
-
 MODEL_NAME ?= facebook/detr-resnet-101
 MODELS_DIR := /models
+MODEL_PATH ?= $(MODELS_DIR)/$(MODEL_NAME)
 
 .PHONY: run
 run:
 	cd ../../models && \
-	podman run -it -d -p $(PORT):$(PORT) -v ./$(MODEL_NAME):$(MODELS_DIR)/$(MODEL_NAME):$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_DIR)/$(MODEL_NAME) -e HOST=0.0.0.0 -e PORT=$(PORT) $(IMAGE)
-
+	podman run -it -d -p $(PORT):$(PORT) -v ./$(MODEL_NAME):$(MODELS_DIR)/$(MODEL_NAME):$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODEL_PATH) -e HOST=0.0.0.0 -e PORT=$(PORT) $(IMAGE)
 
 .PHONY: all
 all: build download-model-facebook-detr-resnet-101 run 
@@ -25,11 +19,10 @@ all: build download-model-facebook-detr-resnet-101 run
 download-model-facebook-detr-resnet-101:
 	pip install -r ../../convert_models/requirements.txt
 	cd ../../convert_models/ && \
-	python3.11 download_huggingface.py -m facebook/detr-resnet-101
+	python3 download_huggingface.py -m facebook/detr-resnet-101
 	cp -r ../../convert_models/converted_models/facebook ../../models/
 
 .PHONY: test
 test:
-	$(MAKE) download-model-facebook-detr-resnet-101
-	ln -s ../../models/detr-resnet-101 ./
-	PORT=$(PORT) MODEL_NAME=$(MODEL_NAME) MODELS_PATH=$(MODELS_PATH) IMAGE=$(IMAGE) PULL_ALWAYS=0 pytest -s -vvv
+	ln -s ../../models/facebook ./
+	PORT=$(PORT) MODEL_NAME=$(MODEL_NAME) MODEL_PATH=$(MODEL_PATH) IMAGE=$(IMAGE) PULL_ALWAYS=0 pytest -s -vvv

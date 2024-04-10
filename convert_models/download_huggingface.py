@@ -7,5 +7,4 @@ args = parser.parse_args()
 
 snapshot_download(repo_id=args.model,
                 local_dir=f"converted_models/{args.model}",
-                local_dir_use_symlinks=True,
-                cache_dir=f"converted_models/cache")
+                local_dir_use_symlinks=True)

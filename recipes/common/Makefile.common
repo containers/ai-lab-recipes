@@ -6,6 +6,12 @@ APP_IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
 CHROMADB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest
 MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest
 SERVER_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/llamacpp_python:latest
+
+MODEL_SERVER_PORT ?= 8001
+MODEL_SERVER_URL ?= 10.88.0.1
+MODEL_SERVER_CONNECTION_PROTOCOL ?= http
+MODEL_ENDPOINT ?= $(MODEL_SERVER_CONNECTION_PROTOCOL)://$(MODEL_SERVER_URL):$(MODEL_SERVER_PORT)
+
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
 BOOTC_IMAGE ?= quay.io/$(REGISTRY_ORG)/${APP}-bootc:latest
 BOOTC_IMAGE_BUILDER ?= quay.io/centos-bootc/bootc-image-builder
@@ -59,8 +65,8 @@ CHROME_MIRROR := https://www.slimjet.com/chrome/files/$(CHROMEDRIVER_VERSION)/$(
 LOCAL_CHROMEDRIVER_EXISTS ?= $(shell command -v $(RECIPE_BINARIES_PATH)/chromedriver)
 UNZIP_EXISTS ?= $(shell command -v unzip)
 
-RELATIVE_MODELS_PATH := ?=
-RELATIVE_TESTS_PATH := ?=
+RELATIVE_MODELS_PATH ?=
+RELATIVE_TESTS_PATH ?=
 
 MISTRAL_MODEL_NAME := mistral-7b-instruct-v0.1.Q4_K_M.gguf
 MISTRAL_MODEL_URL := https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
@@ -172,7 +178,7 @@ quadlet:
 
 .PHONY: run
 run: 
-	podman run -it -p $(PORT):$(PORT) -e MODEL_ENDPOINT=http://10.88.0.1:8001 ${APP_IMAGE}
+	podman run -it -p $(PORT):$(PORT) -e MODEL_ENDPOINT=$(MODEL_ENDPOINT) ${APP_IMAGE}
 
 .PHONY: clean
 clean:

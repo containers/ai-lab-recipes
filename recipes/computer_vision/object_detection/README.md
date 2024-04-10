@@ -81,7 +81,7 @@ This could be any appropriately hosted Model Service (running locally or in the 
 The following Podman command can be used to run your AI Application:
 
 ```bash
-podman run -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8000/detection object_detection_client
+podman build -t $(IMAGE) app/
 ```
 
 ### Interact with the AI Application

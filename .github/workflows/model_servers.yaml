@@ -44,6 +44,12 @@ jobs:
             directory: whispercpp
             platforms: linux/amd64,linux/arm64
             no_gpu: 1
+          - image_name: object_detection_python
+            model: facebook-detr-resnet-101
+            flavor: base
+            directory: object_detection_python
+            platforms: linux/amd64
+            no_gpu: 1
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -92,7 +98,7 @@ jobs:
       - name: Run non-gpu tests
         working-directory: ./model_servers/${{ matrix.directory }}/
         if: ${{ matrix.no_gpu }}
-        run: make test REGISTRY=${{ env.REGISTRY }} IMAGE_NAME=${{ env.REGISTRY_ORG }}/${{ matrix.image_name}}:latest
+        run: make test REGISTRY=${{ env.REGISTRY }} IMAGE_NAME=${{ env.REGISTRY_ORG }}/${{ matrix.image_name}}:${{ steps.build_image.outputs.tags }}
 
       - name: Login to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

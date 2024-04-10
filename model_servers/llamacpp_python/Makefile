@@ -4,11 +4,6 @@ CHAT_FORMAT ?= openchat
 
 include ../common/Makefile.common
 
-IMAGE_NAME ?= $(REGISTRY_ORG)/$(COMPONENT)/$(APP):latest
-IMAGE := $(REGISTRY)/$(IMAGE_NAME)
-CUDA_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/$(APP)_cuda:latest
-VULKAN_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/$(APP)_vulkan:latest
-
 MODELS_PATH := /locallm/models
 MODEL_NAME ?= granite-7b-lab-Q4_K_M.gguf
 

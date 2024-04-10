@@ -11,7 +11,9 @@ import shutil
 
 
 app = FastAPI()
-model = os.getenv("MODEL_PATH", default="facebook/detr-resnet-101")
+model_path = os.getenv("MODEL_PATH", default="/app/models")
+model_name = os.getenv("MODEL_NAME", default="detr-resnet-101")
+model = os.path.abspath(f"{model_path}/{model_name}")
 revision = os.getenv("MODEL_REVISION", default="no_timm")
 
 if os.path.isfile(model):
