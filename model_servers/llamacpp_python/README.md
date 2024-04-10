@@ -43,6 +43,18 @@ To pull the base model service image:
 podman pull quay.io/ai-lab/llamacpp-python-cuda
 ```
 
+**IMPORTANT!**
+
+To run the Cuda image with GPU acceleration, you need to install the correct [Cuda drivers](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#driver-installation) for your system along with the [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#). Please use the links provided to find installation instructions for your system. 
+
+Once those are installed you can use the container toolkit CLI to discover your Nvidia device(s). 
+```bash
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+```
+
+Finally, you will also need to add `--device nvidia.com/gpu=all` to your `podman run` command so your container can access the GPU.
+
+
 ### Vulkan (experimental)
 
 The [Vulkan image](../llamacpp_python/vulkan/Containerfile) is experimental, but can be used for gaining partial GPU access on an M-series Mac, significantly speeding up model response time over a CPU only deployment. This image requires that your podman machine provider is "applehv" and that you use krunkit instead of vfkit. Since these tools are not currently supported by podman desktop this image will remain "experimental".    
@@ -100,6 +112,18 @@ podman run --rm -it \
   llamacpp_python \
 ```
 
+or with Cuda image
+
+```bash
+podman run --rm -it \
+  --device nvidia.com/gpu=all
+  -p 8001:8001 \
+  -v Local/path/to/locallm/models:/locallm/models:ro \
+  -e MODEL_PATH=models/mistral-7b-instruct-v0.1.Q4_K_M.gguf 
+  -e HOST=0.0.0.0 
+  -e PORT=8001 
+  llamacpp_python \
+```
 ### Multiple Model Service:
 
 To enable dynamic loading and unloading of different models present on your machine, you can start the model service with a `CONFIG_PATH` instead of a `MODEL_PATH`.
