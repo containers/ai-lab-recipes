@@ -197,3 +197,19 @@ image registry with a single `bootc` command. This works especially well for fle
 factories or appliances. Who doesn't want to add a little AI to their appliance, am I right?
 
 Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!
+
+##### Creating bootable disk images
+
+You can convert a bootc image to a bootable disk image using the
+[quay.io/centos-bootc/bootc-image-builder](https://github.com/osbuild/bootc-image-builder) container image.
+
+This container image allows you to build and deploy [multiple disk image types](../../common/README_bootc_image_builder.md) from bootc container images.
+
+Default image types can be set via the DISK_TYPE Makefile variable.
+
+`make bootc-image-builder DISK_TYPE=ami`
+
+### Makefile variables
+
+There are several [Makefile variables](../../common/README.md) defined within each `recipe` Makefile which can be
+used to override defaults for a variety of make targets.
