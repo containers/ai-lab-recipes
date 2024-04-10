@@ -52,7 +52,7 @@ podman run -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8000/detection object
 Once the client is up a running, you should be able to access it at `http://localhost:8501`. From here you can upload images from your local machine and detect objects in the image as shown below. 
 
 <p align="center">
-<img src="../assets/object_detection.png" width="70%">
+<img src="../../../assets/object_detection.png" width="70%">
 </p>
 
 

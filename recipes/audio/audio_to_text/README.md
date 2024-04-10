@@ -11,7 +11,7 @@
   Our AI Application will connect to our Model Service via it's API endpoint.
 
 <p align="center">
-<img src="../assets/whisper.png" width="70%">
+<img src="../../../assets/whisper.png" width="70%">
 </p>
 
 # Build the Application
