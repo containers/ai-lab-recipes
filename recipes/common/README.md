@@ -1,17 +1,16 @@
 # Makefile targets
 
-.PHONY: check-model-in-path
-
-| Target               | Description								       |
-|----------------------|-------------------------------------------------------------------------------|
-|bootc                 | Create bootable container image for the application			       |
-|bootc-image-builder   | Create diskimage from your bootc image to be run on a VM or physical hardware |
-|build                 | Build container image to run your app using Containerfile in app directory    |
-|clean                 | Remove contents of the build directory                                        |
-|quadlet               | Modify quadlet files into the build dir                                       |
-|run                   | Run containerizied app as a container                                         |
-| install-chromedriver | Used to testing purposes                                                      |
-| install-chrome       | Used for testing purposes                                                     |
+| Target                | Description								        |
+|-----------------------|-------------------------------------------------------------------------------|
+| bootc                 | Create bootable container image for the application			        |
+| bootc-image-builder   | Create diskimage from your bootc image to be run on a VM or physical hardware |
+| bootc-run             | Run bootable container image as a container   			       	|
+| build                 | Build container image to run your app using Containerfile in app directory    |
+| clean                 | Remove contents of the build directory                                        |
+| install-chrome        | Used for testing purposes                                                     |
+| install-chromedriver  | Used to testing purposes                                                      |
+| quadlet               | Modify quadlet files into the build dir                                       |
+| run                   | Run containerizied app as a container                                         |
 
 
 # Makefile variables

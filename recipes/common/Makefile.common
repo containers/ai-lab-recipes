@@ -80,6 +80,12 @@ bootc: quadlet
 	@echo "   * https://github.com/osbuild/bootc-image-builder"
 	@echo "   * https://github.com/containers/podman-desktop-extension-bootc"
 
+.PHONY: bootc-run
+bootc-run:
+	podman run -d --rm --name $(APP)-bootc -p 8080:8501 --privileged \
+	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  $(BOOTC_IMAGE) /sbin/init
+
 .PHONY: bootc-image-builder
 bootc-image-builder: bootc
 	mkdir -p build/store
