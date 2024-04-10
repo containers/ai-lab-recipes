@@ -35,5 +35,3 @@ RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 VOLUME /var/lib/containers
 
 COPY quadlet/${RECIPE}.image /usr/share/containers/systemd
-
-RUN podman system reset --force 2>/dev/null
