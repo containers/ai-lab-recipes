@@ -78,12 +78,12 @@ podman build -t audio-to-text app
 ### Deploy the AI Application
 
 Make sure the Model Service is up and running before starting this container image.
-When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`.
+When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`.
 This could be any appropriately hosted Model Service (running locally or in the cloud) using a compatible API.
 The following Podman command can be used to run your AI Application:
 
 ```bash
-podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://0.0.0.0:8001/inference audio-to-text 
+podman run --rm -it -p 8501:8501 -e MODEL_ENDPOINT=http://0.0.0.0:8001/inference audio-to-text 
 ```
 
 ### Interact with the AI Application
