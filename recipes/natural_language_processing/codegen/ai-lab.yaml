@@ -2,7 +2,7 @@ version: v1.0
 application:
   type: language
   name: codegen-demo
-  description: This is a code-generation demo application. 
+  description: This is a code generation demo application. 
   containers:
     - name: llamacpp-server
       contextdir: ../../../model_servers/llamacpp_python
@@ -17,8 +17,8 @@ application:
         - 8001
       image: quay.io/ai-lab/llamacpp-python:latest
     - name: codegen-app
-      contextdir: .
-      containerfile: builds/Containerfile
+      contextdir: app
+      containerfile: app/Containerfile
       arch:
         - arm64
         - amd64

@@ -12,7 +12,7 @@ RUN mv /usr/local/bin/sqlite3 /usr/bin/sqlite3
 ENV LD_LIBRARY_PATH="/usr/local/lib"
 ####
 WORKDIR /rag
-COPY builds/requirements.txt .
+COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /rag/requirements.txt
 COPY rag_app.py .

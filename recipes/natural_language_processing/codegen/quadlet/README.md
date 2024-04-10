@@ -1,4 +1,4 @@
-### Run code-generation as a systemd service
+### Run codegen as a systemd service
 
 ```bash
 (cd ../;make quadlet)

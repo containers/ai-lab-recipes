@@ -23,8 +23,8 @@ Recipes are currently organized by category: `audio/`, `computer_vision/`, `mult
 Inside of the new directory you should add the following files: 
 
 * `ai-lab.yaml`
-* `builds/Containerfile`
-* `builds/requirements.txt`
+* `app/Containerfile`
+* `app/requirements.txt`
 * `<NEW_RECIPE>_ui.py`
 * `README.md` 
 
@@ -53,7 +53,7 @@ application:
       image: quay.io/ai-lab/llamacppp-python:latest
     - name: streamlit-chat-app
       contextdir: .
-      containerfile: builds/Containerfile
+      containerfile: app/Containerfile
       arch:
         - arm64
         - amd64
@@ -64,14 +64,14 @@ application:
 
 You can use this example as your template and change the fields where needed to define your own recipe.
 
-### builds/Containerfile
+### app/Containerfile
 
 This will be the Containerfile used to build the client side image of your AI application. Whenever possible, we will use Red Hat's UBI as our base image. Below please see an example from the chatbot recipe.   
 
 ```Dockerfile
 FROM registry.access.redhat.com/ubi9/python-311:1-52
 WORKDIR /chat
-COPY builds/requirements.txt .
+COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /chat/requirements.txt
 COPY chatbot_ui.py .
@@ -81,7 +81,7 @@ ENTRYPOINT [ "streamlit", "run", "chatbot_ui.py" ]
 
 You can use this example as your template and change the fields where needed to define your own Containerfile.
 
-### builds/requirements.txt
+### app/requirements.txt
 
 You need to include a requirements.txt file here as well so that we ensure the correct dependencies get built into our application.
 
