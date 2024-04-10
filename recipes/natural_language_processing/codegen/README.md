@@ -4,15 +4,15 @@ This demo provides a simple recipe to help developers start building out their o
 
 There are a few options today for local Model Serving, but this recipe will use [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python) and their OpenAI compatible Model Service. There is a Containerfile provided that can be used to build this Model Service within the repo, [`model_servers/llamacpp_python/base/Containerfile`](/model_servers/llamacpp_python/base/Containerfile).
 
-Our AI Application will connect to our Model Service via it's OpenAI compatible API. In this example we rely on [Langchain's](https://python.langchain.com/docs/get_started/introduction) python package to simplify communication with our Model Service and we use [Streamlit](https://streamlit.io/) for our UI layer. Below please see an example of the code generation application.               
+Our AI Application will connect to our Model Service via it's OpenAI compatible API. In this example we rely on [Langchain's](https://python.langchain.com/docs/get_started/introduction) python package to simplify communication with our Model Service and we use [Streamlit](https://streamlit.io/) for our UI layer. Below please see an example of the code generation application.
 
 
-![](/assets/codegen_ui.png) 
+![](/assets/codegen_ui.png)
 
 
 # Build the Application
 
-In order to build this application we will need a model, a Model Service and an AI Application.  
+In order to build this application we will need a model, a Model Service and an AI Application.
 
 * [Download a model](#download-a-model)
 * [Build the Model Service](#build-the-model-service)
@@ -30,7 +30,7 @@ and quantized into the [GGUF format](https://github.com/ggerganov/ggml/blob/mast
 ways to get a GGUF version of Mistral-7B, but the simplest is to download a pre-converted one from
 [huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF.
 
-There are a number of options for quantization level, but we recommend `Q4_K_M`. 
+There are a number of options for quantization level, but we recommend `Q4_K_M`.
 
 The recommended model can be downloaded using the code snippet below:
 
@@ -40,7 +40,7 @@ wget https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main
 cd ../
 ```
 
-_A full list of supported open models is forthcoming._  
+_A full list of supported open models is forthcoming._
 
 
 ### Build the Model Service
@@ -62,12 +62,12 @@ The complete instructions for building and deploying the Model Service can be fo
 The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local Model Service using the following Podman command:
 ```
 podman run --rm -it \
-        -p 8001:8001 \
-        -v Local/path/to/locallm/models:/locallm/models \
-        -e MODEL_PATH=models/<model-filename> \
-        -e HOST=0.0.0.0 \
-        -e PORT=8001 \
-        llamacppserver
+	-p 8001:8001 \
+	-v Local/path/to/locallm/models:/locallm/models \
+	-e MODEL_PATH=models/<model-filename> \
+	-e HOST=0.0.0.0 \
+	-e PORT=8001 \
+	llamacppserver
 ```
 
 ### Build the AI Application
@@ -85,7 +85,7 @@ podman build -t codegen app
 Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. The following Podman command can be used to run your AI Application:
 
 ```bash
-podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 codegen   
+podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 codegen
 ```
 
 ### Interact with the AI Application
@@ -140,3 +140,19 @@ image registry with a single `bootc` command. This works especially well for fle
 factories or appliances. Who doesn't want to add a little AI to their appliance, am I right?
 
 Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!
+
+##### Creating bootable disk images
+
+You can convert a bootc image to a bootable disk image using the
+[quay.io/centos-bootc/bootc-image-builder](https://github.com/osbuild/bootc-image-builder) container image.
+
+This container image allows you to build and deploy [multiple disk image types](../../common/README_bootc_image_builder.md) from bootc container images.
+
+Default image types can be set via the DISK_TYPE Makefile variable.
+
+`make bootc-image-builder DISK_TYPE=ami`
+
+### Makefile variables
+
+There are several [Makefile variables](../../common/README.md) defined within each `recipe` Makefile which can be
+used to override defaults for a variety of make targets.

@@ -101,7 +101,7 @@ Everything should now be up an running with the chat application available at [`
 
 ### Embed the AI Application in a Bootable Container Image
 
-To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, run: `make -f Makefile bootc`. You can optionally override the default image / tag you want to give the make command by specifiying it as follows: `make -f Makefile BOOTC_IMAGE=<your_bootc_image> bootc`.
+To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, run: `make -f Makefile bootc`. You can optionally override the default image / tag you want to give the make command by specifying it as follows: `make -f Makefile BOOTC_IMAGE=<your_bootc_image> bootc`.
 
 Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
 
@@ -109,7 +109,7 @@ Substituting the bootc/Containerfile FROM command is simple using the Makefile F
 make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 bootc
 ```
 
-Selecting the ARCH for the bootc/Containerfile is simple using the Makefile ARCH= option.
+Selecting the ARCH for the bootc/Containerfile is simple using the Makefile ARCH= variable.
 
 ```
 make ARCH=x86_64 bootc
@@ -143,3 +143,19 @@ image registry with a single `bootc` command. This works especially well for fle
 factories or appliances. Who doesn't want to add a little AI to their appliance, am I right?
 
 Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!
+
+##### Creating bootable disk images
+
+You can convert a bootc image to a bootable disk image using the
+[quay.io/centos-bootc/bootc-image-builder](https://github.com/osbuild/bootc-image-builder) container image.
+
+This container image allows you to build and deploy [multiple disk image types](../../common/README_bootc_image_builder.md) from bootc container images.
+
+Default image types can be set via the DISK_TYPE Makefile variable.
+
+`make bootc-image-builder DISK_TYPE=ami`
+
+### Makefile variables
+
+There are several [Makefile variables](../../common/README.md) defined within each `recipe` Makefile which can be
+used to override defaults for a variety of make targets.
