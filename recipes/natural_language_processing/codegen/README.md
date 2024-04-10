@@ -72,13 +72,13 @@ podman run --rm -it \
 
 ### Build the AI Application
 
-Now that the Model Service is running we want to build and deploy our AI Application. Use the provided Containerfile to build the AI Application image from the `code-generation/` directory.
+Now that the Model Service is running we want to build and deploy our AI Application. Use the provided Containerfile to build the AI Application image from the `codegen/` directory.
 
 Run:
 
 ```bash
-cd code-generation
-podman build -t codegen . -f builds/Containerfile   
+cd codegen
+podman build -t codegen app
 ```
 ### Deploy the AI Application
 

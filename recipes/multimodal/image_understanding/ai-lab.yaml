@@ -13,8 +13,8 @@ application:
         - arm64
         - amd64
     - name: image-understanding-inference-app
-      contextdir: .
-      containerfile: builds/Containerfile
+      contextdir: app
+      containerfile: app/Containerfile
       arch:
         - arm64
         - amd64

@@ -17,8 +17,8 @@ application:
         - 8001
       image: quay.io/redhat-et/locallm-whispercpp-service:latest
     - name: whispercpp-app
-      contextdir: .
-      containerfile: builds/Containerfile
+      contextdir: app
+      containerfile: app/Containerfile
       arch:
         - arm64
         - amd64

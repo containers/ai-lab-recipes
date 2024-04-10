@@ -3,7 +3,7 @@
 ### Build image
 ```bash
 cd image_understanding
-podman build -t image_understanding . -f builds/Containerfile   
+podman build -t image_understanding app
 ```
 
 ### Run the Multimodal Model Server:

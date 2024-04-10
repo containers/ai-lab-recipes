@@ -73,7 +73,7 @@ image from the `audio-to-text/` directory.
 
 ```bash
 cd audio-to-text
-podman build -t audio-to-text . -f builds/Containerfile   
+podman build -t audio-to-text app
 ```
 ### Deploy the AI Application
 

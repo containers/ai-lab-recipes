@@ -168,8 +168,8 @@ jobs:
           image: ${{ env.RAG_IMAGE_NAME }}
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64
-          containerfiles: ./recipes/natural_language_processing/rag/builds/Containerfile
-          context: recipes/natural_language_processing/rag
+          containerfiles: ./recipes/natural_language_processing/rag/app/Containerfile
+          context: recipes/natural_language_processing/rag/app
 
       - name: Login to quay.io
         uses: redhat-actions/podman-login@v1
@@ -287,8 +287,8 @@ jobs:
           image: ${{ env.CHATBOT_IMAGE_NAME }}
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64
-          containerfiles: ./recipes/natural_language_processing/chatbot/builds/Containerfile
-          context: recipes/natural_language_processing/chatbot
+          containerfiles: ./recipes/natural_language_processing/chatbot/app/Containerfile
+          context: recipes/natural_language_processing/chatbot/app
 
       - name: Login to quay.io
         uses: redhat-actions/podman-login@v1
@@ -327,8 +327,8 @@ jobs:
           image: ${{ env.SUMMARIZER_IMAGE_NAME }}
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64
-          containerfiles: ./recipes/natural_language_processing/summarizer/builds/Containerfile
-          context: recipes/natural_language_processing/summarizer
+          containerfiles: ./recipes/natural_language_processing/summarizer/app/Containerfile
+          context: recipes/natural_language_processing/summarizer/app
 
       - name: Login to quay.io
         uses: redhat-actions/podman-login@v1

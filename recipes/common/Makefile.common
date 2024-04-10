@@ -56,7 +56,7 @@ UNZIP_EXISTS ?= $(shell command -v unzip)
 
 .PHONY: build
 build:
-	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -f builds/Containerfile -t ${APP_IMAGE} .
+	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -t ${APP_IMAGE} app/
 
 .PHONY: bootc
 bootc: quadlet
@@ -152,7 +152,7 @@ run:
 clean:
 	-rm -rf build
 	-rm -rf tests/__pycache__
-	-rm ./$(MODEL_NAME) &> /dev/null
+	-rm -f ./$(MODEL_NAME) &> /dev/null
 
 .PHONY: check-model-in-path
 check-model-in-path:

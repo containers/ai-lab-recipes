@@ -49,7 +49,7 @@ jobs:
         uses: tj-actions/changed-files@v42
         with:
           files: |
-            recipes/natural_language_processing/code-generation/**
+            recipes/natural_language_processing/codegen/**
 
       - name: Get changed chromadb files
         id: changed-files-chromadb
@@ -75,7 +75,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build code-generation
+      - name: Build codegen
         if: steps.changed-files-codegen.outputs.any_changed == 'true'
         id: build_codegen_multiplatform
         uses: redhat-actions/buildah-build@v2
@@ -83,11 +83,11 @@ jobs:
           image: ${{ env.CODEGEN_IMAGE }}
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64
-          context: recipes/natural_language_processing/code-generation
+          context: recipes/natural_language_processing/codegen/app
           containerfiles: |
-            ./recipes/natural_language_processing/code-generation/builds/Containerfile
+            ./recipes/natural_language_processing/codegen/app/Containerfile
 
-      - name: Push code-generation image
+      - name: Push codegen image
         id: push_codegen
         if: >
           (steps.changed-files-codegen.outputs.any_changed == 'true') &&
@@ -107,9 +107,9 @@ jobs:
           image: ${{ env.SUMMARIZER_IMAGE }} 
           tags: latest ${{ github.sha }}
           platforms: linux/amd64, linux/arm64 
-          context: recipes/natural_language_processing/summarizer
+          context: recipes/natural_language_processing/summarizer/app
           containerfiles: |
-            ./recipes/natural_language_processing/summarizer/builds/Containerfile
+            ./recipes/natural_language_processing/summarizer/app/Containerfile
       
       - name: Push summarizer image
         id: push_summarizer
@@ -131,9 +131,9 @@ jobs:
           image: ${{ env.RAG_IMAGE }} 
           tags: latest ${{ github.sha }}
           platforms: linux/arm64, linux/amd64 
-          context: recipes/natural_language_processing/rag
+          context: recipes/natural_language_processing/rag/app
           containerfiles: |
-            ./recipes/natural_language_processing/rag/builds/Containerfile
+            ./recipes/natural_language_processing/rag/app/Containerfile
 
       - name: Push rag image
         id: push_rag
