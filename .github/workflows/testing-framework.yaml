@@ -17,7 +17,6 @@ env:
   TF_VAR_aws_volume_size: 100
   TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
   TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  TF_VAR_provision_script: ../main/.github/scripts/provision.sh
   # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   # AWS_DEFAULT_REGION: "eu-west-2"
@@ -41,7 +40,8 @@ jobs:
             aws_image_type: m7g.medium
             aws_ami_architecture: arm64
     steps:
-      - uses: actions/checkout@v4.1.1
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
         with:
           path: main
 
@@ -59,11 +59,11 @@ jobs:
           terraform_version: "1.7.5"
           terraform_wrapper: false
 
-      - name: Init Terraform
+      - name: Init
         run: terraform init
         working-directory: terraform-test-environment-module
 
-      - name: Spin Test Environment
+      - name: Bootstrap
         id: up
         run: terraform apply -auto-approve -lock=false
         working-directory: terraform-test-environment-module
@@ -76,7 +76,20 @@ jobs:
         run: |
           echo "id=$(terraform output id | xargs)" >> $GITHUB_OUTPUT
           echo "url=$(terraform output host | xargs)" >> $GITHUB_OUTPUT
+          echo "pem_filename=$(terraform output pem_filename | xargs)" >> $GITHUB_OUTPUT
         working-directory: terraform-test-environment-module
+
+      - name: Ansible Collections
+        run: ansible-galaxy install -r ./provision/requirements.yml
+        working-directory: ./main/recipes/natural_language_processing/chatbot
+
+      - name: Provision
+        run: |
+          ansible-playbook ./main/recipes/natural_language_processing/chatbot/provision/playbook.yml \
+            -i terraform-test-environment-module/hosts.ini \
+            --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }}
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: false
 
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
@@ -86,9 +99,6 @@ jobs:
       - name: Install Dependencies
         working-directory: ./main/recipes/natural_language_processing/chatbot
         run: make install
-
-      - name: Wait for the user data script to finish
-        run: sleep 240
 
       - name: Run Integration Tests
         working-directory: ./main/recipes/natural_language_processing/chatbot
