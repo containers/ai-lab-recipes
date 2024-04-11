@@ -6,9 +6,9 @@ on:
   
   workflow_dispatch:
 
-  # pull_request: ## temporary for debugging development purposes
-  #   branches:
-  #     - main
+  pull_request: ## temporary for debugging development purposes
+    branches:
+      - main
 
 env:
   TF_VAR_aws_region: "eu-west-2"
@@ -39,6 +39,9 @@ jobs:
           - arch: arm64
             aws_image_type: m7g.medium
             aws_ami_architecture: arm64
+          - arch: amd64
+            aws_image_type: g4dn.xlarge
+            aws_ami_architecture: x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
