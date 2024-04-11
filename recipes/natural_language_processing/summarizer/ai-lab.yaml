@@ -18,7 +18,7 @@ application:
       image: quay.io/ai-lab/llamacpp-python:latest
     - name: streamlit-summary-app
       contextdir: app
-      containerfile: app/Containerfile
+      containerfile: Containerfile
       arch:
         - arm64
         - amd64
