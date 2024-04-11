@@ -18,7 +18,7 @@ application:
       image: quay.io/ai-lab/llamacppp-python:latest
     - name: streamlit-chat-app
       contextdir: app
-      containerfile: app/Containerfile
+      containerfile: Containerfile
       arch:
         - arm64
         - amd64
