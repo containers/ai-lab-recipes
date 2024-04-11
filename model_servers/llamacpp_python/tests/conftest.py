@@ -1,6 +1,7 @@
 import pytest_container
 import os
 
+# For cuda, will add this to below Container: extra_launch_args=["--device", "nvidia.com/gpu=all"],
 MS = pytest_container.Container(
         url=f"containers-storage:{os.environ['REGISTRY']}/containers/{os.environ['IMAGE_NAME']}",
         volume_mounts=[

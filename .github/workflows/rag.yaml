@@ -4,15 +4,15 @@ on:
   pull_request:
     branches:
       - main
-    # paths:
-    #   - ./recipes/natural_language_processing/rag/**
-    #   - .github/workflows/rag.yaml
+    paths:
+      - ./recipes/natural_language_processing/rag/**
+      - .github/workflows/rag.yaml
   push:
     branches:
       - main
-    # paths:
-    #   - ./recipes/natural_language_processing/rag/**
-    #   - .github/workflows/rag.yaml
+    paths:
+      - ./recipes/natural_language_processing/rag/**
+      - .github/workflows/rag.yaml
 
   workflow_dispatch:
 
@@ -32,6 +32,11 @@ jobs:
         ports:
           - 5000:5000
     steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - uses: actions/checkout@v4.1.1
 
       - name: Install qemu dependency

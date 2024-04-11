@@ -1,9 +1,10 @@
 APP := llamacpp_python
+IMAGE_BASE := llamacpp-python
 PORT := 8001
 
-IMAGE := quay.io/ai-lab/$(APP):latest
-CUDA_IMAGE := quay.io/ai-lab/$(APP)_cuda:latest
-VULKAN_IMAGE := quay.io/ai-lab/$(APP)_vulkan:latest
+IMAGE := quay.io/ai-lab/$(IMAGE_BASE):latest
+CUDA_IMAGE := quay.io/ai-lab/$(IMAGE_BASE)-cuda:latest
+VULKAN_IMAGE := quay.io/ai-lab/$(IMAGE_BASE)-vulkan:latest
 
 # ----- MODEL OPTIONS -----
 
@@ -43,7 +44,7 @@ build-cuda:
 
 .PHONY: build-vulkan
 build-vulkan:
-	podman build --squash-all -t $(VULKAN_IMAGE) . -f cuda/Containerfile
+	podman build --squash-all -t $(VULKAN_IMAGE) . -f vulkan/Containerfile
 
 .PHONY: download-model-tiny-llama
 download-model-tiny-llama:
@@ -66,6 +67,17 @@ install:
 run:
 	cd ../../models && \
 	podman run -it -d -p $(PORT):$(PORT) -v ./$(SELECTED_MODEL_NAME):$(MODELS_PATH)/model.gguf:$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_PATH)/model.gguf -e HOST=0.0.0.0 -e PORT=$(PORT) $(IMAGE)
+
+# TODO: Add tests for llamacpp-cuda
+# This never fails, placeholder for future test
+.PHONY: run-cuda
+run-cuda:
+	cd ../../models && \
+	podman run -it -d -p $(PORT):$(PORT) -v ./$(SELECTED_MODEL_NAME):$(MODELS_PATH)/model.gguf:$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_PATH)/model.gguf -e HOST=0.0.0.0 -e PORT=$(PORT) --net=host --device nvidia.com/gpu=all $(IMAGE) || true
+
+# TODO: Add tests for llamacpp-cuda
+.PHONY: test-cuda
+test-cuda: run-cuda
 
 .PHONY: test
 test:

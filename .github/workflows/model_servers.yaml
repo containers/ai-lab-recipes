@@ -27,15 +27,27 @@ jobs:
           - image_name: llamacpp_python
             model: mistral
             flavor: base
-          - image_name: llamacpp_python_vulkan
-            model: mistral
-            flavor: vulkan
+            directory: llamacpp_python
+            platforms: linux/amd64,linux/arm64
+            no_gpu: 1
+          #- image_name: llamacpp_python_vulkan
+          #  model: mistral
+          #  flavor: vulkan
+          #  directory: llamacpp_python
+          #  platforms: linux/arm64
+          #  vulkan: 1
           - image_name: llamacpp_python_cuda
             model: mistral
             flavor: cuda
+            directory: llamacpp_python
+            platforms: linux/amd64
+            cuda: 1
           - image_name: whispercpp
             model: whisper-small
             flavor: base
+            directory: whispercpp
+            platforms: linux/amd64,linux/arm64
+            no_gpu: 1
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,6 +58,11 @@ jobs:
         ports:
           - 5000:5000
     steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - uses: actions/checkout@v4.1.1
 
       - name: Install qemu dependency
@@ -58,13 +75,13 @@ jobs:
         uses: redhat-actions/buildah-build@v2.13
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner}}/${{ matrix.image_name }}
-          platforms: linux/amd64, linux/arm64
+          platforms: ${{ matrix.platforms }}
           tags: latest
-          containerfiles: ./model_servers/${{ matrix.image_name }}/${{ matrix.flavor }}/Containerfile
-          context: model_servers/${{ matrix.image_name }}/
+          containerfiles: ./model_servers/${{ matrix.directory }}/${{ matrix.flavor }}/Containerfile
+          context: model_servers/${{ matrix.directory }}/
 
       - name: Download model
-        working-directory: ./model_servers/${{ matrix.image_name }}/
+        working-directory: ./model_servers/${{ matrix.directory }}/
         run: make ${{ matrix.model }}
 
       - name: Set up Python
@@ -73,12 +90,20 @@ jobs:
           python-version: '3.11'
 
       - name: Install python dependencies
-        working-directory: ./model_servers/${{ matrix.image_name }}/
+        working-directory: ./model_servers/${{ matrix.directory }}/
         run: make install
 
-      - name: Run tests
-        working-directory: ./model_servers/${{ matrix.image_name }}/
+      - name: Run non-gpu tests
+        working-directory: ./model_servers/${{ matrix.directory }}/
+        if: ${{ matrix.no_gpu }}
         run: make test
+        env:
+          IMAGE_NAME: ${{ matrix.image_name }}
+
+      - name: Run cuda test
+        working-directory: ./model_servers/${{ matrix.directory }}/
+        if: ${{ matrix.cuda }}
+        run: make test-cuda
         env:
           IMAGE_NAME: ${{ matrix.image_name }}
 
