@@ -135,7 +135,7 @@ install-chrome:
 .PHONY: quadlet
 quadlet:
 	# Modify quadlet files to match the server, model and app image
-	mkdir -p build
+	rm -rf build; mkdir -p bootc/build; ln -sf bootc/build .
 	sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
 	    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
 	    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
@@ -157,7 +157,7 @@ run:
 
 .PHONY: clean
 clean:
-	-rm -rf build
+	-rm -rf build bootc/build
 	-rm -rf tests/__pycache__
 	-rm -f ./$(MODEL_NAME) &> /dev/null
 
