@@ -1,7 +1,7 @@
 # Example: an AI powered sample application is embedded as a systemd service
 # via Podman quadlet files in /usr/share/containers/systemd
 #
-# from recipes/natural_language_processing/summarizer, run
+# from recipes/natural_language_processing/codegen, run
 # 'make bootc'
 
 FROM quay.io/centos-bootc/centos-bootc:stream9
