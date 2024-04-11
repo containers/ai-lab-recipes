@@ -65,7 +65,7 @@ install:
 .PHONY: run
 run:
 	cd ../../models && \
-	podman run -it -d -p $(PORT):$(PORT) -v ./$(SELECTED_MODEL_NAME):$(MODELS_PATH)/model.gguf:$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_PATH)/model.gguf -e HOST=0.0.0.0 -e PORT=$(PORT) --net=host $(IMAGE)
+	podman run -it -d -p $(PORT):$(PORT) -v ./$(SELECTED_MODEL_NAME):$(MODELS_PATH)/model.gguf:$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_PATH)/model.gguf -e HOST=0.0.0.0 -e PORT=$(PORT) $(IMAGE)
 
 .PHONY: test
 test:
