@@ -7,8 +7,8 @@ metadata:
 spec:
   initContainers:
   - name: model-file
-    image: quay.io/redhat-et/locallm-codellama-7b-gguf:latest
-    command: ['/usr/bin/install', "/model/codellama-7b-instruct.Q4_K_M.gguf", "/shared/"]
+    image: quay.io/ai-lab/codellama-7b:latest
+    command: ['/usr/bin/install', "/model/model.file", "/shared/"]
     volumeMounts:
     - name: model-file
       mountPath: /shared
@@ -29,7 +29,7 @@ spec:
     - name: PORT
       value: 8001
     - name: MODEL_PATH
-      value: /model/codellama-7b-instruct.Q4_K_M.gguf
+      value: /model/model.file
     image: SERVICE_IMAGE
     name: codegen-model-service
     ports:

@@ -24,4 +24,4 @@ application:
         - amd64
       ports:
         - 8501
-      image: quay.io/redhat-et/locallm-codegen:latest
+      image: quay.io/ai-lab/codegen:latest

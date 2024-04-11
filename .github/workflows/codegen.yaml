@@ -1,24 +1,24 @@
-name: chatbot
+name: codegen
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - ./recipes/natural_language_processing/chatbot/**
-      - .github/workflows/chatbot.yaml
+      - ./recipes/natural_language_processing/codegen/**
+      - .github/workflows/codegen.yaml
   push:
     branches:
       - main
     paths:
-      - ./recipes/natural_language_processing/chatbot/**
-      - .github/workflows/chatbot.yaml
+      - ./recipes/natural_language_processing/codegen/**
+      - .github/workflows/codegen.yaml
 
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: chatbot
+  IMAGE_NAME: codegen
 
 jobs:
   build-and-push-image:

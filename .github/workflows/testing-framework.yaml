@@ -2,7 +2,7 @@ name: Testing Framework
 
 on:
   schedule: # schedule the job to run every hour
-   - cron: '0 * * * *'
+   - cron: '0 */6 * * *'
   
   workflow_dispatch:
 
@@ -42,6 +42,11 @@ jobs:
           - arch: amd64 # gpu enabled
             aws_image_type: g4dn.xlarge
             aws_ami_architecture: x86_64
+          - app_path: natural_language_processing/chatbot
+          - app_path: natural_language_processing/summarizer
+          - app_path: natural_language_processing/codegen
+          - app_path: natural_language_processing/rag
+          - app_path: audio/audio_to_text
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -84,11 +89,11 @@ jobs:
 
       - name: Ansible Collections
         run: ansible-galaxy install -r ./provision/requirements.yml
-        working-directory: ./main/recipes/natural_language_processing/chatbot
+        working-directory: ./main/recipes/${{ matrix.app_path }}
 
       - name: Provision
         run: |
-          ansible-playbook ./main/recipes/natural_language_processing/chatbot/provision/playbook.yml \
+          ansible-playbook ./main/recipes/${{ matrix.app_path }}/provision/playbook.yml \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }}
         env:
@@ -100,11 +105,11 @@ jobs:
           python-version: '3.11'
 
       - name: Install Dependencies
-        working-directory: ./main/recipes/natural_language_processing/chatbot
+        working-directory: ./main/recipes/${{ matrix.app_path }}
         run: make install
 
       - name: Run Integration Tests
-        working-directory: ./main/recipes/natural_language_processing/chatbot
+        working-directory: ./main/recipes/${{ matrix.app_path }}
         run: make integration-tests
         env:
           URL: ${{ steps.terraform-output.outputs.url }}
@@ -139,8 +144,14 @@ jobs:
       matrix:
         include:
           - image: llamacpp_python
+          - image: llamacpp_python_vulkan
+          - image: llamacpp_python_cuda
           - image: whispercpp
           - image: chatbot
+          - image: summarizer
+          - image: codegen
+          - image: rag
+          - image: transcribe
     steps:
       - name: Login to registry
         uses: redhat-actions/podman-login@v1.7
@@ -167,14 +178,23 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  test-make-targets:
+  test-make-bootc:
     if: github.repository == 'containers-mirror/ai-lab-recipes'
     runs-on: ubuntu-22.04-2core
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app_path: natural_language_processing/chatbot
+          - app_path: natural_language_processing/summarizer
+          - app_path: natural_language_processing/codegen
+          - app_path: natural_language_processing/rag
+          - app_path: audio/audio_to_text
     steps:
       - uses: actions/checkout@v4.1.1
 
-      - name: chatbot
-        working-directory: ./recipes/natural_language_processing/chatbot
+      - name: 
+        working-directory: ./recipes/${{ matrix.app_path }}
         run: make bootc
 
       - name: Publish Job Results to Slack

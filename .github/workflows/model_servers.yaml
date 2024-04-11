@@ -4,15 +4,15 @@ on:
   pull_request:
     branches:
       - main
-    # paths:
-    #   - ./model_servers/
-    #   - .github/workflows/model_servers.yaml
+    paths:
+      - ./model_servers/
+      - .github/workflows/model_servers.yaml
   push:
     branches:
       - main
-    # paths:
-    #   - ./model_servers/
-    #   - .github/workflows/model_servers.yaml
+    paths:
+      - ./model_servers/
+      - .github/workflows/model_servers.yaml
 
   workflow_dispatch:
 
@@ -26,8 +26,16 @@ jobs:
         include:
           - image_name: llamacpp_python
             model: mistral
+            flavor: base
+          - image_name: llamacpp_python_vulkan
+            model: mistral
+            flavor: vulkan
+          - image_name: llamacpp_python_cuda
+            model: mistral
+            flavor: cuda
           - image_name: whispercpp
             model: whisper-small
+            flavor: base
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -52,7 +60,7 @@ jobs:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner}}/${{ matrix.image_name }}
           platforms: linux/amd64, linux/arm64
           tags: latest
-          containerfiles: ./model_servers/${{ matrix.image_name }}/base/Containerfile
+          containerfiles: ./model_servers/${{ matrix.image_name }}/${{ matrix.flavor }}/Containerfile
           context: model_servers/${{ matrix.image_name }}/
 
       - name: Download model
