@@ -13,6 +13,8 @@ RUN mkdir /usr/etc-system && \
     echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
     echo ${SSHPUBKEY} > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
 
+ARG RECIPE=summarizer
+
 # Add quadlet files to setup system to automatically run AI application on boot
 COPY build/${RECIPE}.image build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
 
