@@ -72,7 +72,7 @@ bootc: quadlet
 	  --build-arg "SSHPUBKEY=$(SSH_PUBKEY)" \
 	  -v /etc/containers/policy.json:/etc/containers/policy.json \
 	  -f bootc/$(CONTAINERFILE) \
-	  -t ${BOOTC_IMAGE} .
+	  -t ${BOOTC_IMAGE} bootc
 	@echo ""
 	@echo "Successfully built bootc image '${BOOTC_IMAGE}'."
 	@echo "You may now convert the image into a disk image via bootc-image-builder"
