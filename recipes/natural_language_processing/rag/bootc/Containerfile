@@ -10,9 +10,9 @@ ARG SSHPUBKEY
 
 # The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
 # public key into the image, allowing root access via ssh.
-RUN mkdir /usr/etc-system && \
-    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
-    echo ${SSHPUBKEY} > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
+RUN set -eu; mkdir -p /usr/ssh && \
+    echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys
 
 ARG RECIPE=rag
 ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest

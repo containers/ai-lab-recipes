@@ -9,9 +9,9 @@
 FROM quay.io/centos-bootc/centos-bootc:stream9
 ARG SSHPUBKEY
 
-RUN mkdir /usr/etc-system && \
-    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
-    echo ${SSHPUBKEY} > /usr/etc-system/root.keys && chmod 0600 /usr/etc-system/root.keys
+RUN set -eu; mkdir -p /usr/ssh && \
+    echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys
 
 # pre-pull workload images:
 # Comment the pull commands to keep bootc image smaller.
