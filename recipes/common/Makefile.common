@@ -140,6 +140,7 @@ quadlet:
 	    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
 	    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
 	    -e "s|CHROMADB_IMAGE|${CHROMADB_IMAGE}|g" \
+	    -e "s|APP|${APP}|g" \
 	    quadlet/${APP}.image \
 	    > build/${APP}.image
 	sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
