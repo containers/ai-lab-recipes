@@ -69,7 +69,7 @@ bootc: quadlet
 	  --build-arg MODEL_IMAGE=$(MODEL_IMAGE) \
 	  --build-arg APP_IMAGE=$(APP_IMAGE) \
 	  --build-arg SERVER_IMAGE=$(SERVER_IMAGE) \
-	  --build-arg "SSHPUBKEY=$(SSHPUBKEY)" \
+	  --build-arg "SSHPUBKEY=$(SSH_PUBKEY)" \
 	  -v /etc/containers/policy.json:/etc/containers/policy.json \
 	  -f bootc/$(CONTAINERFILE) \
 	  -t ${BOOTC_IMAGE} .
