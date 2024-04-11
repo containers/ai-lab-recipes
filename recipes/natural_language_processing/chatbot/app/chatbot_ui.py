@@ -9,8 +9,9 @@ import time
 import json
 import os 
 
-model_service = os.getenv("MODEL_SERVICE_ENDPOINT",
-                          "http://localhost:8001/v1")
+model_service = os.getenv("MODEL_ENDPOINT",
+                          "http://localhost:8001")
+model_service = f"{model_service}/v1"
 
 @st.cache_resource(show_spinner=False)
 def checking_model_service():

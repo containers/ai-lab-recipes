@@ -88,7 +88,7 @@ If you wish to run this as a codesnippet instead of a make command checkout the 
 
 ### Build and Deploy the AI Application
 
-Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_SERVICE_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To build and deploy the AI application use the following:
+Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To build and deploy the AI application use the following:
 
 ```bash
 # Run this from the current directory (path recipes/natural_language_processing/chatbot from repo containers/ai-lab-recipes)

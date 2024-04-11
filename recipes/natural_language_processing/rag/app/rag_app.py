@@ -18,7 +18,8 @@ import os
 import argparse
 import pathlib
 
-model_service = os.getenv("MODEL_SERVICE_ENDPOINT","http://0.0.0.0:8001/v1")
+model_service = os.getenv("MODEL_ENDPOINT","http://0.0.0.0:8001/v1")
+model_service = f"{model_service}/v1"
 chunk_size = os.getenv("CHUNK_SIZE", 150)
 embedding_model = os.getenv("EMBEDDING_MODEL","BAAI/bge-base-en-v1.5")
 vdb_host = os.getenv("VECTORDB_HOST", "0.0.0.0")

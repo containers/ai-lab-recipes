@@ -14,8 +14,8 @@ spec:
       mountPath: /shared
   containers:
   - env:
-    - name: MODEL_SERVICE_ENDPOINT
-      value: http://0.0.0.0:8001/inference
+    - name: MODEL_ENDPOINT
+      value: http://0.0.0.0:8001
     image: quay.io/redhat-et/locallm-audio-to-text:latest
     name: audio-to-text
     ports:
