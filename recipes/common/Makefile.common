@@ -201,7 +201,10 @@ functional-tests:
 	fi;
 
 .PHONY: integration-tests
-integration-tests:
+run-integration-tests: clean
+
+.PHONY: run-integration-tests
+run-integration-tests:
 	@if [[ -n "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
 		URL=${URL} IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver ${RELATIVE_TESTS_PATH}/integration; \
 	else \
