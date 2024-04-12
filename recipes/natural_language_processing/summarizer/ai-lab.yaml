@@ -24,4 +24,4 @@ application:
         - amd64
       ports:
         - 8501
-      image: quay.io/redhat-et/locallm-text-summarizer:latest
+      image: quay.io/ai-lab/summarizer:latest

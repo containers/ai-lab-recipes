@@ -54,6 +54,24 @@ CHROME_MIRROR := https://www.slimjet.com/chrome/files/$(CHROMEDRIVER_VERSION)/$(
 LOCAL_CHROMEDRIVER_EXISTS ?= $(shell command -v $(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver)
 UNZIP_EXISTS ?= $(shell command -v unzip)
 
+RELATIVE_MODELS_PATH := ?=
+RELATIVE_TESTS_PATH := ?=
+
+MISTRAL_MODEL_NAME := mistral-7b-instruct-v0.1.Q4_K_M.gguf
+MISTRAL_MODEL_URL := https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+
+MODEL_NAME ?= $(MISTRAL_MODEL_NAME)
+
+.PHONY: download-model-mistral
+download-model-mistral:
+	curl -H "Cache-Control: no-cache" -s -S -L -f $(MISTRAL_MODEL_URL) -z $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) -o $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp && mv -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) 2>/dev/null || rm -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME)
+
+.PHONY: install
+install:
+	$(MAKE) install-chromedriver CHROMEDRIVER_INSTALLATION_PATH=${CHROMEDRIVER_INSTALLATION_PATH}
+	$(MAKE) install-chrome CHROMEDRIVER_INSTALLATION_PATH=${CHROMEDRIVER_INSTALLATION_PATH}
+	pip install -q -r ${RELATIVE_TESTS_PATH}/requirements.txt
+
 .PHONY: build
 build:
 	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -t ${APP_IMAGE} app/
@@ -139,14 +157,12 @@ quadlet:
 	sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
 	    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
 	    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
-	    -e "s|CHROMADB_IMAGE|${CHROMADB_IMAGE}|g" \
 	    -e "s|APP|${APP}|g" \
 	    quadlet/${APP}.image \
 	    > build/${APP}.image
 	sed -e "s|SERVER_IMAGE|${SERVER_IMAGE}|" \
 	    -e "s|APP_IMAGE|${APP_IMAGE}|g" \
 	    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
-	    -e "s|CHROMADB_IMAGE|${CHROMADB_IMAGE}|g" \
 	    quadlet/${APP}.yaml \
 	    > build/${APP}.yaml
 	cp quadlet/${APP}.kube build/${APP}.kube
@@ -171,3 +187,25 @@ check-model-in-path:
             ln -s ../../../models/$(MODEL_NAME) ./$(MODEL_NAME); \
         fi; \
 	fi;
+
+.PHONY: functional-tests
+functional-tests:
+	$(MAKE) MODEL_NAME=$(MODEL_NAME) check-model-in-path 
+	@if [[ -n "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+		IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} MODEL_NAME=${MODEL_NAME} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver ${RELATIVE_TESTS_PATH}/functional; \
+	else \
+		echo "fetching chromedriver"; \
+		make install; \
+		IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} MODEL_NAME=${MODEL_NAME} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver ${RELATIVE_TESTS_PATH}/functional; \
+	fi;
+
+.PHONY: integration-tests
+integration-tests:
+	@if [[ -n "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
+		URL=${URL} IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver ${RELATIVE_TESTS_PATH}/integration; \
+	else \
+		echo "fetching chromedriver"; \
+		make install; \
+		URL=${URL} IMAGE_NAME=${IMAGE_NAME} REGISTRY=${REGISTRY} pytest -vvv --driver=Chrome --driver-path=$(CHROMEDRIVER_INSTALLATION_PATH)/chromedriver ${RELATIVE_TESTS_PATH}/integration; \
+	fi;
+

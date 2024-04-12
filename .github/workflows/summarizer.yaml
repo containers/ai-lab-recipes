@@ -1,24 +1,24 @@
-name: chatbot
+name: summarizer
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - ./recipes/natural_language_processing/chatbot/**
-      - .github/workflows/chatbot.yaml
+      - ./recipes/natural_language_processing/summarizer/**
+      - .github/workflows/summarizer.yaml
   push:
     branches:
       - main
     paths:
-      - ./recipes/natural_language_processing/chatbot/**
-      - .github/workflows/chatbot.yaml
+      - ./recipes/natural_language_processing/summarizer/**
+      - .github/workflows/summarizer.yaml
 
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: chatbot
+  IMAGE_NAME: summarizer
 
 jobs:
   build-and-push-image:

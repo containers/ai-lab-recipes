@@ -15,7 +15,7 @@ application:
         - amd64
       ports:
         - 8001
-      image: quay.io/redhat-et/locallm-whispercpp-service:latest
+      image: quay.io/ai-lab/whispercpp:latest
     - name: whispercpp-app
       contextdir: app
       containerfile: Containerfile

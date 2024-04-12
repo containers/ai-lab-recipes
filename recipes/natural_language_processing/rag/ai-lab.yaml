@@ -25,7 +25,7 @@ application:
         - amd64
       ports:
         - 8000
-      image: quay.io/redhat-et/locallm-chromadb:latest
+      image: quay.io/ai-lab/chromadb:latest
     - name: rag-inference-app
       contextdir: app
       containerfile: Containerfile
@@ -34,4 +34,4 @@ application:
         - amd64
       ports:
         - 8501
-      image: quay.io/redhat-et/locallm-rag:latest
+      image: quay.io/ai-lab/rag:latest
