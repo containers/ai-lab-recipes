@@ -64,7 +64,8 @@ MODEL_NAME ?= $(MISTRAL_MODEL_NAME)
 
 .PHONY: download-model-mistral
 download-model-mistral:
-	curl -H "Cache-Control: no-cache" -s -S -L -f $(MISTRAL_MODEL_URL) -z $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) -o $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp && mv -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) 2>/dev/null || rm -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME)
+	cd ../../../models && \
+	make MODEL_NAME=mistral-7b-instruct-v0.1.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf -f  Makefile download-model
 
 .PHONY: install
 install:
@@ -146,7 +147,7 @@ install-chrome:
 	elif [[ "$(OS)" == "Darwin" ]]; then \
 		open $(CHROME_DOWNLOAD_PATH); \
 		rm $(CHROME_DOWNLOAD_PATH); \
-		mv /Volumes/Google\ Chrome/Google\ Chrome.app $(CHROMEDRIVER_INSTALLATION_PATH); \
+		cp -r /Volumes/Google\ Chrome/Google\ Chrome.app $(CHROMEDRIVER_INSTALLATION_PATH); \
 		diskutil unmount /Volumes/Google\ Chrome; \
 	fi;
 

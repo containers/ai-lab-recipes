@@ -1,42 +1,18 @@
 APP := llamacpp_python
-IMAGE_BASE := llamacpp-python
-PORT := 8001
+PORT ?= 8001
 
-IMAGE := quay.io/ai-lab/$(IMAGE_BASE):latest
-CUDA_IMAGE := quay.io/ai-lab/$(IMAGE_BASE)-cuda:latest
-VULKAN_IMAGE := quay.io/ai-lab/$(IMAGE_BASE)-vulkan:latest
+include ../common/Makefile.common
 
-# ----- MODEL OPTIONS -----
+IMAGE_NAME ?= $(REGISTRY_ORG)/$(COMPONENT)/$(APP):latest
+IMAGE := $(REGISTRY)/$(IMAGE_NAME)
+CUDA_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/$(APP)_cuda:latest
+VULKAN_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/$(APP)_vulkan:latest
 
-LLAMA_MODEL_NAME := llama-2-7b-chat.Q5_K_S.gguf
-LLAMA_MODEL_URL := https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q5_K_S.gguf
-
-TINY_LLAMA_MODEL_NAME := tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf
-TINY_LLAMA_MODEL_URL := https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/blob/main/tinyllama-1.1b-chat-v1.0.Q4_K_S.gguf
-
-MISTRAL_MODEL_NAME := mistral-7b-instruct-v0.1.Q4_K_M.gguf
-MISTRAL_MODEL_URL := https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-
-# --- END MODEL OPTIONS ---
-
-SELECTED_MODEL_NAME := $(or $(SELECTED_MODEL),$(MISTRAL_MODEL_NAME))
-SELECTED_MODEL_URL := $(or $(SELECTED_MODEL_LINK),$(MISTRAL_MODEL_URL))
-
-RELATIVE_MODELS_PATH := ../../models
 MODELS_PATH := /locallm/models
-
-BIND_MOUNT_OPTIONS := ro
-OS := $(shell uname -s)
-ifeq ($(OS),Linux)
-    BIND_MOUNT_OPTIONS := ro,Z
-endif
+MODEL_NAME ?= mistral-7b-instruct-v0.1.Q4_K_M.gguf
 
 .Phony: all
-all: build mistral run
-
-.PHONY: build
-build:
-	podman build --squash-all -t $(IMAGE) . -f base/Containerfile
+all: build download-model-mistral run
 
 .PHONY: build-cuda
 build-cuda:
@@ -46,40 +22,7 @@ build-cuda:
 build-vulkan:
 	podman build --squash-all -t $(VULKAN_IMAGE) . -f vulkan/Containerfile
 
-.PHONY: download-model-tiny-llama
-download-model-tiny-llama:
-	curl -H "Cache-Control: no-cache" -s -S -L -f $(TINY_LLAMA_MODEL_URL) -z $(RELATIVE_MODELS_PATH)/$(LLAMA_MODEL_NAME) -o $(RELATIVE_MODELS_PATH)/$(LLAMA_MODEL_NAME).tmp && mv -f $(RELATIVE_MODELS_PATH)/$(LLAMA_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(LLAMA_MODEL_NAME) 2>/dev/null || rm -f $(RELATIVE_MODELS_PATH)/$(LLAMA_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(LLAMA_MODEL_NAME)
-
-.PHONY: download-model-llama
-download-model-llama:
-	curl -H "Cache-Control: no-cache" -s -S -L -f $(LLAMA_MODEL_URL) -z $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME) -o $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME).tmp && mv -f $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME) 2>/dev/null || rm -f $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(TINY_LLAMA_MODEL_NAME)
-
-
-.PHONY: mistral
-mistral:
-	curl -H "Cache-Control: no-cache" -s -S -L -f $(MISTRAL_MODEL_URL) -z $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) -o $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp && mv -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME) 2>/dev/null || rm -f $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME).tmp $(RELATIVE_MODELS_PATH)/$(MISTRAL_MODEL_NAME)
-
-.PHONY: install
-install:
-	pip install -r tests/requirements.txt
-
-.PHONY: run
-run:
+.PHONY: download-model-mistral # default model
+download-model-mistral:
 	cd ../../models && \
-	podman run -it -d -p $(PORT):$(PORT) -v ./$(SELECTED_MODEL_NAME):$(MODELS_PATH)/model.gguf:$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_PATH)/model.gguf -e HOST=0.0.0.0 -e PORT=$(PORT) $(IMAGE)
-
-# TODO: Add tests for llamacpp-cuda
-# This never fails, placeholder for future test
-.PHONY: run-cuda
-run-cuda:
-	cd ../../models && \
-	podman run -it -d -p $(PORT):$(PORT) -v ./$(SELECTED_MODEL_NAME):$(MODELS_PATH)/model.gguf:$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_PATH)/model.gguf -e HOST=0.0.0.0 -e PORT=$(PORT) --net=host --device nvidia.com/gpu=all $(IMAGE) || true
-
-# TODO: Add tests for llamacpp-cuda
-.PHONY: test-cuda
-test-cuda: run-cuda
-
-.PHONY: test
-test:
-	curl -H "Cache-Control: no-cache" -s -S -L -f $(SELECTED_MODEL_URL) -z ./model.gguf -o ./model.gguf.tmp && mv -f ./model.gguf.tmp ./model.gguf 2>/dev/null || rm -f ./model.gguf.tmp ./model.gguf
-	pytest --log-cli-level NOTSET
+	make MODEL_NAME=mistral-7b-instruct-v0.1.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf -f  Makefile download-model

@@ -71,6 +71,7 @@ podman pull quay.io/ai-lab/llamacpp-python-vulkan
 ```
 
 
+
 ## Download Model(s)
 
 There are many models to choose from these days, most of which can be found on [huggingface.co](https://huggingface.co). In order to use a model with the llamacpp_python model server, it must be in GGUF format. You can either download pre-converted GGUF models directly or convert them yourself with the [model converter utility](../../convert_models/) available in this repo.
@@ -81,26 +82,26 @@ Download URL: [https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/res
 
 Place all models in the [models](../../models/) directory.
 
-You can use this snippet below to download models. 
-
-```bash
-cd ../../models
-curl -sLO <Download URL> 
-cd model_servers/llamacpp_python
-```
-
-or:
+You can use this snippet below to download the default model:
 
 ```bash
 make -f Makefile download-model-mistral
-make -f Makefile download-model-llama
 ```
+
+Or you can use the generic `download-models` target from the `/models` directory to download any model file from huggingface:
+
+```bash
+cd ../../models
+make MODEL_NAME=<model_name> MODEL_URL=<model_url> -f  Makefile download-model
+# EX: make MODEL_NAME=mistral-7b-instruct-v0.1.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf -f  Makefile download-model
+```
+
 
 ## Deploy Model Service
 
 ### Single Model Service:
 
-To deploy the LLM server you must specify a volume mount `-v` where your models are stored on the host machine and the `MODEL_PATH` for your model of choice. The model_server is most easily deploy from calling the make command: `make -f Makefile run`
+To deploy the LLM server you must specify a volume mount `-v` where your models are stored on the host machine and the `MODEL_PATH` for your model of choice. The model_server is most easily deploy from calling the make command: `make -f Makefile run`. Of course as with all our make calls you can pass any number of the following variables: `REGISTRY`, `IMAGE_NAME`, `MODEL_NAME`, `MODEL_PATH`, and `PORT`.
 
 ```bash
 podman run --rm -it \

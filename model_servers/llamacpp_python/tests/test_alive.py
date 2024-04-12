@@ -1,6 +1,7 @@
 import pytest_container
 from .conftest import MS
 import tenacity
+import os
 
 CONTAINER_IMAGES = [MS]
 

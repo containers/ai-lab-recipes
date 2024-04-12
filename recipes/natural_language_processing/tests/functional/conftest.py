@@ -36,7 +36,6 @@ MS = pytest_container.Container(
                 host_port=8001
             )
         ],
-        extra_launch_args=["--network=host"]
     )
 
 CB = pytest_container.Container(
@@ -50,7 +49,6 @@ CB = pytest_container.Container(
                 host_port=8501
             )
         ],
-        extra_launch_args=["--net=host"]
     )
 
 def pytest_generate_tests(metafunc):

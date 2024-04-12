@@ -4,7 +4,6 @@ import tenacity
 
 CONTAINER_IMAGES = [MS]
 
-
 def test_etc_os_release_present(auto_container: pytest_container.container.ContainerData):
     assert auto_container.connection.file("/etc/os-release").exists
 

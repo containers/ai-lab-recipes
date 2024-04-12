@@ -1,13 +1,19 @@
 # Directory to store model files
 
-The following suggested list of open models is available on huggingface.co.
+The models directory stores models and provides automation around downloading models.
 
-* https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-* https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_M.gguf
-* https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
+Want to try one of our tested models? Try or or all of the following:
 
-You can easily build one of these models into a container image by executing
-
+```bash
+make -f Makefile download-model-llama
+make -f Makefile download-model-tiny-llama
+make -f Makefile download-model-mistral
+make -f Makefile download-model-whisper-small
+make -f Makefile download-model-whisper-base
 ```
-make MODEL=https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q5_K_S.gguf IMAGE=your.registry.com/llama:latest
+
+Want to download and run a model you dont see listed? This is supported with the `MODEL_NAME` and `MODEL_URL` params:
+
+```bash
+make -f Makefile download-model MODEL_URL=https://huggingface.co/andrewcanis/c4ai-command-r-v01-GGUF/resolve/main/c4ai-command-r-v01-Q4_K_S.gguf MODEL_NAME=c4ai-command-r-v01-Q4_K_S.gguf
 ```

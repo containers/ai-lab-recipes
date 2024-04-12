@@ -1,0 +1,47 @@
+REGISTRY ?= quay.io
+REGISTRY_ORG ?= ai-lab
+COMPONENT ?= model_servers
+
+BIND_MOUNT_OPTIONS := ro
+OS := $(shell uname -s)
+ifeq ($(OS),Linux)
+    BIND_MOUNT_OPTIONS := Z,ro
+endif
+
+.PHONY: build
+build:
+	podman build --squash-all --build-arg $(PORT) -t $(IMAGE) . -f base/Containerfile
+
+.PHONY: install
+install:
+	pip install -r tests/requirements.txt
+
+.PHONY: test
+test:
+	@if [ ! -f "../../models/$(MODEL_NAME)" ]; then \
+		echo "Model file -- $(MODEL_NAME) -- not present in the models directory."; \
+		exit 1; \
+	else \
+        if [ ! -f "./$(MODEL_NAME)" ]; then \
+            ln -s ../../models/$(MODEL_NAME) ./$(MODEL_NAME); \
+        fi; \
+		REGISTRY=$(REGISTRY) IMAGE_NAME=$(IMAGE_NAME) MODEL_NAME=$(MODEL_NAME) MODEL_PATH=$(MODEL_PATH) PORT=$(PORT) pytest -vvv -s ; \
+	fi;
+
+.PHONY: clean
+clean:
+	- rm ./$(MODEL_NAME) &> /dev/null
+
+.PHONY: run
+run:
+	cd ../../models && \
+	podman run -it -d -p $(PORT):$(PORT) -v ./$(MODEL_NAME):$(MODELS_PATH)/$(MODEL_NAME):$(BIND_MOUNT_OPTIONS) -e MODEL_PATH=$(MODELS_PATH)/$(MODEL_NAME) -e HOST=0.0.0.0 -e PORT=$(PORT) $(IMAGE)
+
+.PHONY: podman-clean
+podman-clean:
+	@container_ids=$$(podman ps --format "{{.ID}} {{.Image}}" | awk '$$2 == "$(IMAGE)" {print $$1}'); \
+	echo "removing all containers with IMAGE=$(IMAGE)"; \
+    for id in $$container_ids; do \
+        echo "Removing container: $$id,"; \
+        podman rm -f $$id; \
+    done
