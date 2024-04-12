@@ -1,4 +1,5 @@
-from transformers import AutoImageProcessor, AutoModelForObjectDetection
+from transformers import AutoImageProcessor, AutoModelForObjectDetection, AutoConfig
+from huggingface_hub import snapshot_download
 from PIL import Image, ImageDraw
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -6,14 +7,24 @@ import torch
 import base64
 import os
 import io
+import shutil
 
 
 app = FastAPI()
 model = os.getenv("MODEL_PATH", default="facebook/detr-resnet-101")
 revision = os.getenv("MODEL_REVISION", default="no_timm")
 
-processor = AutoImageProcessor.from_pretrained(model, revision=revision)
-model = AutoModelForObjectDetection.from_pretrained(model, revision=revision)
+if os.path.isfile(model):
+    snapshot_download(repo_id="facebook/detr-resnet-101",
+                  revision=revision,
+                local_dir="/tmp/detr-resnet-101",
+                local_dir_use_symlinks=False)
+    shutil.copyfile(model, "/tmp/detr-resnet-101/pytorch_model.bin")
+    processor = AutoImageProcessor.from_pretrained("/tmp/detr-resnet-101", revision=revision)
+    model = AutoModelForObjectDetection.from_pretrained("/tmp/detr-resnet-101", revision=revision)
+else:
+    processor = AutoImageProcessor.from_pretrained(model, revision=revision)
+    model = AutoModelForObjectDetection.from_pretrained(model, revision=revision)
 
 class Item(BaseModel):
     image: bytes 
