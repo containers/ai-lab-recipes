@@ -3,15 +3,15 @@ import streamlit as st
 import base64
 import os
 
-model_service = os.getenv("MODEL_SERVICE_ENDPOINT",
-                          default="http://localhost:8001/v1")
+model_service = os.getenv("MODEL_ENDPOINT",
+                          default="http://localhost:8001")
 
 st.title("📷 Image Analysis")
 image = st.file_uploader("Upload Image:",)
 top_container = st.container(border=True)
 if image is not None:
     b64_image = base64.b64encode(image.read()).decode("utf-8")
-    client = OpenAI(base_url=model_service, 
+    client = OpenAI(base_url=f'{model_service}/v1', 
                     api_key="sk-xxx")
     with st.spinner("Analyzing Image..."):
         st.image(image)

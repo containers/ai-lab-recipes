@@ -14,8 +14,8 @@ spec:
       mountPath: /shared
   containers:
   - env:
-    - name: MODEL_SERVICE_ENDPOINT
-      value: http://0.0.0.0:8001/v1
+    - name: MODEL_ENDPOINT
+      value: http://0.0.0.0:8001
     image: APP_IMAGE
     name: codegen-inference
     ports:

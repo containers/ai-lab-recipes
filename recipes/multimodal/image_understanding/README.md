@@ -30,7 +30,7 @@ podman run -it -p 8001:8001 -v <LOCAL_PATH>/locallm/models:/locallm/models:Z -e 
 ### Run AI Application Image Locally
 
 ```bash
-podman run --rm -it -p 8501:8501 -e MODEL_SERVICE_ENDPOINT=http://10.88.0.1:8001/v1 image_understanding   
+podman run --rm -it -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8001 image_understanding   
 ```
 
 Interact with the application from your local browser at `localhost:8501`. You can upload an image file from your host machine and the app will provide a natural language description of the image.   

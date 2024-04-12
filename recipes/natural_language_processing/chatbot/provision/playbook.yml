@@ -57,4 +57,4 @@
       ports:
       - 8501:8501
       env:
-        MODEL_SERVICE_ENDPOINT: http://10.88.0.1:8001/v1
+        MODEL_ENDPOINT: http://10.88.0.1:8001
