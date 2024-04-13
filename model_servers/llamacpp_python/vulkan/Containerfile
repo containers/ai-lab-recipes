@@ -1,5 +1,6 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-52
 USER 0
+ARG PORT
 RUN dnf install -y python3-dnf-plugin-versionlock && \
     dnf copr enable -y slp/mesa-krunkit epel-9-aarch64 && \
     dnf install -y mesa-vulkan-drivers-23.3.3-101.el9.aarch64 && \
@@ -12,4 +13,5 @@ RUN pip install --upgrade pip
 ENV CMAKE_ARGS="-DLLAMA_VULKAN=on"
 ENV FORCE_CMAKE=1
 RUN pip install --no-cache-dir --upgrade -r /locallm/requirements.txt
+EXPOSE $PORT
 ENTRYPOINT [ "sh", "run.sh" ]
