@@ -8,6 +8,7 @@
 
 FROM quay.io/centos-bootc/centos-bootc:stream9
 ARG SSHPUBKEY
+ARG PORT=8501
 
 RUN set -eu; mkdir -p /usr/ssh && \
     echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
@@ -41,5 +42,7 @@ VOLUME /var/lib/containers
 RUN podman pull --root /usr/lib/containers/storage ${SERVER_IMAGE}
 RUN podman pull --root /usr/lib/containers/storage ${APP_IMAGE}
 RUN podman pull --root /usr/lib/containers/storage ${MODEL_IMAGE}
+
+EXPOSE $PORT
 
 RUN podman system reset --force 2>/dev/null

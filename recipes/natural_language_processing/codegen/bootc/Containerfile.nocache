@@ -6,6 +6,7 @@
 
 FROM quay.io/centos-bootc/centos-bootc:stream9
 ARG SSHPUBKEY
+ARG PORT=8501
 
 # The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
 # public key into the image, allowing root access via ssh.
@@ -17,6 +18,8 @@ ARG RECIPE=codegen
 
 # Add quadlet files to setup system to automatically run AI application on boot
 COPY build/${RECIPE}.image build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
+
+EXPOSE $PORT
 
 # Added for running as an OCI Container to prevent Overlay on Overlay issues.
 VOLUME /var/lib/containers

@@ -1,6 +1,7 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-52
+ARG PORT=8001
 WORKDIR /locallm
 COPY src .
 RUN pip install --no-cache-dir --verbose -r ./requirements.txt
-EXPOSE 8001
+EXPOSE $PORT
 ENTRYPOINT [ "sh", "./run.sh" ]

@@ -1,4 +1,5 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-52
+ARG PORT=8501
 ### Update sqlite for chroma
 USER root
 RUN dnf remove sqlite3 -y
@@ -16,6 +17,6 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /rag/requirements.txt
 COPY rag_app.py .
-EXPOSE  8501
+EXPOSE $PORT
 ENV  HF_HUB_CACHE=/rag/models/
 ENTRYPOINT [ "streamlit", "run" ,"rag_app.py" ]

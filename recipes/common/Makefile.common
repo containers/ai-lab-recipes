@@ -75,7 +75,7 @@ install::
 
 .PHONY: build
 build:
-	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -t ${APP_IMAGE} app/
+	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} --build-arg PORT=$(PORT) -t ${APP_IMAGE} app/
 
 .PHONY: bootc
 bootc: quadlet
@@ -85,6 +85,7 @@ bootc: quadlet
 	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
 	  --security-opt label=disable \
 	  --cap-add SYS_ADMIN \
+	  $${PORT:+--build-arg PORT=$${PORT}} \
 	  --build-arg MODEL_IMAGE=$(MODEL_IMAGE) \
 	  --build-arg APP_IMAGE=$(APP_IMAGE) \
 	  --build-arg SERVER_IMAGE=$(SERVER_IMAGE) \
@@ -101,7 +102,7 @@ bootc: quadlet
 
 .PHONY: bootc-run
 bootc-run:
-	podman run -d --rm --name $(APP)-bootc -p 8080:8501 --privileged \
+	podman run -d --rm --name $(APP)-bootc -p 8080:$(PORT) --privileged \
 	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
 	  $(BOOTC_IMAGE) /sbin/init
 

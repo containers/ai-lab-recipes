@@ -1,5 +1,5 @@
 FROM registry.access.redhat.com/ubi9/ubi:latest as builder
-
+ARG PORT=8001
 WORKDIR /app
 RUN dnf install -y git make gcc gcc-c++
 RUN mkdir whisper && cd whisper && git clone https://github.com/ggerganov/whisper.cpp.git . && \
@@ -21,4 +21,5 @@ COPY --from=mwader/static-ffmpeg:6.1.1 /ffprobe /bin/
 
 COPY src /app/
 ENV AUDIO_FILE=/app/jfk.wav
+EXPOSE $PORT
 ENTRYPOINT ["sh", "run.sh"]

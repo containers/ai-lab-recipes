@@ -6,6 +6,7 @@
 
 FROM quay.io/centos-bootc/centos-bootc:stream9
 ARG SSHPUBKEY
+ARG PORT=8501
 
 # The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
 # public key into the image, allowing root access via ssh.
@@ -40,5 +41,7 @@ VOLUME /var/lib/containers
 RUN podman pull --root /usr/lib/containers/storage ${SERVER_IMAGE}
 RUN podman pull --root /usr/lib/containers/storage ${APP_IMAGE}
 RUN podman pull --root /usr/lib/containers/storage ${MODEL_IMAGE}
+
+EXPOSE $PORT
 
 RUN podman system reset --force 2>/dev/null
