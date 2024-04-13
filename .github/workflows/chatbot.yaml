@@ -5,12 +5,14 @@ on:
     branches:
       - main
     paths:
+      - ./recipes/common/Makefile.common
       - ./recipes/natural_language_processing/chatbot/**
       - .github/workflows/chatbot.yaml
   push:
     branches:
       - main
     paths:
+      - ./recipes/common/Makefile.common
       - ./recipes/natural_language_processing/chatbot/**
       - .github/workflows/chatbot.yaml
 
@@ -22,6 +24,7 @@ env:
 
 jobs:
   build-and-push-image:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ubuntu-latest
     permissions:
       contents: read
