@@ -5,12 +5,14 @@ on:
     branches:
       - main
     paths:
+      - ./recipes/common/Makefile.common
       - ./recipes/natural_language_processing/rag/**
       - .github/workflows/rag.yaml
   push:
     branches:
       - main
     paths:
+      - ./recipes/common/Makefile.common
       - ./recipes/natural_language_processing/rag/**
       - .github/workflows/rag.yaml
 
@@ -22,6 +24,7 @@ env:
 
 jobs:
   build-and-push-image:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -64,8 +67,8 @@ jobs:
         run: make install
 
       - name: Download model
-        working-directory: ./model_servers/llamacpp_python
-        run: make mistral
+        working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
+        run: make download-model-mistral
 
       - name: Run Functional Tests
         shell: bash

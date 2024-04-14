@@ -7,5 +7,5 @@ models/*
 !models/Makefile
 !models/README.md
 convert_models/converted_models
-recipes/chromedriver
-recipes/Google\ Chrome.app
+recipes/common/bin/*
+*/.venv/

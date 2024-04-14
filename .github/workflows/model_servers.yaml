@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - ./model_servers/
+      - ./model_servers/**
       - .github/workflows/model_servers.yaml
   push:
     branches:
@@ -22,6 +22,7 @@ env:
 
 jobs:
   build-and-push-image:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     strategy:
       matrix:
         include:
