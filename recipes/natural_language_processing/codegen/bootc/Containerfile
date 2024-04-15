@@ -1,32 +1,30 @@
 # Example: an AI powered sample application is embedded as a systemd service
 # via Podman quadlet files in /usr/share/containers/systemd
 #
-# Use build command:
-# podman build --build-arg "sshpubkey=$(cat $HOME/.ssh/id_rsa.pub)" -t quay.io/exampleos/myos .
-# The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
-# public key into the image, allowing root access via ssh.
+# from recipes/natural_language_processing/codegen, run
+# 'make bootc'
 
 FROM quay.io/centos-bootc/centos-bootc:stream9
 ARG SSHPUBKEY
 
+# The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
+# public key into the image, allowing root access via ssh.
 RUN set -eu; mkdir -p /usr/ssh && \
     echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
     echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys
-
-# pre-pull workload images:
-# Comment the pull commands to keep bootc image smaller.
-# The quadlet .image file added above pulls following images on boot if not
-# pre-pulled here
 
 ARG RECIPE=codegen
 ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
 ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp-python:latest
+ARG TARGETARCH
 
 # Add quadlet files to setup system to automatically run AI application on boot
 COPY build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
 
 # Because images are prepulled, no need for .image quadlet
+# If commenting out the pulls below, uncomment this to track the images
+# so the systemd service will wait for the images with the service startup
 # COPY build/${RECIPE}.image /usr/share/containers/systemd
 
 # Setup /usr/lib/containers/storage as an additional store for images.
@@ -38,8 +36,11 @@ RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 VOLUME /var/lib/containers
 
 # Prepull the model, model_server & application images to populate the system.
-RUN podman pull --root /usr/lib/containers/storage ${SERVER_IMAGE}
-RUN podman pull --root /usr/lib/containers/storage ${APP_IMAGE}
-RUN podman pull --root /usr/lib/containers/storage ${MODEL_IMAGE}
+# Comment the pull commands to keep bootc image smaller.
+# The quadlet .image file added above pulls following images with service startup
+
+RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${SERVER_IMAGE}
+RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${APP_IMAGE}
+RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${MODEL_IMAGE}
 
 RUN podman system reset --force 2>/dev/null
