@@ -75,7 +75,7 @@ install::
 
 .PHONY: build
 build:
-	podman build --squash-all $${ARCH:+--arch $${ARCH}} $${FROM:+--from $${FROM}} -t ${APP_IMAGE} app/
+	podman build --squash-all $${ARCH:+--platform linux/$${ARCH}} $${FROM:+--from $${FROM}} -t ${APP_IMAGE} app/
 
 .PHONY: bootc
 bootc: quadlet
