@@ -19,7 +19,7 @@ if os.path.isfile(model):
                   revision=revision,
                 local_dir=f"/tmp/{model}",
                 local_dir_use_symlinks=False)
-    shutil.copyfile(model, "/tmp/detr-resnet-101/pytorch_model.bin")
+    shutil.copyfile(model, f"/tmp/{model}/pytorch_model.bin")
     processor = AutoImageProcessor.from_pretrained(f"/tmp/{model}", revision=revision)
     model = AutoModelForObjectDetection.from_pretrained(f"/tmp/{model}", revision=revision)
 else:
