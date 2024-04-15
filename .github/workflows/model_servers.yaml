@@ -32,12 +32,6 @@ jobs:
             directory: llamacpp_python
             platforms: linux/amd64,linux/arm64
             no_gpu: 1
-          #- image_name: llamacpp_python_vulkan
-          #  model: mistral
-          #  flavor: vulkan
-          #  directory: llamacpp_python
-          #  platforms: linux/arm64
-          #  vulkan: 1
           - image_name: llamacpp_python_cuda
             model: mistral
             flavor: cuda
@@ -100,13 +94,6 @@ jobs:
         if: ${{ matrix.no_gpu }}
         run: make test REGISTRY=${{ env.REGISTRY }} IMAGE_NAME=${{ env.REGISTRY_ORG }}/${{ matrix.image_name}}:latest
 
-      # - name: Run cuda test # we dont have cuda tests
-      #   working-directory: ./model_servers/${{ matrix.directory }}/
-      #   if: ${{ matrix.cuda }}
-      #   run: make test-cuda
-      #   env:
-      #     IMAGE_NAME: ${{ matrix.image_name }}
-
       - name: Login to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: redhat-actions/podman-login@v1.7
@@ -116,7 +103,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push image
-        id: push_image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: redhat-actions/push-to-registry@v2.8
         with:

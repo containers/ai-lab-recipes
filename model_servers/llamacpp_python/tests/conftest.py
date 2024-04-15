@@ -32,7 +32,7 @@ else:
         PORT = 8001
 
 MS = pytest_container.Container(
-        url=f"containers-storage:{REGISTRY}/{IMAGE_NAME}",
+        url=f"containers-storage:{os.environ['REGISTRY']}/{os.environ['IMAGE_NAME']}",
         volume_mounts=[
             pytest_container.container.BindMount(
                 container_path="{MODEL_PATH}/{MODEL_NAME}".format(MODEL_PATH=MODEL_PATH, MODEL_NAME=MODEL_NAME),
