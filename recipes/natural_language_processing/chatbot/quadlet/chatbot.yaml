@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    app: chatbot-langchain
-  name: chatbot-langchain
+    app: chatbot
+  name: chatbot
 spec:
   initContainers:
   - name: model-file
