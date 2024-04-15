@@ -1,4 +1,4 @@
-from transformers import AutoImageProcessor, AutoModelForObjectDetection, AutoConfig
+from transformers import AutoImageProcessor, AutoModelForObjectDetection
 from huggingface_hub import snapshot_download
 from PIL import Image, ImageDraw
 from fastapi import FastAPI
