@@ -17,11 +17,11 @@ revision = os.getenv("MODEL_REVISION", default="no_timm")
 if os.path.isfile(model):
     snapshot_download(repo_id="facebook/detr-resnet-101",
                   revision=revision,
-                local_dir="/tmp/detr-resnet-101",
+                local_dir=f"/tmp/{model}",
                 local_dir_use_symlinks=False)
     shutil.copyfile(model, "/tmp/detr-resnet-101/pytorch_model.bin")
-    processor = AutoImageProcessor.from_pretrained("/tmp/detr-resnet-101", revision=revision)
-    model = AutoModelForObjectDetection.from_pretrained("/tmp/detr-resnet-101", revision=revision)
+    processor = AutoImageProcessor.from_pretrained(f"/tmp/{model}", revision=revision)
+    model = AutoModelForObjectDetection.from_pretrained(f"/tmp/{model}", revision=revision)
 else:
     processor = AutoImageProcessor.from_pretrained(model, revision=revision)
     model = AutoModelForObjectDetection.from_pretrained(model, revision=revision)
