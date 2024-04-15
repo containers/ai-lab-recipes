@@ -14,32 +14,30 @@ Our AI Application will connect to our Model Service via it's OpenAI compatible 
 ## Try the RAG chat application
 
 _COMING SOON to AI LAB_
-Podman desktop [AI Lab extension](https://github.com/containers/podman-desktop-extension-ai-lab) will include this application as a sample recipe.
-Choose `Recipes Catalog` -> `RAG Chatbot` to launch from the AI Lab extension in podman desktop when it's available.
+The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this recipe among others. To try it out, open `Recipes Catalog` -> `RAG Chatbot` and follow the instructions to start the application.
 
-There are also published images to try out this application as a local pod without the need to build anything yourself.
-Start a local pod by running the following from this directory:
+If you prefer building and running the application from terminal, please run the following commands from this directory.
 
+First, build application's meta data and run the generated Kubernetes YAML which will spin up a Pod along with a number of containers:
 ```
 make quadlet
 podman kube play build/rag.yaml
 ```
 
-To monitor this application running as a local pod, run:
-
+The Pod is named `rag`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
 ```
 podman pod list
 podman ps
 ```
 
-And, to stop the application:
-
+To stop and remove the Pod, run:
 ```
 podman pod stop rag
 podman pod rm rag
 ```
 
-After the pod is running, refer to the section below to [interact with the RAG chat application](#interact-with-the-ai-application).
+Once the Pod is running, please refer to the section below to [interact with the RAG chatbot application](#interact-with-the-ai-application).
+
 # Build the Application
 
 In order to build this application we will need two models, a Vector Database, a Model Service and an AI Application.  
