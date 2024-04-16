@@ -5,8 +5,8 @@ application:
   description: This is an example object detection demo
   containers:
     - name: object-detection-server
-      contextdir: ./model_server
-      containerfile: Containerfile
+      contextdir: ../../../model_servers/object_detection_python
+      containerfile: ./base/Containerfile
       model-service: true
       backend: 
         - torch
