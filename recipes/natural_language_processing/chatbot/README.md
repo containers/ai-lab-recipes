@@ -13,13 +13,15 @@
 
 The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this recipe among others. To try it out, open `Recipes Catalog` -> `Chatbot` and follow the instructions to start the application.
 
-If you prefer building and running the application from terminal, please run the following commands from this directory.
+If you prefer building and running the application from the terminal, please run the following commands from this directory.
 
-First, build application's meta data and run the generated Kubernetes YAML which will spin up a Pod along with a number of containers:
+First, build the application's meta data and run the generated Kubernetes YAML to spin up a Pod along with a number of containers:
 ```
 make quadlet
 podman kube play build/chatbot.yaml
 ```
+
+This might take a few minutes if the container images need to be downloaded. 
 
 The Pod is named `chatbot`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
 ```
@@ -27,17 +29,20 @@ podman pod list
 podman ps
 ```
 
+Once the Pod and its containers are running, the application can be accessed at `http://localhost:8501`. 
+Please refer to the section below for more details about [interacting with the chatbot application](#interact-with-the-ai-application).
+
 To stop and remove the Pod, run:
 ```
 podman pod stop chatbot
 podman pod rm chatbot
 ```
 
-Once the Pod is running, please refer to the section below to [interact with the chatbot application](#interact-with-the-ai-application).
-
 # Build the Application
 
-In order to build this application we will need a model, a Model Service and an AI Application.  
+This section will go into greater detail on how each container in the Pod above is built, run, and 
+what purpose it serves in the overall application. In order to build this application we will 
+need a model, a Model Service and an AI Application.  
 
 * [Download a model](#download-a-model)
 * [Build the Model Service](#build-the-model-service)
@@ -68,27 +73,44 @@ cd ../recipes/natural_language_processing/chatbot
 _A full list of supported open models is forthcoming._  
 
 
-### Build and Deploy the Model Service
+### Build the Model Service
 
 The complete instructions for building and deploying the Model Service can be found in the
 [llamacpp_python model-service document](../../../model_servers/llamacpp_python/README.md).
 
-The Model Service can be built and ran from make commands from the [llamacpp_python directory](../../../model_servers/llamacpp_python/).
+The Model Service can be built from make commands from the [llamacpp_python directory](../../../model_servers/llamacpp_python/).
 
 ```bash
 # from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
-make -f Makefile build && make -f Makefile run
+make build
+```
+Checkout the [Makefile](../../../model_servers/llamacpp_python/Makefile) to get more details on different options for how to build.
+
+### Deploy the Model Service
+
+The local Model Service relies on a volume mount to the localhost to access the model files. It also employs environment variables to dictate the model used and where its served. You can start your local Model Service using the following `make` command from `model_servers/llamacpp_python` set with reasonable defaults:
+
+```bash
+# from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
+make run
 ```
 
-If you wish to run this as a codesnippet instead of a make command checkout the [Makefile](../../../model_servers/llamacpp_python/Makefile) to get a sense of what the code for that would look like.
+### Build the AI Application
 
-### Build and Deploy the AI Application
-
-Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To build and deploy the AI application use the following:
+The AI Application can be built from the make command:
 
 ```bash
 # Run this from the current directory (path recipes/natural_language_processing/chatbot from repo containers/ai-lab-recipes)
-make -f Makefile build && make -f Makefile run 
+make build
+```
+
+### Deploy the AI Application
+
+Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To deploy the AI application use the following:
+
+```bash
+# Run this from the current directory (path recipes/natural_language_processing/chatbot from repo containers/ai-lab-recipes)
+make run 
 ```
 
 ### Interact with the AI Application
