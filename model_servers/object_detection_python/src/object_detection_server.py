@@ -11,7 +11,7 @@ import shutil
 
 
 app = FastAPI()
-model = os.getenv("MODEL_PATH", default="facebook/detr-resnet-101")
+model = os.getenv("MODEL_PATH", default="/app/models/facebook/detr-resnet-101")
 revision = os.getenv("MODEL_REVISION", default="no_timm")
 
 if os.path.isfile(model):
@@ -29,6 +29,10 @@ else:
 
 class Item(BaseModel):
     image: bytes 
+
+@app.get("/health")
+def tests_alive():
+    return {"alive": True}
 
 @app.post("/detection")
 def detection(item: Item):

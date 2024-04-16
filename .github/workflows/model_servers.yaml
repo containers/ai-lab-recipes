@@ -26,23 +26,29 @@ jobs:
     strategy:
       matrix:
         include:
-          - image_name: llamacpp_python
-            model: granite
+          # - image_name: llamacpp_python
+          #   model: granite
+          #   flavor: base
+          #   directory: llamacpp_python
+          #   platforms: linux/amd64,linux/arm64
+          #   no_gpu: 1
+          # - image_name: llamacpp_python_cuda
+          #   model: granite
+          #   flavor: cuda
+          #   directory: llamacpp_python
+          #   platforms: linux/amd64
+          #   cuda: 1
+          # - image_name: whispercpp
+          #   model: whisper-small
+          #   flavor: base
+          #   directory: whispercpp
+          #   platforms: linux/amd64,linux/arm64
+          #   no_gpu: 1
+          - image_name: object_detection_python
+            model: facebook-detr-resnet-101
             flavor: base
-            directory: llamacpp_python
-            platforms: linux/amd64,linux/arm64
-            no_gpu: 1
-          - image_name: llamacpp_python_cuda
-            model: granite
-            flavor: cuda
-            directory: llamacpp_python
+            directory: object_detection_python
             platforms: linux/amd64
-            cuda: 1
-          - image_name: whispercpp
-            model: whisper-small
-            flavor: base
-            directory: whispercpp
-            platforms: linux/amd64,linux/arm64
             no_gpu: 1
     runs-on: ubuntu-22.04
     permissions:

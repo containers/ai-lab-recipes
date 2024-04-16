@@ -37,6 +37,13 @@ download-model-mistral:
 download-model-mistral-code:
 	$(MAKE) MODEL_NAME=mistral-7b-code-16k-qlora.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf download-model
 
+.PHONY: download-model-facebook-detr-resnet-101
+download-model-facebook-detr-resnet-101:
+	pip install -r ../convert_models/requirements.txt
+	cd ../convert_models/ && \
+	python3 download_huggingface.py -m facebook/detr-resnet-101
+	cp -r ../convert_models/converted_models/facebook ./
+
 .PHONY: clean
 clean:
 	-rm -f *tmp
