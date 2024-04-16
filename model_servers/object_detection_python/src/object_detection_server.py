@@ -15,7 +15,8 @@ model = os.getenv("MODEL_PATH", default="facebook/detr-resnet-101")
 revision = os.getenv("MODEL_REVISION", default="no_timm")
 
 if os.path.isfile(model):
-    snapshot_download(repo_id="facebook/detr-resnet-101",
+    model_name = os.getenv("MODEL_NAME", default="facebook/detr-resnet-101")
+    snapshot_download(repo_id=model_name,
                   revision=revision,
                 local_dir=f"/tmp/{model}",
                 local_dir_use_symlinks=False)
