@@ -82,34 +82,17 @@ The Model Service can be built from make commands from the [llamacpp_python dire
 
 ```bash
 # from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
-make -f Makefile build
+make build
 ```
-
-or with the podman cmd
-```bash
-podman build -t llamacpp_python . -f  ./base/Containerfile
-``` 
-
 Checkout the [Makefile](../../../model_servers/llamacpp_python/Makefile) to get more details on different options for how to build.
 
 ### Deploy the Model Service
 
-The local Model Service relies on a volume mount to the localhost to access the model files. It also employs environment variables to 
-dictate the model used and where its served. You can start your local Model Service using the following `make` or `podman` commands:
+The local Model Service relies on a volume mount to the localhost to access the model files. It also employs environment variables to dictate the model used and where its served. You can start your local Model Service using the following `make` command from `model_servers/llamacpp_python` set with reasonable defaults:
 
 ```bash
 # from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
-make -f Makefile run
-```
-or 
-```bash
-podman run --rm -it \
-        -p 8001:8001 \
-        -v Local/path/to/locallm/models:/locallm/models \
-        -e MODEL_PATH=models/<model-filename> \
-        -e HOST=0.0.0.0 \
-        -e PORT=8001 \
-        llamacpp_python
+make run
 ```
 
 ### Build the AI Application
@@ -118,27 +101,16 @@ The AI Application can be built from the make command:
 
 ```bash
 # Run this from the current directory (path recipes/natural_language_processing/chatbot from repo containers/ai-lab-recipes)
-make -f Makefile build
-```
-or with the podman cmd
-
-```bash
-podman build -t chat . -f  ./app/Containerfile
+make build
 ```
 
 ### Deploy the AI Application
 
-
-Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To deploy the AI application use either of the following:
+Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To deploy the AI application use the following:
 
 ```bash
 # Run this from the current directory (path recipes/natural_language_processing/chatbot from repo containers/ai-lab-recipes)
-make -f Makefile run 
-```
-or 
-
-```bash
-podman run --rm -it -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8001 chat   
+make run 
 ```
 
 ### Interact with the AI Application
