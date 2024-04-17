@@ -13,36 +13,15 @@
 
 The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this recipe among others. To try it out, open `Recipes Catalog` -> `Chatbot` and follow the instructions to start the application.
 
-If you prefer building and running the application from the terminal, please run the following commands from this directory.
-
-First, build the application's meta data and run the generated Kubernetes YAML to spin up a Pod along with a number of containers:
-```
-make quadlet
-podman kube play build/chatbot.yaml
-```
-
-This might take a few minutes if the container images need to be downloaded. 
-
-The Pod is named `chatbot`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
-```
-podman pod list
-podman ps
-```
-
-Once the Pod and its containers are running, the application can be accessed at `http://localhost:8501`. 
-Please refer to the section below for more details about [interacting with the chatbot application](#interact-with-the-ai-application).
-
-To stop and remove the Pod, run:
-```
-podman pod stop chatbot
-podman pod rm chatbot
-```
-
 # Build the Application
 
-This section will go into greater detail on how each container in the Pod above is built, run, and 
-what purpose it serves in the overall application. In order to build this application we will 
-need a model, a Model Service and an AI Application.  
+The rest of this document will explain how to build and run the application from the terminal, and will
+go into greater detail on how each container in the Pod above is built, run, and 
+what purpose it serves in the overall application. A `Makefile` is available to further simplify building and running the application.
+
+* [Makefile](#makefile)
+
+This application requires a model, a model service and an AI inferencing application.
 
 * [Download a model](#download-a-model)
 * [Build the Model Service](#build-the-model-service)
@@ -52,7 +31,45 @@ need a model, a Model Service and an AI Application.
 * [Interact with the AI Application](#interact-with-the-ai-application)
 * [Embed the AI Application in a Bootable Container Image](#embed-the-ai-application-in-a-bootable-container-image)
 
-### Download a model
+## Makefile
+
+Recipes use a central [Makefile](../../common/Makefile.common) that includes variables populated with default values.
+
+### Makefile variables
+
+There are several [Makefile variables and targets](../../common/README.md) defined.
+It is recommended to edit the `Makefile` and change the variables or pass customized variables with `make` commands.
+
+For example, from this directory:
+
+  * `make APP_IMAGE=quay.io/your-repo/chatbot:latest build` will build the image from this [Containerfile](./app/Containerfile)
+
+  * `make quadlet` can be used to configure the chatbot container along with a model-server and a model. This command
+  builds the application's metadata and generates Kubernetes YAML at `./build/chatbot.yaml` to spin up a Pod that can then be launched locally with:
+
+```
+podman kube play build/chatbot.yaml
+```
+
+This might take a few minutes if the model and model-server container images need to be downloaded. 
+The Pod is named `chatbot`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
+
+```
+podman pod list
+podman ps
+```
+
+Once the Pod and its containers are running, the application can be accessed at `http://localhost:8501`. 
+Please refer to the section below for more details about [interacting with the chatbot application](#interact-with-the-ai-application).
+
+To stop and remove the Pod, run:
+
+```
+podman pod stop chatbot
+podman pod rm chatbot
+```
+
+## Download a model
 
 If you are just getting started, we recommend using [Mistral-7B-Instruct](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1). This is a well
 performant mid-sized model with an apache-2.0 license. In order to use it with our Model Service we need it converted
@@ -73,7 +90,7 @@ cd ../recipes/natural_language_processing/chatbot
 _A full list of supported open models is forthcoming._  
 
 
-### Build the Model Service
+## Build the Model Service
 
 The complete instructions for building and deploying the Model Service can be found in the
 [llamacpp_python model-service document](../../../model_servers/llamacpp_python/README.md).
@@ -86,7 +103,7 @@ make build
 ```
 Checkout the [Makefile](../../../model_servers/llamacpp_python/Makefile) to get more details on different options for how to build.
 
-### Deploy the Model Service
+## Deploy the Model Service
 
 The local Model Service relies on a volume mount to the localhost to access the model files. It also employs environment variables to dictate the model used and where its served. You can start your local Model Service using the following `make` command from `model_servers/llamacpp_python` set with reasonable defaults:
 
@@ -95,7 +112,7 @@ The local Model Service relies on a volume mount to the localhost to access the 
 make run
 ```
 
-### Build the AI Application
+## Build the AI Application
 
 The AI Application can be built from the make command:
 
@@ -104,7 +121,7 @@ The AI Application can be built from the make command:
 make build
 ```
 
-### Deploy the AI Application
+## Deploy the AI Application
 
 Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To deploy the AI application use the following:
 
@@ -113,11 +130,11 @@ Make sure the Model Service is up and running before starting this container ima
 make run 
 ```
 
-### Interact with the AI Application
+## Interact with the AI Application
 
 Everything should now be up an running with the chat application available at [`http://localhost:8501`](http://localhost:8501). By using this recipe and getting this starting point established, users should now have an easier time customizing and building their own LLM enabled chatbot applications.   
 
-### Embed the AI Application in a Bootable Container Image
+## Embed the AI Application in a Bootable Container Image
 
 To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, run: `make -f Makefile bootc`. You can optionally override the default image / tag you want to give the make command by specifying it as follows: `make -f Makefile BOOTC_IMAGE=<your_bootc_image> bootc`.
 
@@ -147,7 +164,7 @@ ssh user@bootc-system-ip
 sudo systemctl status chatbot
 ```
 
-#### What are bootable containers?
+### What are bootable containers?
 
 What's a [bootable OCI container](https://containers.github.io/bootc/) and what's it got to do with AI?
 
@@ -162,7 +179,7 @@ factories or appliances. Who doesn't want to add a little AI to their appliance,
 
 Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!
 
-##### Creating bootable disk images
+#### Creating bootable disk images
 
 You can convert a bootc image to a bootable disk image using the
 [quay.io/centos-bootc/bootc-image-builder](https://github.com/osbuild/bootc-image-builder) container image.
@@ -172,8 +189,3 @@ This container image allows you to build and deploy [multiple disk image types](
 Default image types can be set via the DISK_TYPE Makefile variable.
 
 `make bootc-image-builder DISK_TYPE=ami`
-
-### Makefile variables
-
-There are several [Makefile variables](../../common/README.md) defined within each `recipe` Makefile which can be
-used to override defaults for a variety of make targets.
