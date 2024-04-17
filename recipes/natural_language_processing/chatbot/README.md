@@ -30,27 +30,17 @@ This application requires a model, a model service and an AI inferencing applica
 * [Interact with the AI Application](#interact-with-the-ai-application)
 * [Embed the AI Application in a Bootable Container Image](#embed-the-ai-application-in-a-bootable-container-image)
 
-## Makefile
 
-Recipes use a central [Makefile](../../common/Makefile.common) that includes variables populated with default values.
-
-### Makefile variables
-
-There are several [Makefile variables and targets](../../common/README.md) defined.
-It is recommended to edit the `Makefile` and change the variables or pass customized variables with `make` commands.
-
-For example, from this directory:
-
-  * `make APP_IMAGE=quay.io/your-repo/chatbot:latest build` will build the image from this [Containerfile](./app/Containerfile)
-
-  * `make quadlet` can be used to configure the chatbot container along with a model-server and a model. This command
-  builds the application's metadata and generates Kubernetes YAML at `./build/chatbot.yaml` to spin up a Pod that can then be launched locally with:
+To run the application with pre-built images from `quay.io/ai-lab`, use `make quadlet`. This command
+builds the application's metadata and generates Kubernetes YAML at `./build/chatbot.yaml` to spin up a Pod that can then be launched locally.
+Try it with:
 
 ```
+make quadlet
 podman kube play build/chatbot.yaml
 ```
 
-This might take a few minutes if the model and model-server container images need to be downloaded. 
+This will take a few minutes if the model and model-server container images need to be downloaded. 
 The Pod is named `chatbot`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
 
 ```
