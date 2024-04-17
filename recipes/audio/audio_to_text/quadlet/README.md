@@ -1,4 +1,4 @@
-### Run audio-text locally as a podman pod
+### Run audio-to-text as a systemd service
 
 There are pre-built images and a pod definition to run this audio-to-text example application.
 This sample converts an audio waveform (.wav) file to text.
@@ -6,7 +6,7 @@ This sample converts an audio waveform (.wav) file to text.
 To run locally, 
 
 ```bash
-podman kube play ./quadlet/audio-to-text.yaml
+podman kube play ./build/audio-to-text.yaml
 ```
 To monitor locally,
 
@@ -18,13 +18,12 @@ podman logs <name of container from the above>
 
 The application should be accessible at `http://localhost:8501`. It will take a few minutes for the model to load.
 
-### Run audio-text as a systemd service
+### Run audio-to-text as a systemd service
 
 ```bash
-cp audio-text.yaml /etc/containers/systemd/audio-text.yaml
-cp audio-text.kube.example /etc/containers/audio-text.kube
-cp audio-text.image /etc/containers/audio-text.image
+(cd ../;make quadlet)
+sudo cp ../build/audio-to-text.yaml ../build/audio-to-text.kube ../build/audio-to-text.image /usr/share/containers/systemd/
 /usr/libexec/podman/quadlet --dryrun (optional)
 systemctl daemon-reload
-systemctl start audio-text
+systemctl start audio-to-text
 ```

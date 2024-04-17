@@ -1,0 +1,47 @@
+# Example: an AI powered sample application is embedded as a systemd service
+# via Podman quadlet files in /usr/share/containers/systemd
+#
+# from recipes/natural_language_processing/audio-to-text, run
+# 'make bootc'
+
+FROM quay.io/centos-bootc/centos-bootc:stream9
+ARG SSHPUBKEY
+
+# The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
+# public key into the image, allowing root access via ssh.
+RUN set -eu; mkdir -p /usr/ssh && \
+    echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys
+
+ARG RECIPE=audio-to-text
+ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
+ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
+ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp-python:latest
+ARG TARGETARCH
+
+# Add quadlet files to setup system to automatically run AI application on boot
+COPY build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
+
+# Because images are prepulled, no need for .image quadlet
+# If commenting out the pulls below, uncomment this to track the images
+# so the systemd service will wait for the images with the service startup
+# COPY build/${RECIPE}.image /usr/share/containers/systemd
+
+# Added for running as an OCI Container to prevent Overlay on Overlay issues.
+VOLUME /var/lib/containers
+
+# Setup /usr/lib/containers/storage as an additional store for images.
+# Remove once the base images have this set by default.
+RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
+        /etc/containers/storage.conf && \
+	mkdir -p /usr/lib/containers/storage
+
+# Prepull the model, model_server & application images to populate the system.
+# Use the Containerfile.nocache Containerfile to keep bootc image smaller.
+RUN skopeo --debug copy --override-arch=${TARGETARCH} docker://${APP_IMAGE} containers-storage:[overlay@/usr/lib/containers/storage+/run/containers/storage]${APP_IMAGE}
+RUN echo ${APP_IMAGE}; skopeo copy --override-arch=${TARGETARCH} docker://${SERVER_IMAGE} containers-storage:[overlay@/usr/lib/containers/storage+/run/containers/storage]${SERVER_IMAGE}
+RUN skopeo copy --override-arch=${TARGETARCH} docker://${Model_IMAGE} containers-storage:[overlay@/usr/lib/containers/storage+/run/containers/storage]${MODEL_IMAGE}
+
+RUN podman system reset --force 2>/dev/null
+
+EXPOSE 8501

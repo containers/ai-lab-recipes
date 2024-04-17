@@ -7,7 +7,7 @@ RequiresMountsFor=%t/containers
 
 [Kube]
 # Point to the yaml file in the same directory
-Yaml=audio-text.yaml
+Yaml=audio-to-text.yaml
 
 [Service]
 Restart=always
