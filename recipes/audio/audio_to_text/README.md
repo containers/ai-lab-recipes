@@ -11,13 +11,12 @@ The AI Application will connect to the Model Service via an API. The recipe reli
 
 ## Try the Chat Application: Coming soon
 
-The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) does not yet include this recipe, but we hope to integrate it into the catalog soon. Stay tuned!
+The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this recipe among others. To try it out, open `Recipes Catalog` -> `Audio to Text` and follow the instructions to start the application.
 
 # Build the Application
 
 The rest of this document will explain how to build and run the application from the terminal, and will go into greater detail on how each container in the Pod above is built, run, and  what purpose it serves in the overall application. All the recipes use a central [Makefile](../../common/Makefile.common) that includes variables populated with default values to simplify getting started. Please review the [Makefile docs](../../common/README.md), to learn about further customizing your application.
 
-* [Quickstart](#quickstart)
 * [Download a model](#download-a-model)
 * [Build the Model Service](#build-the-model-service)
 * [Deploy the Model Service](#deploy-the-model-service)
@@ -25,35 +24,6 @@ The rest of this document will explain how to build and run the application from
 * [Deploy the AI Application](#deploy-the-ai-application)
 * [Interact with the AI Application](#interact-with-the-ai-application)
     * [Input audio files](#input-audio-files)
-
-## Quickstart
-
-To run the application with pre-built images from `quay.io/ai-lab`, use `make quadlet`. This command
-builds the application's metadata and generates Kubernetes YAML at `./build/chatbot.yaml` to spin up a Pod that can then be launched locally.
-Try it with:
-
-```
-make quadlet
-podman kube play build/chatbot.yaml
-```
-
-This will take a few minutes if the model and model-server container images need to be downloaded. 
-The Pod is named `chatbot`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
-
-```
-podman pod list
-podman ps
-```
-
-Once the Pod and its containers are running, the application can be accessed at `http://localhost:8501`. 
-Please refer to the section below for more details about [interacting with the chatbot application](#interact-with-the-ai-application).
-
-To stop and remove the Pod, run:
-
-```
-podman pod stop chatbot
-podman pod rm chatbot
-```
 
 ## Download a model
 
@@ -77,8 +47,6 @@ _A full list of supported open models is forthcoming._
 
 The complete instructions for building and deploying the Model Service can be found in the [whispercpp model-service document](../../../model_servers/whispercpp/README.md).
 
-The Model Service can be built from make commands from the [whispercpp model-service document](../../../model_servers/whispercpp/README.md).
-
 ```bash
 # from path model_servers/whispercpp from repo containers/ai-lab-recipes
 make build
@@ -90,7 +58,7 @@ Checkout the [Makefile](../../../model_servers/whispercpp/Makefile) to get more 
 The local Model Service relies on a volume mount to the localhost to access the model files. It also employs environment variables to dictate the model used and where its served. You can start your local Model Service using the following `make` command from `model_servers/whispercpp` set with reasonable defaults:
 
 ```bash
-# from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
+# from path model_servers/whispercpp from repo containers/ai-lab-recipes
 make run
 ```
 
