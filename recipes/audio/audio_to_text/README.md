@@ -15,7 +15,7 @@ The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://githu
 
 # Build the Application
 
-The rest of this document will explain how to build and run the application from the terminal, and will go into greater detail on how each container in the Pod above is built, run, and  what purpose it serves in the overall application. All the recipes use a central [Makefile](../../common/Makefile.common) that includes variables populated with default values to simplify getting started. Please review the [Makefile docs](../../common/README.md), to learn about further customizing your application.
+The rest of this document will explain how to build and run the application from the terminal, and will go into greater detail on how each container in the application above is built, run, and  what purpose it serves in the overall application. All the recipes use a central [Makefile](../../common/Makefile.common) that includes variables populated with default values to simplify getting started. Please review the [Makefile docs](../../common/README.md), to learn about further customizing your application.
 
 * [Download a model](#download-a-model)
 * [Build the Model Service](#build-the-model-service)
@@ -88,7 +88,7 @@ Once the streamlit application is up and running, you should be able to access i
 From here, you can upload audio files from your local machine and translate the audio files as shown below.
 
 By using this recipe and getting this starting point established,
-users should now have an easier time customizing and building their own LLM enabled applications.
+users should now have an easier time customizing and building their own AI enabled applications.
 
 #### Input audio files
 
