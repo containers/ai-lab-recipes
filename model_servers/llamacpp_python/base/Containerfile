@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-311:1-52
+FROM registry.access.redhat.com/ubi9/python-311:1-52.1712567218
 WORKDIR /locallm
 COPY src .
 RUN pip install --no-cache-dir --verbose -r ./requirements.txt
