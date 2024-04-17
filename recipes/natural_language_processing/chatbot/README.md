@@ -19,7 +19,6 @@ The rest of this document will explain how to build and run the application from
 go into greater detail on how each container in the Pod above is built, run, and 
 what purpose it serves in the overall application. All the recipes use a central [Makefile](../../common/Makefile.common) that includes variables populated with default values to simplify getting started. Please review the [Makefile docs](../../common/README.md), to learn about further customizing your application.
 
-* [Makefile](#makefile)
 
 This application requires a model, a model service and an AI inferencing application.
 
