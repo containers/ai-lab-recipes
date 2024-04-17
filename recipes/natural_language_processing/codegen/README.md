@@ -62,11 +62,11 @@ podman pod rm codgen
 
 ## Download a model
 
-If you are just getting started, we recommend using [Mistral-7B-Instruct](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1). This is a well
-performant mid-sized model with an apache-2.0 license. In order to use it with our Model Service we need it converted
+If you are just getting started, we recommend using [Mistral-7B-code-16k-qlora](https://huggingface.co/Nondzu/Mistral-7B-code-16k-qlora). This is a well
+performant mid-sized model with an apache-2.0 license fine tuned for code generation. In order to use it with our Model Service we need it converted
 and quantized into the [GGUF format](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md). There are a number of
-ways to get a GGUF version of Mistral-7B, but the simplest is to download a pre-converted one from
-[huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF.
+ways to get a GGUF version of Mistral-7B-code-16k-qlora, but the simplest is to download a pre-converted one from
+[huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF.
 
 There are a number of options for quantization level, but we recommend `Q4_K_M`. 
 
@@ -74,7 +74,7 @@ The recommended model can be downloaded using the code snippet below:
 
 ```bash
 cd ../../../models
-curl -sLO https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+curl -sLO https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf
 cd ../recipes/natural_language_processing/codgen
 ```
 
