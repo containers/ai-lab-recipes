@@ -79,7 +79,7 @@ This could be any appropriately hosted Model Service (running locally or in the 
 The following Podman command can be used to run your AI Application:
 
 ```bash
-podman run --rm -it -p 8501:8501 -e MODEL_ENDPOINT=http://0.0.0.0:8001/inference audio-to-text 
+podman run --rm -it -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8001/inference audio-to-text 
 ```
 
 ### Interact with the AI Application
