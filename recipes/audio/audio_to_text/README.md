@@ -4,12 +4,12 @@ This recipe helps developers start building their own custom AI enabled audio tr
 
 There are a few options today for local Model Serving, but this recipe will use [`whisper-cpp`](https://github.com/ggerganov/whisper.cpp.git) and its included Model Service. There is a Containerfile provided that can be used to build this Model Service within the repo, [`model_servers/whispercpp/base/Containerfile`](/model_servers/whispercpp/base/Containerfile).
 
-The AI Application will connect to the Model Service via an API. The recipe relies on [Langchain's](https://python.langchain.com/docs/get_started/introduction) python package to simplify communication with the Model Service and uses [Streamlit](https://streamlit.io/) for the UI layer. You can find an example of the chat application below.
+The AI Application will connect to the Model Service via an API. The recipe relies on [Langchain's](https://python.langchain.com/docs/get_started/introduction) python package to simplify communication with the Model Service and uses [Streamlit](https://streamlit.io/) for the UI layer. You can find an example of the audio to text application below.
 
 
 ![](/assets/whisper.png) 
 
-## Try the Chat Application: Coming soon
+## Try the Audio to Text Application:
 
 The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this recipe among others. To try it out, open `Recipes Catalog` -> `Audio to Text` and follow the instructions to start the application.
 
@@ -98,60 +98,3 @@ To convert your input audio files to 16-bit WAV format you can use `ffmpeg` like
 ```bash
 ffmpeg -i <input.mp3> -ar 16000 -ac 1 -c:a pcm_s16le <output.wav>
 ```
-
-## Embed the AI Application in a Bootable Container Image
-
-To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, run: `make -f Makefile bootc`. You can optionally override the default image / tag you want to give the make command by specifying it as follows: `make -f Makefile BOOTC_IMAGE=<your_bootc_image> bootc`.
-
-Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
-
-```bash
-make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 bootc
-```
-
-Selecting the ARCH for the bootc/Containerfile is simple using the Makefile ARCH= variable.
-
-```
-make ARCH=x86_64 bootc
-```
-
-The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
-with the chatbot application, it's as simple as ssh-ing into the bootc system and running:
-
-```bash
-bootc switch quay.io/ai-lab/chatbot-bootc:latest
-```
-
-Upon a reboot, you'll see that the chatbot service is running on the system. Check on the service with:
-
-```bash
-ssh user@bootc-system-ip
-sudo systemctl status chatbot
-```
-
-### What are bootable containers?
-
-What's a [bootable OCI container](https://containers.github.io/bootc/) and what's it got to do with AI?
-
-That's a good question! We think it's a good idea to embed AI workloads (or any workload!) into bootable images at _build time_ rather than
-at _runtime_. This extends the benefits, such as portability and predictability, that containerizing applications provides to the operating system.
-Bootable OCI images bake exactly what you need to run your workloads into the operating system at build time by using your favorite containerization
-tools. Might I suggest [podman](https://podman.io/)?
-
-Once installed, a bootc enabled system can be updated by providing an updated bootable OCI image from any OCI
-image registry with a single `bootc` command. This works especially well for fleets of devices that have fixed workloads - think
-factories or appliances. Who doesn't want to add a little AI to their appliance, am I right?
-
-Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!
-
-#### Creating bootable disk images
-
-You can convert a bootc image to a bootable disk image using the
-[quay.io/centos-bootc/bootc-image-builder](https://github.com/osbuild/bootc-image-builder) container image.
-
-This container image allows you to build and deploy [multiple disk image types](../../common/README_bootc_image_builder.md) from bootc container images.
-
-Default image types can be set via the DISK_TYPE Makefile variable.
-
-`make bootc-image-builder DISK_TYPE=ami`
-
