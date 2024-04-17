@@ -1,19 +1,28 @@
 # Code Generation Application
 
-This demo provides a simple recipe to help developers start building out their own custom LLM enabled code generation applications. It consists of two main components; the Model Service and the AI Application.
+  This recipe helps developers start building their own custom LLM enabled code generation applications. It consists of two main components: the Model Service and the AI Application.
 
-There are a few options today for local Model Serving, but this recipe will use [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python) and their OpenAI compatible Model Service. There is a Containerfile provided that can be used to build this Model Service within the repo, [`model_servers/llamacpp_python/base/Containerfile`](/model_servers/llamacpp_python/base/Containerfile).
+  There are a few options today for local Model Serving, but this recipe will use [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python) and their OpenAI compatible Model Service. There is a Containerfile provided that can be used to build this Model Service within the repo, [`model_servers/llamacpp_python/base/Containerfile`](/model_servers/llamacpp_python/base/Containerfile).
 
-Our AI Application will connect to our Model Service via it's OpenAI compatible API. In this example we rely on [Langchain's](https://python.langchain.com/docs/get_started/introduction) python package to simplify communication with our Model Service and we use [Streamlit](https://streamlit.io/) for our UI layer. Below please see an example of the code generation application.
+  The AI Application will connect to the Model Service via its OpenAI compatible API. The recipe relies on [Langchain's](https://python.langchain.com/docs/get_started/introduction) python package to simplify communication with the Model Service and uses [Streamlit](https://streamlit.io/) for the UI layer. You can find an example of the code generation application below.
+
+![](/assets/codegen_ui.png) 
 
 
-![](/assets/codegen_ui.png)
+## Try the Code Generation Application
 
+The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this recipe among others. To try it out, open `Recipes Catalog` -> `Code Generation` and follow the instructions to start the application.
 
 # Build the Application
 
-In order to build this application we will need a model, a Model Service and an AI Application.
+The rest of this document will explain how to build and run the application from the terminal, and will
+go into greater detail on how each container in the Pod above is built, run, and 
+what purpose it serves in the overall application. All the recipes use a central [Makefile](../../common/Makefile.common) that includes variables populated with default values to simplify getting started. Please review the [Makefile docs](../../common/README.md), to learn about further customizing your application.
 
+
+This application requires a model, a model service and an AI inferencing application.
+
+* [Quickstart](#quickstart)
 * [Download a model](#download-a-model)
 * [Build the Model Service](#build-the-model-service)
 * [Deploy the Model Service](#deploy-the-model-service)
@@ -22,111 +31,131 @@ In order to build this application we will need a model, a Model Service and an 
 * [Interact with the AI Application](#interact-with-the-ai-application)
 * [Embed the AI Application in a Bootable Container Image](#embed-the-ai-application-in-a-bootable-container-image)
 
-### Download a model
 
-If you are just getting started, we recommend using [Mistral-7B-Instruct](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1). This is a well
-performant mid-sized model with an apache-2.0 license. In order to use it with our Model Service we need it converted
+## Quickstart
+To run the application with pre-built images from `quay.io/ai-lab`, use `make quadlet`. This command
+builds the application's metadata and generates Kubernetes YAML at `./build/codegen.yaml` to spin up a Pod that can then be launched locally.
+Try it with:
+
+```
+make quadlet
+podman kube play build/codegen.yaml
+```
+
+This will take a few minutes if the model and model-server container images need to be downloaded. 
+The Pod is named `codegen`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
+
+```
+podman pod list
+podman ps
+```
+
+Once the Pod and its containers are running, the application can be accessed at `http://localhost:8501`. 
+Please refer to the section below for more details about [interacting with the codegen application](#interact-with-the-ai-application).
+
+To stop and remove the Pod, run:
+
+```
+podman pod stop codegen
+podman pod rm codgen
+```
+
+## Download a model
+
+If you are just getting started, we recommend using [Mistral-7B-code-16k-qlora](https://huggingface.co/Nondzu/Mistral-7B-code-16k-qlora). This is a well
+performant mid-sized model with an apache-2.0 license fine tuned for code generation. In order to use it with our Model Service we need it converted
 and quantized into the [GGUF format](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md). There are a number of
-ways to get a GGUF version of Mistral-7B, but the simplest is to download a pre-converted one from
-[huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF.
+ways to get a GGUF version of Mistral-7B-code-16k-qlora, but the simplest is to download a pre-converted one from
+[huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF.
 
-There are a number of options for quantization level, but we recommend `Q4_K_M`.
+There are a number of options for quantization level, but we recommend `Q4_K_M`. 
 
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
-cd models
-wget https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf
-cd ../
+cd ../../../models
+curl -sLO https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf
+cd ../recipes/natural_language_processing/codgen
 ```
 
-_A full list of supported open models is forthcoming._
+_A full list of supported open models is forthcoming._  
 
 
-### Build the Model Service
+## Build the Model Service
 
-The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
+The complete instructions for building and deploying the Model Service can be found in the
+[llamacpp_python model-service document](../../../model_servers/llamacpp_python/README.md).
 
-The Model Service can be built from the root directory with the below code snippet:
+The Model Service can be built from make commands from the [llamacpp_python directory](../../../model_servers/llamacpp_python/).
 
 ```bash
-cd model_servers/llamacpp_python
-podman build -t llamacppserver -f base/Containerfile .
+# from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
+make build
 ```
+Checkout the [Makefile](../../../model_servers/llamacpp_python/Makefile) to get more details on different options for how to build.
 
+## Deploy the Model Service
 
-### Deploy the Model Service
-
-The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
-
-The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local Model Service using the following Podman command:
-```
-podman run --rm -it \
-	-p 8001:8001 \
-	-v Local/path/to/locallm/models:/locallm/models \
-	-e MODEL_PATH=models/<model-filename> \
-	-e HOST=0.0.0.0 \
-	-e PORT=8001 \
-	llamacppserver
-```
-
-### Build the AI Application
-
-Now that the Model Service is running we want to build and deploy our AI Application. Use the provided Containerfile to build the AI Application image from the `codegen/` directory.
-
-Run:
+The local Model Service relies on a volume mount to the localhost to access the model files. It also employs environment variables to dictate the model used and where its served. You can start your local Model Service using the following `make` command from `model_servers/llamacpp_python` set with reasonable defaults:
 
 ```bash
-cd codegen
-podman build -t codegen app
+# from path model_servers/llamacpp_python from repo containers/ai-lab-recipes
+make run
 ```
-### Deploy the AI Application
 
-Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. The following Podman command can be used to run your AI Application:
+## Build the AI Application
+
+The AI Application can be built from the make command:
 
 ```bash
-podman run --rm -it -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8001 codegen
+# Run this from the current directory (path recipes/natural_language_processing/codegen from repo containers/ai-lab-recipes)
+make build
 ```
 
-### Interact with the AI Application
+## Deploy the AI Application
 
-Everything should now be up an running with the chat application available at [`http://localhost:8501`](http://localhost:8501). By using this recipe and getting this starting point established, users should now have an easier time customizing and building their own LLM enabled code generation applications.
+Make sure the Model Service is up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. To deploy the AI application use the following:
 
-_Note: Future recipes will demonstrate integration between locally hosted LLM's and developer productivity tools like VSCode._
-
-### Embed the AI Application in a Bootable Container Image
-
-To build a bootable container image that includes this sample chatbot workload as a service that starts when a system is booted, cd into this folder
-and run:
-
-
+```bash
+# Run this from the current directory (path recipes/natural_language_processing/codegen from repo containers/ai-lab-recipes)
+make run 
 ```
-make BOOTC_IMAGE=quay.io/your/codegen-bootc:latest bootc
-```
+
+## Interact with the AI Application
+
+Everything should now be up an running with the code generation application available at [`http://localhost:8501`](http://localhost:8501). By using this recipe and getting this starting point established, users should now have an easier time customizing and building their own LLM enabled code generation applications.   
+
+## Embed the AI Application in a Bootable Container Image
+
+To build a bootable container image that includes this sample code generation workload as a service that starts when a system is booted, run: `make -f Makefile bootc`. You can optionally override the default image / tag you want to give the make command by specifying it as follows: `make -f Makefile BOOTC_IMAGE=<your_bootc_image> bootc`.
 
 Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
 
+```bash
+make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 bootc
 ```
-make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTC_IMAGE=quay.io/your/codegen-bootc:latest bootc
+
+Selecting the ARCH for the bootc/Containerfile is simple using the Makefile ARCH= variable.
+
+```
+make ARCH=x86_64 bootc
 ```
 
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
-with the codegen application, it's as simple as ssh-ing into the bootc system and running:
+with the code generation application, it's as simple as ssh-ing into the bootc system and running:
 
+```bash
+bootc switch quay.io/ai-lab/codegen-bootc:latest
 ```
-bootc switch quay.io/your/codegen-bootc:latest
-```
 
-Upon a reboot, you'll see that the codegen service is running on the system.
+Upon a reboot, you'll see that the codegen service is running on the system. Check on the service with:
 
-Check on the service with
-
-```
+```bash
 ssh user@bootc-system-ip
 sudo systemctl status codegen
 ```
 
-#### What are bootable containers?
+### What are bootable containers?
 
 What's a [bootable OCI container](https://containers.github.io/bootc/) and what's it got to do with AI?
 
@@ -141,7 +170,7 @@ factories or appliances. Who doesn't want to add a little AI to their appliance,
 
 Bootable images lend toward immutable operating systems, and the more immutable an operating system is, the less that can go wrong at runtime!
 
-##### Creating bootable disk images
+#### Creating bootable disk images
 
 You can convert a bootc image to a bootable disk image using the
 [quay.io/centos-bootc/bootc-image-builder](https://github.com/osbuild/bootc-image-builder) container image.
@@ -151,8 +180,3 @@ This container image allows you to build and deploy [multiple disk image types](
 Default image types can be set via the DISK_TYPE Makefile variable.
 
 `make bootc-image-builder DISK_TYPE=ami`
-
-### Makefile variables
-
-There are several [Makefile variables](../../common/README.md) defined within each `recipe` Makefile which can be
-used to override defaults for a variety of make targets.

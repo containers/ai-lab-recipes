@@ -22,6 +22,7 @@ what purpose it serves in the overall application. All the recipes use a central
 
 This application requires a model, a model service and an AI inferencing application.
 
+* [Quickstart](#quickstart)
 * [Download a model](#download-a-model)
 * [Build the Model Service](#build-the-model-service)
 * [Deploy the Model Service](#deploy-the-model-service)
@@ -31,6 +32,7 @@ This application requires a model, a model service and an AI inferencing applica
 * [Embed the AI Application in a Bootable Container Image](#embed-the-ai-application-in-a-bootable-container-image)
 
 
+## Quickstart
 To run the application with pre-built images from `quay.io/ai-lab`, use `make quadlet`. This command
 builds the application's metadata and generates Kubernetes YAML at `./build/chatbot.yaml` to spin up a Pod that can then be launched locally.
 Try it with:
