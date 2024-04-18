@@ -17,9 +17,9 @@ run:
 .PHONY: bootc
 bootc: quadlet
 	podman build \
-	  $${ARCH:+--arch $${ARCH}} \
-	  $${FROM:+--from $${FROM}} \
-	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  $(ARCH:%=--arch %) \
+	  $(FROM:%=--from %) \
+	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  --security-opt label=disable \
 	  --cap-add SYS_ADMIN \
 	  --build-arg MODEL_IMAGE=$(MODEL_IMAGE) \
@@ -63,5 +63,5 @@ quadlet:
 .PHONY: bootc-run
 bootc-run:
 	podman run -d --rm --name $(APP)-bootc -p 8080:8501 -p 8090:8000 --privileged \
-	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  $(BOOTC_IMAGE) /sbin/init
