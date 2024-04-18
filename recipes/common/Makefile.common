@@ -21,7 +21,7 @@ NONLINUX_AUTH_JSON=${HOME}/.config/containers/auth.json
 AUTH_JSON ?=
 
 ifneq ("$(wildcard $(NONLINUX_AUTH_JSON))","")
-	AUTH_JSON=$(NONINUX_AUTH_JSON);
+	AUTH_JSON=$(NONLINUX_AUTH_JSON);
 else ifneq ("$(wildcard $(ROOTLESS_AUTH_JSON))","")
 	AUTH_JSON=$(ROOTLESS_AUTH_JSON);
 else ifneq ("$(wildcard $(ROOTFUL_AUTH_JSON))","")
