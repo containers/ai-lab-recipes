@@ -21,11 +21,11 @@ NONLINUX_AUTH_JSON=${HOME}/.config/containers/auth.json
 AUTH_JSON ?=
 
 ifneq ("$(wildcard $(NONLINUX_AUTH_JSON))","")
-	AUTH_JSON=$(NONINUX_AUTH_JSON);
+	AUTH_JSON=$(NONLINUX_AUTH_JSON)
 else ifneq ("$(wildcard $(ROOTLESS_AUTH_JSON))","")
-	AUTH_JSON=$(ROOTLESS_AUTH_JSON);
+	AUTH_JSON=$(ROOTLESS_AUTH_JSON)
 else ifneq ("$(wildcard $(ROOTFUL_AUTH_JSON))","")
-	AUTH_JSON=$(ROOTFUL_AUTH_JSON);
+	AUTH_JSON=$(ROOTFUL_AUTH_JSON)
 endif
 
 CHROMEDRIVER_VERSION := 103.0.5060.53
@@ -75,14 +75,14 @@ install::
 
 .PHONY: build
 build:
-	podman build --squash-all $${ARCH:+--platform linux/$${ARCH}} $${FROM:+--from $${FROM}} -t ${APP_IMAGE} app/
+	podman build --squash-all $(ARCH:%=--platform linux/%) $(FROM:%=--from %) -t ${APP_IMAGE} app/
 
 .PHONY: bootc
 bootc: quadlet
 	podman build \
-	  $${ARCH:+--arch $${ARCH}} \
-	  $${FROM:+--from $${FROM}} \
-	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  $(ARCH:%=--arch %) \
+	  $(FROM:%=--from %) \
+	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  --security-opt label=disable \
 	  --cap-add SYS_ADMIN \
 	  --build-arg MODEL_IMAGE=$(MODEL_IMAGE) \
@@ -102,7 +102,7 @@ bootc: quadlet
 .PHONY: bootc-run
 bootc-run:
 	podman run -d --rm --name $(APP)-bootc -p 8080:8501 --privileged \
-	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  $(BOOTC_IMAGE) /sbin/init
 
 .PHONY: bootc-image-builder
@@ -112,15 +112,15 @@ bootc-image-builder: bootc
 	  --rm \
 	  -ti \
 	  -v $(GRAPH_ROOT):/var/lib/containers/storage \
-	  $${ARCH:+--arch $${ARCH}} \
-	  $${AUTH_JSON:+-v $${AUTH_JSON}:/run/containers/0/auth.json} \
+	  $(ARCH:%=--arch %) \
+	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  --privileged \
 	  --pull newer \
 	  -v /etc/containers/policy.json:/etc/containers/policy.json \
 	  -v ./build:/output \
 	  -v ./build/store:/store \
 	  $(BOOTC_IMAGE_BUILDER) \
-	  $${ARCH:+--target-arch $${ARCH}} \
+	  $(ARCH:%=--target-arch %) \
 	  --type $(DISK_TYPE) \
 	  --local \
 	  $(BOOTC_IMAGE)

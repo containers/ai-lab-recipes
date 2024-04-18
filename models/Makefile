@@ -9,7 +9,7 @@ IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/llama:latest
 
 .PHONY: build
 build:
-	podman build $${MODEL_URL:+--build-arg MODEL=$${MODEL_URL}}  -f Containerfile -t ${IMAGE} .
+	podman build $(MODEL_URL:%=--build-arg MODEL=%) -f Containerfile -t ${IMAGE} .
 
 .PHONY: download-model
 download-model:
