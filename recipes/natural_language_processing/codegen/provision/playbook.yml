@@ -33,7 +33,7 @@
   - name: Run Model
     containers.podman.podman_container:
       name: llamacpp_python
-      image: ghcr.io/containers/llamacpp_python:latest
+      image: ghcr.io/containers/llamacpp-python:latest
       state: started
       interactive: true
       tty: true

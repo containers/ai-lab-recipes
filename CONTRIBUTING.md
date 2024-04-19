@@ -50,7 +50,7 @@ application:
         - amd64
       ports:
         - 8001
-      image: quay.io/ai-lab/llamacppp-python:latest
+      image: quay.io/ai-lab/llamacpp-python:latest
     - name: streamlit-chat-app
       contextdir: .
       containerfile: app/Containerfile

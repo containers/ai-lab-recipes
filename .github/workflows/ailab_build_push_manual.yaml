@@ -8,9 +8,9 @@ env:
   CHATBOT_IMAGE_NAME: chatbot
   CODEGEN_IMAGE_NAME: codegen
   SUMMARIZER_IMAGE_NAME: summarizer
-  LLAMACPP_PYTHON_IMAGE_NAME: llamacpp-python
-  LLAMACPP_PYTHON_VULKAN_IMAGE_NAME: llamacpp-python-vulkan
-  LLAMACPP_PYTHON_CUDA_IMAGE_NAME: llamacpp-python-cuda
+  LLAMACPP_PYTHON_IMAGE_NAME: llamacpp_python
+  LLAMACPP_PYTHON_VULKAN_IMAGE_NAME: llamacpp_python_vulkan
+  LLAMACPP_PYTHON_CUDA_IMAGE_NAME: llamacpp_python_cuda
   CHROMADB_IMAGE_NAME: chromadb
   RAG_IMAGE_NAME: rag
 
