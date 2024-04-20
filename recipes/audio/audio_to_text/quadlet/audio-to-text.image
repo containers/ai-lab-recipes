@@ -1,0 +1,7 @@
+[Install]
+WantedBy=audio-to-text.service
+
+[Image]
+Image=APP_IMAGE
+Image=MODEL_IMAGE
+Image=SERVER_IMAGE
