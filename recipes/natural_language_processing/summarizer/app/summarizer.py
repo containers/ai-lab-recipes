@@ -30,18 +30,18 @@ def checking_model_service():
 with st.spinner("Checking Model Service Availability..."):
     checking_model_service()
 
-estimation_factor = 1.50
-chunk_size = int(2048//estimation_factor)
 
-def estimate_tokens(prompt):
-    return int(len(prompt.split()) * estimation_factor)
-
-def chunk_text(prompt):
+def chunk_text(text):
     chunks = []
-    num_tokens = estimate_tokens(prompt)
-    for _ in range((num_tokens//chunk_size)+1):
-        chunk = prompt[:chunk_size]
-        chunks.append(chunk)
+    num_words = len(text.split())
+    text_list = text.split()
+    chunk_size = 1024
+    num_chunks = (num_words//chunk_size)+1
+
+    for _ in range(num_chunks):
+        chunk = text_list[:chunk_size]
+        chunks.append(" ".join(chunk))
+        text_list = text_list[chunk_size:]
     return chunks
 
 st.title("🔎 Summarizer")
@@ -51,6 +51,7 @@ llm = ChatOpenAI(base_url=model_service,
              api_key="not required",
              streaming=True,
              max_tokens=200,
+             temperature=0
              )
 
 ### prompt example is from  https://python.langchain.com/docs/use_cases/summarization
