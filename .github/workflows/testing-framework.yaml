@@ -121,7 +121,7 @@ jobs:
       - name: Publish Job Results to Slack
         id: slack
         if: always()
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           payload: |
             {
@@ -158,7 +158,7 @@ jobs:
       - name: Publish Job Results to Slack
         id: slack
         if: always()
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           payload: |
             {
@@ -180,7 +180,7 @@ jobs:
       - name: Publish Job Results to Slack
         id: slack
         if: always()
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           payload: |
             {
