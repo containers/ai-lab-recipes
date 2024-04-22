@@ -2,7 +2,7 @@ version: v1.0
 application:
   type: vision
   name: Object Detection
-  description: This is an example object detection demo
+  description: Detect and classify objects in images.
   containers:
     - name: object-detection-server
       contextdir: ../../../model_servers/object_detection_python

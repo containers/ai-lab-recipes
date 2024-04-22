@@ -2,13 +2,13 @@ version: v1.0
 application:
   type: language
   name: ChatBot_Streamlit
-  description: This is a Streamlit chat demo application. 
+  description: Chat with a model service in a web frontend.
   containers:
     - name: llamacpp-server
       contextdir: ../../../model_servers/llamacpp_python
       containerfile: ./base/Containerfile
       model-service: true
-      backend: 
+      backend:
         - llama
       arch:
         - arm64

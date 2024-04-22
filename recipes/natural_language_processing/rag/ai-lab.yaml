@@ -2,13 +2,13 @@ version: v1.0
 application:
   type: language
   name: rag-demo
-  description: This is a RAG demo application. 
+  description: A RAG chat bot using local documents.
   containers:
     - name: llamacpp-server
       contextdir: ../../../model_servers/llamacpp_python
       containerfile: ./base/Containerfile
       model-service: true
-      backend: 
+      backend:
         - llama
       arch:
         - arm64
