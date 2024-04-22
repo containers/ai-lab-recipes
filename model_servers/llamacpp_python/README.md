@@ -24,7 +24,7 @@ make -f Makefile build
 To pull the base model service image:
 
 ```bash
-podman pull quay.io/ai-lab/llamacpp-python
+podman pull quay.io/ai-lab/llamacpp_python
 ```
 
 
@@ -40,7 +40,7 @@ make -f Makefile build-cuda
 To pull the base model service image:
 
 ```bash
-podman pull quay.io/ai-lab/llamacpp-python-cuda
+podman pull quay.io/ai-lab/llamacpp_python_cuda
 ```
 
 **IMPORTANT!**
@@ -67,7 +67,7 @@ make -f Makefile build-vulkan
 To pull the base model service image:
 
 ```bash
-podman pull quay.io/ai-lab/llamacpp-python-vulkan
+podman pull quay.io/ai-lab/llamacpp_python_vulkan
 ```
 
 

@@ -16,7 +16,7 @@ RUN set -eu; mkdir -p /usr/ssh && \
 ARG RECIPE=chatbot
 ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
 ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
-ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp-python:latest
+ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp_python:latest
 ARG TARGETARCH
 
 # Add quadlet files to setup system to automatically run AI application on boot

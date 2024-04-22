@@ -1,8 +1,8 @@
 ## Images (x86_64, aarch64) currently built from GH Actions in this repository
 
-- quay.io/ai-lab/llamacpp-python:latest
-- quay.io/ai-lab/llamacpp-python-cuda:latest
-- quay.io/ai-lab/llamacpp-python-vulkan:latest
+- quay.io/ai-lab/llamacpp_python:latest
+- quay.io/ai-lab/llamacpp_python_cuda:latest
+- quay.io/ai-lab/llamacpp_python_vulkan:latest
 - quay.io/ai-lab/summarizer:latest
 - quay.io/ai-lab/chatbot:latest
 - quay.io/ai-lab/rag:latest

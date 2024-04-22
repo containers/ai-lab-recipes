@@ -29,7 +29,7 @@ used to override defaults for a variety of make targets.
 |CHROMADB_IMAGE      | ChromaDB image to be used for application      	    | `$(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest`	      |
 |DISK_TYPE           | Disk type to be created by BOOTC_IMAGE_BUILDER 	    | `qcow2` (Options: ami, iso, vmdk, raw)		      |
 |MODEL_IMAGE 	     | AI Model to be used by application             	    | `$(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest`|
-|SERVER_IMAGE 	     | AI Model Server Application                    	    | `$(REGISTRY)/$(REGISTRY_ORG)/llamacpp-python:latest`    |
+|SERVER_IMAGE 	     | AI Model Server Application                    	    | `$(REGISTRY)/$(REGISTRY_ORG)/llamacpp_python:latest`    |
 |SSH_PUBKEY 	     | SSH Public key preloaded in bootc image.             | `$(shell cat ${HOME}/.ssh/id_rsa.pub;)`		      |
 |FROM 		     | Overrides first FROM instruction within Containerfile| `FROM` line defined in the Containerfile		      |
 |ARCH 		     | Use alternate arch for image build                   | Current Arch					      |
