@@ -9,9 +9,15 @@ on:
 env:
   REGISTRY: quay.io/ai-lab
   MODEL_CONVERTER_IMAGE_NAME: model-converter
+  MERLINITE_MODEL_IMAGE_NAME: merlinite-7b-lab
+  MERLINITE_LABEL: Q4_K_M
+  MERLINITE_MODEL_URL: https://huggingface.co/instructlab/merlinite-7b-lab-GGUF/resolve/main/merlinite-7b-lab-Q4_K_M.gguf
   MISTRAL_MODEL_IMAGE_NAME: mistral-7b-instruct
   MISTRAL_LABEL: v0.1.Q4_K_M.gguf
   MISTRAL_MODEL_URL: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+  GRANITE_MODEL_IMAGE_NAME: granite-7b-lab
+  GRANITE_LABEL: Q4_K_M
+  GRANITE_MODEL_URL: https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
 
 jobs:
   build-and-push-model-converter-image:
@@ -60,6 +66,108 @@ jobs:
           registry: ${{ env.REGISTRY }}
           image: ${{ steps.build_convert_models_image.outputs.image }}
           tags: ${{ steps.build_convert_models_image.outputs.tags }}
+
+  build-and-push-granite-model-image:
+    if: contains( github.event.pull_request.labels.*.name, 'hold-tests')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # need enough disk space to download model
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - uses: actions/checkout@v4.1.1
+
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build granite model image
+        id: build_granite_model_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.GRANITE_MODEL_IMAGE_NAME }}
+          tags: latest
+          platforms: linux/amd64, linux/arm64
+          context: models
+          labels: |
+            ${{ env.GRANITE_LABEL }}
+          build-args: |
+            MODEL_URL=${{ env.GRANITE_MODEL_URL }}
+          containerfiles: ./models/Containerfile
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push granite model image
+        id: push_granite_model_image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_granite_model_image.outputs.image }}
+          tags: ${{ steps.build_granite_model_image.outputs.tags }}
+
+  build-and-push-merlinite-model-image:
+    if: contains( github.event.pull_request.labels.*.name, 'hold-tests')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # need enough disk space to download model
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - uses: actions/checkout@v4.1.1
+
+      # required for multi-arch builds
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build merlinite model image
+        id: build_merlinite_model_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.MERLINITE_MODEL_IMAGE_NAME }}
+          tags: latest
+          platforms: linux/amd64, linux/arm64
+          context: models
+          labels: |
+            ${{ env.MERLINITE_LABEL }}
+          build-args: |
+            MODEL_URL=${{ env.MERLINITE_MODEL_URL }}
+          containerfiles: ./models/Containerfile
+
+      - name: Login to quay.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push merlinite model image
+        id: push_merlinite_model_image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          image: ${{ steps.build_merlinite_model_image.outputs.image }}
+          tags: ${{ steps.build_merlinite_model_image.outputs.tags }}
 
   build-and-push-mistral-model-image:
     if: contains( github.event.pull_request.labels.*.name, 'hold-tests')
