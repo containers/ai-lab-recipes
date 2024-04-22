@@ -4,17 +4,6 @@ on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
   
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/model_image_build_push.yaml
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/model_image_build_push.yaml
-
   workflow_dispatch:
 
 env:
@@ -31,7 +20,6 @@ env:
 
 jobs:
   build-and-push-granite-model-image:
-    if: contains( github.event.pull_request.labels.*.name, 'hold-tests')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -82,7 +70,6 @@ jobs:
           tags: ${{ steps.build_granite_model_image.outputs.tags }}
 
   build-and-push-merlinite-model-image:
-    if: contains( github.event.pull_request.labels.*.name, 'hold-tests')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -133,7 +120,6 @@ jobs:
           tags: ${{ steps.build_merlinite_model_image.outputs.tags }}
 
   build-and-push-mistral-model-image:
-    if: contains( github.event.pull_request.labels.*.name, 'hold-tests')
     runs-on: ubuntu-latest
     permissions:
       contents: read
