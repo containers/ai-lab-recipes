@@ -49,8 +49,8 @@ jobs:
           image: ${{ env.MODEL_CONVERTER_IMAGE_NAME }}
           tags: latest
           platforms: linux/amd64, linux/arm64
-          context: models/convert_models
-          containerfiles: ./models/convert_models/Containerfile
+          context: convert_models
+          containerfiles: ./convert_models/Containerfile
 
       - name: Login to quay.io
         uses: redhat-actions/podman-login@v1
