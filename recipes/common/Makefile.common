@@ -10,6 +10,8 @@ SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
 BOOTC_IMAGE ?= quay.io/$(REGISTRY_ORG)/${APP}-bootc:latest
 BOOTC_IMAGE_BUILDER ?= quay.io/centos-bootc/bootc-image-builder
 DISK_TYPE ?= qcow2
+DISK_USER ?= $(shell id -u)
+DISK_GROUP ?= $(shell id -g)
 FROM ?=
 ARCH ?=
 CONTAINERFILE ?= Containerfile
@@ -122,6 +124,7 @@ bootc-image-builder: bootc
 	  $(BOOTC_IMAGE_BUILDER) \
 	  $(ARCH:%=--target-arch %) \
 	  --type $(DISK_TYPE) \
+	  --chown $(DISK_USER):$(DISK_GROUP) \
 	  --local \
 	  $(BOOTC_IMAGE)
 
