@@ -32,7 +32,7 @@ podman build --build-arg "sshpubkey=$(cat ~/.ssh/id_rsa.pub)" \
 
 # for GPU powered sample LLM application with llamacpp cuda model server
 podman build --build-arg "sshpubkey=$(cat ~/.ssh/id_rsa.pub)" \
-           --build-arg "model-server-image="quay.io/ai-lab/llamacpp-python-cuda:latest" \
+           --build-arg "model-server-image="quay.io/ai-lab/llamacpp_python_cuda:latest" \
            --from <YOUR BOOTABLE IMAGE WITH NVIDIA/CUDA> \
            --cap-add SYS_ADMIN \
            --platform linux/amd64 \

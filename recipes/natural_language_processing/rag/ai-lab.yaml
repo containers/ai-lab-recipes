@@ -15,7 +15,7 @@ application:
         - amd64
       ports:
         - 8001
-      image: quay.io/ai-lab/llamacpp-python:latest
+      image: quay.io/ai-lab/llamacpp_python:latest
     - name: chromadb-server
       contextdir: ../../../vector_dbs/chromadb
       containerfile: Containerfile

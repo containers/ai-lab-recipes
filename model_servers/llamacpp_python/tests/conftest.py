@@ -8,7 +8,7 @@ else:
     REGISTRY = os.environ['REGISTRY']
 
 if not 'IMAGE_NAME' in os.environ:
-    IMAGE_NAME = 'containers/llamacpp-python:latest'
+    IMAGE_NAME = 'containers/llamacpp_python:latest'
 else:
     IMAGE_NAME = os.environ['IMAGE_NAME']
 
