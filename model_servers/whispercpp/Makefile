@@ -17,4 +17,4 @@ all: build download-model-whisper-small run
 .PHONY: download-model-whisper-small # small .bin model type testing
 download-model-whisper-small:
 	cd ../../models && \
-	make MODEL_NAME=ggml-small.bin MODEL_URL=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin -f Makefile download-model
+	make download-model-whisper-small
