@@ -3,13 +3,14 @@
 #	    https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf (Default)
 #	    https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_M.gguf
 #	    https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
-# podman build --build-arg MODEL_URL=https://... -t quay.io/yourimage .
+# podman build --build-arg="MODEL_URL=https://..." -t quay.io/yourimage .
 #
 FROM registry.access.redhat.com/ubi9/ubi-micro:9.3-15
 
 # Can be substituted using the --build-arg defined above
-ARG MODEL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+ARG MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
 
 # By default the Model Server container image uses the AI Model stored in the model/model.file file.
 WORKDIR /model
-ADD $MODEL /model/model.file
+
+ADD $MODEL_URL /model/model.file
