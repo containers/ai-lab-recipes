@@ -1,7 +1,10 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-52.1712567218
+USER 0
+RUN mkdir /converter
 WORKDIR /converter
 RUN git clone https://github.com/ggerganov/llama.cpp.git
 RUN cd llama.cpp/ && make
+USER 1001
 RUN pip install -r llama.cpp/requirements.txt
 COPY . /converter/
 ENTRYPOINT ["sh", "run.sh"]

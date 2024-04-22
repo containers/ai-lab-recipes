@@ -4,6 +4,19 @@ on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
   
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ./convert_models/**
+      - .github/workflows/model_image_build_push.yaml
+  push:
+    branches:
+      - main
+    paths:
+      - ./convert_models/**
+      - .github/workflows/model_image_build_push.yaml
+
   workflow_dispatch:
 
 env:
