@@ -2,13 +2,13 @@ version: v1.0
 application:
   type: language
   name: Summarizer_App
-  description: This is a Streamlit demo application for summarizing text. 
+  description: Summarize text files in a web frontend.
   containers:
     - name: llamacpp-server
       contextdir: ../../../model_servers/llamacpp_python
       containerfile: ./base/Containerfile
       model-service: true
-      backend: 
+      backend:
         - llama
       arch:
         - arm64
