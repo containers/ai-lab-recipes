@@ -30,7 +30,7 @@ if submit_button:
                         "run", 
                         "-it", 
                         "--rm", 
-                        "-v", f"{volume}:converter/converted_models", 
+                        "-v", f"{volume}:/opt/app-root/src/converter/converted_models", 
                         "-e", f"HF_MODEL_URL={model_name}" ,
                         "-e", f"QUANTIZATION={quantization}",
                         "-e", f"KEEP_ORIGINAL_MODEL={keep_files}",
