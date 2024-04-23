@@ -2,6 +2,7 @@
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_community.callbacks import StreamlitCallbackHandler
+from langchain_community.document_loaders import PyPDFLoader
 import streamlit as st
 import requests
 import time
@@ -44,14 +45,30 @@ def chunk_text(text):
         text_list = text_list[chunk_size:]
     return chunks
 
+def read_file(file):
+    file_type = file.type
+    
+    if file_type == "application/pdf":
+        with open(file.name, "wb") as f:
+            f.write(file.getvalue())
+        loader = PyPDFLoader(file.name)
+        pages = loader.load()
+        text = "".join([p.page_content for p in pages]) 
+        os.remove(file.name) 
+    
+    if file_type == "text/plain":
+        text = file.read().decode()   
+    
+    return text
+
 st.title("🔎 Summarizer")
-file = st.file_uploader("Upload file")
+file = st.file_uploader("Upload file",type=[".txt",".pdf"])
 
 llm = ChatOpenAI(base_url=model_service,
              api_key="not required",
              streaming=True,
-             max_tokens=200,
-             temperature=0
+             temperature=0.0,
+             max_tokens=400,
              )
 
 ### prompt example is from  https://python.langchain.com/docs/use_cases/summarization
@@ -68,14 +85,16 @@ refine_template = PromptTemplate.from_template(
     "Only use bullet points."
     "Dont ever go beyond 10 bullet points."
 )
-                        
-if file != None:    
-    text = file.read().decode()    
+                    
+if file != None:
+
+    text = read_file(file)
     chunks = chunk_text(text)
     num_chunks = len(chunks)
     st.write(f"Processing data in {num_chunks} chunks...")
     progbar = st.progress(0.01, text="")
     existing_answer = ""
+    
     for i, chunk in enumerate(chunks):
         progbar.progress((i+1)/(num_chunks), text="")
         if i+1 < num_chunks:
