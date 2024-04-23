@@ -1,6 +1,7 @@
 FROM quay.io/centos/centos:stream9
 
 ARG KERNEL_VERSION=''
+ARG ENABLE_RT=''
 
 USER root
 
@@ -16,7 +17,7 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         kernel-devel-${KERNEL_VERSION} \
         kernel-modules-${KERNEL_VERSION} \
         kernel-modules-extra-${KERNEL_VERSION} \
-    && if [ $(arch) == "x86_64" ]; then \
+    && if [ "${ENABLE_RT}" ] && [ $(arch) == "x86_64" ]; then \
         dnf -y --enablerepo=rt install \
             kernel-rt-devel-${KERNEL_VERSION} \
             kernel-rt-modules-${KERNEL_VERSION} \
