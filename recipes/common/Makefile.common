@@ -36,6 +36,8 @@ CHROME_DOWNLOAD_PATH ?=
 
 OS := $(shell uname -s)
 ARCH := $(shell uname -m)
+ifeq ($(ARCH),x86_64)
+	ARCH := amd64
 
 ifeq ($(OS),Darwin) # This structure may vary if we upgrade chromedriver, see index: https://chromedriver.storage.googleapis.com/index.html
 	ifeq ($(ARCH),amd64)
