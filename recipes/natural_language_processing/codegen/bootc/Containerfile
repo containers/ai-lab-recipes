@@ -14,7 +14,7 @@ RUN set -eu; mkdir -p /usr/ssh && \
     echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys
 
 ARG RECIPE=codegen
-ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
+ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-code-16k-qlora:latest
 ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp_python:latest
 ARG TARGETARCH

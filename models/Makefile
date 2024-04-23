@@ -5,11 +5,11 @@ REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
 COMPONENT = models
 
-IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/$(COMPONENT)/llama:latest
+IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/$(MODEL_NAME):latest
 
 .PHONY: build
 build:
-	podman build $(MODEL_URL:%=--build-arg MODEL=%) -f Containerfile -t ${IMAGE} .
+	podman build $(MODEL_URL:%=--build-arg MODEL_URL=%) -f Containerfile -t ${IMAGE} .
 
 .PHONY: download-model
 download-model:
