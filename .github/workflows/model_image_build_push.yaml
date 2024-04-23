@@ -64,7 +64,7 @@ jobs:
         id: build_image
         uses: redhat-actions/buildah-build@v2.13
         with:
-          image: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
+          image: ${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
           platforms: ${{ matrix.platforms }}
           labels: |
             ${{ matrix.label }}
