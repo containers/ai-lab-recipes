@@ -64,11 +64,6 @@ MISTRAL_MODEL_URL := https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GG
 
 MODEL_NAME ?= $(MISTRAL_MODEL_NAME)
 
-.PHONY: download-model-mistral
-download-model-mistral:
-	cd ../../../models && \
-	make MODEL_NAME=mistral-7b-instruct-v0.1.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf -f  Makefile download-model
-
 .PHONY: install
 install::
 	$(MAKE) install-chromedriver RECIPE_BINARIES_PATH=${RECIPE_BINARIES_PATH}
