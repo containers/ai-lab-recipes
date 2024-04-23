@@ -1,0 +1,6 @@
+FROM quay.io/centos-bootc/centos-bootc:stream9
+
+ADD rocm.repo /etc/yum.repos.d/rocm.repo
+
+RUN curl -L https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -o /tmp/epel-release-latest-9.noarch.rpm && rpm -ivh /tmp/epel-release-latest-9.noarch.rpm && rm -f /tmp/epel-release-latest-9.noarch.rpm
+RUN dnf install -y 'dnf-command(config-manager)' && crb enable && dnf install -y rocm && dnf clean all
