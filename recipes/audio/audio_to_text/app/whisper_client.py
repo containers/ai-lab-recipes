@@ -8,7 +8,7 @@ st.title(":studio_microphone: Speech Recognition")
 st.markdown("Upload an audio file you wish to have translated")
 endpoint = os.getenv("MODEL_ENDPOINT", default="http://0.0.0.0:8001")
 endpoint = f"{endpoint}/inference"
-audio = st.file_uploader("", type=["wav"], accept_multiple_files=False)
+audio = st.file_uploader("", type=["wav","mp3","mp4","flac"], accept_multiple_files=False)
 # read audio file
 if audio:
     audio_bytes = audio.read()
