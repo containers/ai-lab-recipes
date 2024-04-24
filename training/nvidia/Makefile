@@ -2,7 +2,7 @@ FROM ?=
 
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= nvidia
+IMAGE_NAME ?= nvidia-bootc
 IMAGE_TAG ?= latest
 DTK_IMAGE_NAME ?= nvidia-builder
 DTK_IMAGE_TAG ?= latest
