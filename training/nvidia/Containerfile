@@ -25,7 +25,7 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
     fi \
     && if [ "${CENTOS_VERSION_MAJOR}" == "" ]; then \
         . /etc/os-release \
-        && export CENTOS_VERSION_MAJOR="${VERSION}" ;\
+        && export CENTOS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
        fi \
     && if [ "${BUILD_ARCH}" == "" ]; then \
         export BUILD_ARCH=$(arch) \
@@ -96,7 +96,7 @@ RUN if [ "${TARGET_ARCH}" == "" ]; then \
         fi \
     && if [ "${CENTOS_VERSION_MAJOR}" == "" ]; then \
         . /etc/os-release \
-        && export CENTOS_VERSION_MAJOR="${VERSION}" ;\
+        && export CENTOS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
        fi \
     && export DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) \
         CUDA_VERSION_ARRAY=(${CUDA_VERSION//./ }) \
