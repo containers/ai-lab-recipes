@@ -6,6 +6,7 @@ port_check.lock
 models/*
 !models/Makefile
 !models/README.md
+!models/download_hf_models.py
 convert_models/converted_models
 recipes/common/bin/*
 */.venv/
