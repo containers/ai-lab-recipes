@@ -4,6 +4,7 @@ from langchain.prompts import PromptTemplate
 from langchain_community.callbacks import StreamlitCallbackHandler
 from langchain_community.document_loaders import PyPDFLoader
 import streamlit as st
+import tempfile
 import requests
 import time
 import os
@@ -49,12 +50,12 @@ def read_file(file):
     file_type = file.type
     
     if file_type == "application/pdf":
-        with open(f"/tmp/{file.name}", "wb") as f:
+        temp = tempfile.NamedTemporaryFile()
+        with open(temp.name, "wb") as f:
             f.write(file.getvalue())
-        loader = PyPDFLoader(f"/tmp/{file.name}")
+            loader = PyPDFLoader(temp.name)
         pages = loader.load()
         text = "".join([p.page_content for p in pages]) 
-        os.remove(f"/tmp/{file.name}") 
     
     if file_type == "text/plain":
         text = file.read().decode()   
