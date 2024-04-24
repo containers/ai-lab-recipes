@@ -1,13 +1,12 @@
-FROM ?= "quay.io/centos-bootc/centos-bootc:stream9"
+default: help
 
-REGISTRY ?= quay.io
-REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= amd
-IMAGE_TAG ?= latest
+help:
+	@echo "Please choose one of the following targets:"
+	@echo "  - amd"
+	@echo "  - nvidia"
 
-CONTAINER_TOOL ?= podman
-CONTAINER_TOOL_EXTRA_ARGS ?=
-
-.PHONY: amd
+.PHONY: amd nvidia
 amd:
 	make -C amd/ image
+nvidia:
+	make -C nvidia/ dtk image
