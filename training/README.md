@@ -5,9 +5,10 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 
 # Makefile targets
 
-| Target     | Description                                |
-|------------|--------------------------------------------|
-| amd        | Create bootable container for AMD platform |
+| Target     | Description                                   |
+|------------|-----------------------------------------------|
+| amd        | Create bootable container for AMD platform    |
+| nvidia     | Create bootable container for NVidia platform |
 
 # Makefile variables
 
@@ -25,5 +26,3 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 ```
 make amd FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4
 ```
-
-
