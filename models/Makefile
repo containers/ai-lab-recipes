@@ -13,7 +13,7 @@ build:
 
 .PHONY: download-model
 download-model:
-	curl -H "Cache-Control: no-cache" --progress-bar -S -L -f $(MODEL_URL) -z $(MODEL_NAME) -o $(MODEL_NAME).tmp && \
+	curl -H "Cache-Control: no-cache" --max-time 900 --retry 2 --retry-delay 15 --connect-timeout 180 --progress-bar -S -L -f $(MODEL_URL) -z $(MODEL_NAME) -o $(MODEL_NAME).tmp && \
 	mv -f $(MODEL_NAME).tmp $(MODEL_NAME) 2>/dev/null || \
 	rm -f $(MODEL_NAME).tmp $(MODEL_NAME)
 
