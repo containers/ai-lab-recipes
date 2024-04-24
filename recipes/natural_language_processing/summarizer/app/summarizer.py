@@ -49,12 +49,12 @@ def read_file(file):
     file_type = file.type
     
     if file_type == "application/pdf":
-        with open(file.name, "wb") as f:
+        with open(f"/tmp/{file.name}", "wb") as f:
             f.write(file.getvalue())
-        loader = PyPDFLoader(file.name)
+        loader = PyPDFLoader(f"/tmp/{file.name}")
         pages = loader.load()
         text = "".join([p.page_content for p in pages]) 
-        os.remove(file.name) 
+        os.remove(f"/tmp/{file.name}") 
     
     if file_type == "text/plain":
         text = file.read().decode()   

@@ -1,3 +1,4 @@
 langchain
 langchain_openai
 streamlit
+pypdf
