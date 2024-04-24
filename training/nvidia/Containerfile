@@ -5,7 +5,7 @@ FROM ${DRIVER_TOOLKIT_IMAGE} as builder
 
 ARG BASE_URL='https://us.download.nvidia.com/tesla'
 
-ARG CENTOS_VERSION_MAJOR=''
+ARG OS_VERSION_MAJOR=''
 ARG KERNEL_VERSION=''
 
 ARG BUILD_ARCH=''
@@ -23,9 +23,9 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         && VERSION=$(dnf info kernel-core | grep Version | awk -F: '{print $2}' | tr -d '[:blank:]') \
         && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
     fi \
-    && if [ "${CENTOS_VERSION_MAJOR}" == "" ]; then \
+    && if [ "${OS_VERSION_MAJOR}" == "" ]; then \
         . /etc/os-release \
-        && export CENTOS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
+        && export OS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
        fi \
     && if [ "${BUILD_ARCH}" == "" ]; then \
         export BUILD_ARCH=$(arch) \
@@ -35,7 +35,7 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         KREL=$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/\.el._*.*\..\+$//' | cut -d'.' -f 1) \
         KDIST="."$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/^.*\(\.el._*.*\)\..\+$/\1/' | cut -d'.' -f 2) \
         DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) \
-    && git clone --depth 1 --single-branch -b rhel${CENTOS_VERSION_MAJOR} https://github.com/NVIDIA/yum-packaging-precompiled-kmod \
+    && git clone --depth 1 --single-branch -b rhel${OS_VERSION_MAJOR} https://github.com/NVIDIA/yum-packaging-precompiled-kmod \
     && cd yum-packaging-precompiled-kmod \
     && mkdir BUILD BUILDROOT RPMS SRPMS SOURCES SPECS \
     && mkdir nvidia-kmod-${DRIVER_VERSION}-${BUILD_ARCH} \
@@ -59,12 +59,11 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         --define "driver_branch ${DRIVER_STREAM}" \
         -v -bb SPECS/kmod-nvidia.spec
 
-
 FROM ${BASEIMAGE}
 
 ARG BASE_URL='https://us.download.nvidia.com/tesla'
 
-ARG CENTOS_VERSION_MAJOR=''
+ARG OS_VERSION_MAJOR=''
 ARG KERNEL_VERSION=''
 
 
@@ -94,9 +93,9 @@ COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-fir
 RUN if [ "${TARGET_ARCH}" == "" ]; then \
         export TARGET_ARCH="$(arch)" ;\
         fi \
-    && if [ "${CENTOS_VERSION_MAJOR}" == "" ]; then \
+    && if [ "${OS_VERSION_MAJOR}" == "" ]; then \
         . /etc/os-release \
-        && export CENTOS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
+        && export OS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
        fi \
     && export DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) \
         CUDA_VERSION_ARRAY=(${CUDA_VERSION//./ }) \
@@ -104,7 +103,7 @@ RUN if [ "${TARGET_ARCH}" == "" ]; then \
         CUDA_REPO_ARCH=${TARGET_ARCH} \
     && if [ "${TARGET_ARCH}" == "aarch64" ]; then CUDA_REPO_ARCH="sbsa"; fi \
     && dnf config-manager --best --nodocs --setopt=install_weak_deps=False --save \
-    && dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel${CENTOS_VERSION_MAJOR}/${CUDA_REPO_ARCH}/cuda-rhel${CENTOS_VERSION_MAJOR}.repo \
+    && dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel${OS_VERSION_MAJOR}/${CUDA_REPO_ARCH}/cuda-rhel${OS_VERSION_MAJOR}.repo \
     && dnf -y module enable nvidia-driver:${DRIVER_STREAM}/default \
     && dnf install -y \
         nvidia-driver-cuda-${DRIVER_VERSION} \
@@ -123,4 +122,3 @@ RUN if [ "${TARGET_ARCH}" == "" ]; then \
     && dnf clean all \
     && ln -s /usr/lib/systemd/system/nvidia-toolkit-firstboot.service /usr/lib/systemd/system/basic.target.wants/nvidia-toolkit-firstboot.service \
     && echo "blacklist nouveau" > /etc/modprobe.d/blacklist_nouveau.conf
-
