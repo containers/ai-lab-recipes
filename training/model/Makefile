@@ -8,8 +8,8 @@ IMAGE_TAG ?= latest
 CONTAINER_TOOL ?= podman
 CONTAINER_TOOL_EXTRA_ARGS ?=
 
-MODEL_REPO ?=
-MODEL_PATH ?= 
+MODEL_REPO ?= ibm/granite-7b-base
+MODEL_PATH ?= /usr/share/ai-model
 
 .PHONY: image
 image:

@@ -1,8 +1,8 @@
 FROM quay.io/centos-bootc/centos-bootc:stream9
 
-ARG MODEL_REPO=https://huggingface.co/ibm/granite-7b-base
-ARG MODEL_PATH=/usr/share/ai-model
+ARG MODEL_REPO=''
+ARG MODEL_PATH=''
 
-RUN dnf install -y git-lfs
-RUN mkdir -p "${MODEL_PATH}"
-RUN git clone --progress --verbose "${MODEL_REPO}" "${MODEL_PATH}"
+RUN dnf install -y python3-pip && python -m pip install huggingface_hub
+RUN mkdir -p "${MODEL_PATH}" \
+    && echo from huggingface_hub import snapshot_download\;snapshot_download\(repo_id=\'${MODEL_REPO}\', local_dir=\'${MODEL_PATH}\', local_dir_use_symlinks=False\) | python
