@@ -1,5 +1,5 @@
-MODEL_URL ?= https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
-MODEL_NAME ?= mistral-7b-instruct
+MODEL_URL ?= https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
+MODEL_NAME ?= granite-7b-lab-Q4_K_M.gguf
 
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab

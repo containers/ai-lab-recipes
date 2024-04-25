@@ -10,7 +10,7 @@
 FROM registry.access.redhat.com/ubi9/ubi-micro:9.3-15
 
 # Can be substituted using the --build-arg defined above
-ARG MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf
+ARG MODEL_URL=https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
 
 # By default the Model Server container image uses the AI Model stored in the model/model.file file.
 WORKDIR /model

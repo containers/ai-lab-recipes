@@ -76,16 +76,17 @@ podman pull quay.io/ai-lab/llamacpp_python_vulkan
 
 There are many models to choose from these days, most of which can be found on [huggingface.co](https://huggingface.co). In order to use a model with the llamacpp_python model server, it must be in GGUF format. You can either download pre-converted GGUF models directly or convert them yourself with the [model converter utility](../../convert_models/) available in this repo.
 
-One of the more popular Apache-2.0 Licenesed models that we recommend using if you are just getting started is `mistral-7b-instruct-v0.1`. You can use the link below to quickly download a quantized (smaller) GGUF version of this model for use with the llamacpp_python model server. 
+A well performant Apache-2.0 licensed models that we recommend using if you are just getting started is
+`granite-7b-lab`. You can use the link below to quickly download a quantized (smaller) GGUF version of this model for use with the llamacpp_python model server. 
 
-Download URL: [https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf)
+Download URL: [https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf](https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf)
 
 Place all models in the [models](../../models/) directory.
 
 You can use this snippet below to download the default model:
 
 ```bash
-make -f Makefile download-model-mistral
+make -f Makefile download-model-granite
 ```
 
 Or you can use the generic `download-models` target from the `/models` directory to download any model file from huggingface:
@@ -93,7 +94,7 @@ Or you can use the generic `download-models` target from the `/models` directory
 ```bash
 cd ../../models
 make MODEL_NAME=<model_name> MODEL_URL=<model_url> -f  Makefile download-model
-# EX: make MODEL_NAME=mistral-7b-instruct-v0.1.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf -f  Makefile download-model
+# EX: make MODEL_NAME=granite-7b-lab-Q4_K_M.gguf MODEL_URL=https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf -f  Makefile download-model
 ```
 
 
@@ -107,9 +108,10 @@ To deploy the LLM server you must specify a volume mount `-v` where your models 
 podman run --rm -it \
   -p 8001:8001 \
   -v Local/path/to/locallm/models:/locallm/models:ro \
-  -e MODEL_PATH=models/mistral-7b-instruct-v0.1.Q4_K_M.gguf 
+  -e MODEL_PATH=models/granite-7b-lab-Q4_K_M.gguf 
   -e HOST=0.0.0.0 
   -e PORT=8001 
+  -e MODEL_CHAT_FORMAT=openchat
   llamacpp_python \
 ```
 
@@ -120,16 +122,17 @@ podman run --rm -it \
   --device nvidia.com/gpu=all
   -p 8001:8001 \
   -v Local/path/to/locallm/models:/locallm/models:ro \
-  -e MODEL_PATH=models/mistral-7b-instruct-v0.1.Q4_K_M.gguf 
+  -e MODEL_PATH=models/granite-7b-lab-Q4_K_M.gguf 
   -e HOST=0.0.0.0 
   -e PORT=8001 
+  -e MODEL_CHAT_FORMAT=openchat
   llamacpp_python \
 ```
 ### Multiple Model Service:
 
 To enable dynamic loading and unloading of different models present on your machine, you can start the model service with a `CONFIG_PATH` instead of a `MODEL_PATH`.
 
-Here is an example `models_config.json` with two quantization variants of mistral-7B.
+Here is an example `models_config.json` with two model options.
 
 ```json
 {
@@ -137,14 +140,14 @@ Here is an example `models_config.json` with two quantization variants of mistra
     "port": 8001,
     "models": [
         {
-            "model": "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf",
-            "model_alias": "mistral_Q4",
-            "chat_format": "mistral",
+            "model": "models/granite-7b-lab-Q4_K_M.gguf",
+            "model_alias": "granite",
+            "chat_format": "openchat",
         },
         {
-            "model": "models/mistral-7b-instruct-v0.1.Q5_K_M.gguf",
-            "model_alias": "mistral_Q5",
-            "chat_format": "mistral",
+            "model": "models/merlinite-7b-lab-Q4_K_M.gguf",
+            "model_alias": "merlinite",
+            "chat_format": "openchat",
         },
 
     ]
