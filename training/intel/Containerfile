@@ -1,0 +1,52 @@
+ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
+
+FROM ${BASEIMAGE} as builder
+
+ARG OS_VERSION_MAJOR=''
+ARG DRIVER_VERSION=1.15.1-15
+ARG TARGET_ARCH=''
+ARG KERNEL_VERSION=''
+
+RUN if [ "${OS_VERSION_MAJOR}" == "" ]; then \
+        . /etc/os-release \
+        && export OS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
+       fi \
+    && if [ "${TARGET_ARCH}" == "" ]; then \
+       export TARGET_ARCH=$(arch) ;\
+       fi \
+    && if [ "${KERNEL_VERSION}" == "" ]; then \
+       RELEASE=$(dnf info --installed kernel-core | grep Release | awk -F: '{print $2}' | tr -d '[:blank:]') \
+       && VERSION=$(dnf info --installed kernel-core | grep Version | awk -F: '{print $2}' | tr -d '[:blank:]') \
+       && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
+       fi \
+    && dnf install -y make git kernel-devel-${KERNEL_VERSION} \
+    && mkdir /tmp/habanalabs \
+    && cd /tmp/habanalabs \
+    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm \
+    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-firmware-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm \
+    && rpm2cpio habanalabs-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm | cpio -id \
+    && rpm2cpio habanalabs-firmware-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm | cpio -id \
+    && cd ./usr/src/habanalabs-${DRIVER_VERSION} \
+    && make -j$(nproc) KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" GIT_SHA=$(cat dkms.conf | grep "KMD_LAST_GIT_SHA=" | cut -d "=" -f 2) \
+    && xz drivers/accel/habanalabs/habanalabs.ko \
+    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/accel/habanalabs/habanalabs.ko.xz /tmp/habanalabs.ko.xz
+
+FROM ${BASEIMAGE}
+
+ARG KERNEL_VERSION=''
+
+COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi /lib/firmware/habanalabs/gaudi
+COPY --from=builder --chown=0:0 /tmp/habanalabs.ko.xz /tmp/habanalabs.ko.xz
+
+RUN if [ "${KERNEL_VERSION}" == "" ]; then \
+        RELEASE=$(dnf info --installed kernel-core | grep Release | awk -F: '{print $2}' | tr -d '[:blank:]') \
+        && VERSION=$(dnf info --installed kernel-core | grep Version | awk -F: '{print $2}' | tr -d '[:blank:]') \
+        && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
+    fi \
+    && if [ "${TARGET_ARCH}" == "" ]; then \
+       export TARGET_ARCH=$(arch) ;\
+       fi \
+    && mkdir -p /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/ \
+    && mv /tmp/habanalabs.ko.xz /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/habanalabs.ko.xz \
+    && chown root:root /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/habanalabs.ko.xz \
+    && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH}
