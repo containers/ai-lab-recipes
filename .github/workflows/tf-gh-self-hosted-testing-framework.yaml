@@ -1,0 +1,137 @@
+name: Testing Framework
+
+on:
+  schedule: # schedule the job to run every hour
+   - cron: '0 * * * *'
+  
+  workflow_dispatch:
+
+  # pull_request: ## temporary for debugging development purposes
+  #   branches:
+  #     - main
+
+env:
+  tf_version: "1.7.5"
+  aws_version: "5.3.0"
+  TF_VAR_aws_region: "eu-west-2"
+  TF_VAR_aws_ami_owners: '["125523088429"]'
+  TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
+  TF_VAR_aws_volume_size: 100
+  TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  # AWS_DEFAULT_REGION: "eu-west-2"
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  integration-tests:
+    if: github.repository == 'containers/ai-lab-recipes'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            os: linux
+            tf_dir: ai-lab-recipes/.github/tf/base
+          - arch: arm64
+            os: linux
+            tf_dir: ai-lab-recipes/.github/tf/arm64
+          - arch: amd64 # gpu enabled
+            os: windows
+            tf_dir: ai-lab-recipes/.github/tf/windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+        with:
+          path: main
+
+      - name: Checkout terraform module
+        id: checkout-module
+        uses: actions/checkout@v4.1.1
+        with:
+          repository: containers/ai-lab-recipes
+          path: ai-lab-recipes/.github/tf/multi-runner
+          ref: 'main'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.0.0
+        with:
+          terraform_version: ${{ env.tf_version }}
+          aws_version: ${{ env.aws_version }}
+          terraform_wrapper: false
+        
+      - name: Init Lambdas
+        run:  terraform init
+        working-directory: ai-lab-recipes/.github/tf/lambdas-download
+
+      - name: Download Lambdas
+        id: download-lambdas
+        run:  terraform apply -auto-approve -lock=false -var=module_version=${{ env.tf_version }}
+        working-directory: ai-lab-recipes/.github/tf/lambdas-download
+
+      - name: Init
+        run: terraform init
+        working-directory: ${{ matrix.tf_dir }}
+
+      - name: Bootstrap
+        id: up
+        run: terraform apply -auto-approve -lock=false -var=module_version=${{ env.tf_version }}
+        working-directory: ${{ matrix.tf_dir }}
+      
+      - name: Terraform Output
+        id: terraform-output
+        run: |
+          echo "id=$(terraform output id | xargs)" >> $GITHUB_OUTPUT
+          echo "url=$(terraform output host | xargs)" >> $GITHUB_OUTPUT
+          echo "pem_filename=$(terraform output pem_filename | xargs)" >> $GITHUB_OUTPUT
+        working-directory: ${{ matrix.tf_dir }}
+ 
+      - name: Ansible Collections
+        run: ansible-galaxy install -r ./provision/requirements.yml
+        working-directory: ./main/recipes/natural_language_processing/chatbot
+
+      - name: Provision
+        run: |
+          ansible-playbook ./main/recipes/natural_language_processing/chatbot/provision/playbook.yml \
+            -i terraform-test-environment-module/hosts.ini \
+            --private-key=${{ secrets.github_app_private_key }}
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.11'
+      
+      - name: Install Dependencies
+        working-directory: ./main/recipes/natural_language_processing/chatbot
+        run: make install
+
+      - name: Run Integration Tests
+        working-directory: ./main/recipes/natural_language_processing/chatbot
+        run: make integration-tests
+        env:
+          URL: ${{ steps.terraform-output.outputs.url }}
+
+      - name: Destroy Test Environment
+        id: down
+        if: always()
+        run: terraform destroy -auto-approve -lock=false -var=module_version=${{ env.tf_version }}
+        working-directory: ${{ matrix.tf_dir }}
+
+      - name: Publish Job Results to Slack
+        id: slack
+        if: always()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
