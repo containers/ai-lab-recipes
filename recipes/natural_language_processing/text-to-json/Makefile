@@ -11,7 +11,3 @@ download-model:
 .PHONY: download-model-mistral # default model
 download-model-mistral:
 	MODEL_NAME=mistral-7b-instruct-v0.1.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf make -f Makefile download-model
-
-.PHONY: download-default-json-grammar
-download-default-json-grammar: 
-	curl -sLO https://raw.githubusercontent.com/ggerganov/llama.cpp/master/grammars/json.gbnf && mv json.gbnf grammars/json.gbnf
