@@ -1,8 +1,8 @@
-FROM ?= "quay.io/centos-bootc/centos-bootc:stream9"
+FROM ?=
 
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= amd
+IMAGE_NAME ?= amd-bootc
 IMAGE_TAG ?= latest
 
 CONTAINER_TOOL ?= podman
@@ -13,6 +13,5 @@ image:
 	"${CONTAINER_TOOL}" build \
 		--file Containerfile \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
-		--from "${FROM}" \
+		$(FROM:%=--from=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS}
-
