@@ -11,13 +11,13 @@ instructlab:
 
 .PHONY: nvidia
 nvidia: instructlab
-	podman build --squash-all -t ${REGISTRY}/${REGISTRY_ORG}/instructlab-$@/${IMAGE_TAG} instructlab/containers/cuda
+	podman build --squash-all -t ${REGISTRY}/${REGISTRY_ORG}/instructlab-$@:${IMAGE_TAG} instructlab/containers/cuda
 
 .PHONY: amd
 amd: instructlab
-	podman build --squash-all -t ${IMAGE} ${REGISTRY}/${REGISTRY_ORG}/instructlab-$@/${IMAGE_TAG} -f instructlab/containers/rocm/Containerfile instructlab
+	podman build --squash-all -t ${IMAGE} ${REGISTRY}/${REGISTRY_ORG}/instructlab-$@:${IMAGE_TAG} -f instructlab/containers/rocm/Containerfile instructlab
 
 .PHONY: push
 push:
-	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia/${IMAGE_TAG} 
-	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-amd/${IMAGE_TAG} 
+	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia:${IMAGE_TAG}
+	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-amd:${IMAGE_TAG}
