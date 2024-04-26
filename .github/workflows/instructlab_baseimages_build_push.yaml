@@ -1,0 +1,78 @@
+name: Update quay.io/ai-lab instructlab base images
+
+on:
+  schedule: # schedule the job to run at 12 AM daily
+   - cron: '0 0 * * *'
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/instructlab_baseimages_build_push.yaml
+      - training/nvidia
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/instructlab_baseimages_build_push.yaml
+      - training/nvidia
+  
+  workflow_dispatch:
+
+env:
+  REGISTRY: quay.io
+  REGISTRY_ORG: ai-lab
+
+jobs:
+  build-and-push-image:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
+    strategy:
+      matrix:
+        include:
+          - image_name: instructlab-nvidia
+            label: driver-version=550.54.15 
+            platforms: linux/amd64
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - uses: actions/checkout@v4.1.1
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+      
+      - name: Build Image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2.13
+        with:
+          image: ${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
+          platforms: ${{ matrix.platforms }}
+          labels: |
+            ${{ matrix.label }}
+          tags: latest
+          containerfiles: training/nvidia/Containerfile
+          context: training/nvidia
+
+      - name: Login to Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/podman-login@v1.7
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
