@@ -77,7 +77,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
 
   build-and-push-image:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
+    if: "success() && !contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     needs: build-and-push-builder-image
     strategy:
       matrix:
