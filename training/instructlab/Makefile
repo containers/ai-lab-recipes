@@ -17,7 +17,13 @@ nvidia: instructlab
 amd: instructlab
 	podman build --squash-all -t ${IMAGE} ${REGISTRY}/${REGISTRY_ORG}/instructlab-$@:${IMAGE_TAG} -f instructlab/containers/rocm/Containerfile instructlab
 
-.PHONY: push
-push:
-	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia:${IMAGE_TAG}
+.PHONY: push-amd
+push-amd:
 	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-amd:${IMAGE_TAG}
+
+.PHONY: push-nvidia
+push-nvidia:
+	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia:${IMAGE_TAG}
+
+.PHONY: push
+push: push-amd push-nvidia
