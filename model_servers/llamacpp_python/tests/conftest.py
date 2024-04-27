@@ -13,7 +13,7 @@ else:
     IMAGE_NAME = os.environ['IMAGE_NAME']
 
 if not 'MODEL_NAME' in os.environ:
-    MODEL_NAME = 'mistral-7b-instruct-v0.2.Q4_K_M.gguf'
+    MODEL_NAME = 'granite-7b-lab-Q4_K_M.gguf'
 else: 
     MODEL_NAME = os.environ['MODEL_NAME']
 

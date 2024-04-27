@@ -52,18 +52,21 @@ In order to build this application we will need two models, a Vector Database, a
 
 ### Download models
 
-If you are just getting started, we recommend using [Mistral-7B-Instruct](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.1). This is a well
-performant mid-sized model with an apache-2.0 license. In order to use it with our Model Service we need it converted
-and quantized into the [GGUF format](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md). There are a number of
-ways to get a GGUF version of Mistral-7B, but the simplest is to download a pre-converted one from
-[huggingface.co](https://huggingface.co) here: https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF.
+If you are just getting started, we recommend using [Granite-7B-Lab](https://huggingface.co/instructlab/granite-7b-lab-GGUF). This is a well
+performant mid-sized model with an apache-2.0 license that has been quanitzed and served into the [GGUF format](https://github.com/ggerganov/ggml/blob/master/docs/gguf.md).
 
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
+<<<<<<< HEAD
 cd models
 wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf
 cd ../
+=======
+cd ../../../models
+curl -sLO https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
+cd ../recipes/natural_language_processing/rag
+>>>>>>> 4f8f404 (swapping standard mistral with granite as default)
 ```
 
 _A full list of supported open models is forthcoming._  
