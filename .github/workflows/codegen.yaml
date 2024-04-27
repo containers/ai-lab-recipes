@@ -63,7 +63,7 @@ jobs:
 
       - name: Download model
         working-directory: ./models
-        run: make download-model-mistral
+        run: make download-model-mistral-code
 
       - name: Run Functional Tests
         shell: bash

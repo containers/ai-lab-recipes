@@ -14,9 +14,9 @@ RUN set -eu; mkdir -p /usr/ssh && \
     echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys
 
 ARG RECIPE=audio-to-text
-ARG MODEL_IMAGE=quay.io/ai-lab/mistral-7b-instruct:latest
+ARG MODEL_IMAGE=quay.io/ai-lab/whisper-small:latest
 ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
-ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp_python:latest
+ARG SERVER_IMAGE=quay.io/ai-lab/whispercpp:latest
 ARG TARGETARCH
 
 # Add quadlet files to setup system to automatically run AI application on boot

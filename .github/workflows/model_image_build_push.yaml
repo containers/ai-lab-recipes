@@ -43,6 +43,9 @@ jobs:
             label: Q4_K_M
             url: https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
             platforms: linux/amd64,linux/arm64
+          - image_name: whisper-small
+            url: https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
+            platforms: linux/amd64,linux/arm64
     runs-on: ubuntu-latest
     permissions:
       contents: read
