@@ -34,8 +34,8 @@ download-model-mistral:
 	$(MAKE) MODEL_NAME=mistral-7b-instruct-v0.2.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf download-model
 
 .PHONY: download-model-mistral-code
-download-mode-mistral-code:
-	$(MAKE) MODEL_NAME=mistral-7b-code-16k-qlora.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf
+download-model-mistral-code:
+	$(MAKE) MODEL_NAME=mistral-7b-code-16k-qlora.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf download-model
 
 .PHONY: clean
 clean:

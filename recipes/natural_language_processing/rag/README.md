@@ -58,15 +58,9 @@ performant mid-sized model with an apache-2.0 license that has been quanitzed an
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
-<<<<<<< HEAD
-cd models
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf
-cd ../
-=======
 cd ../../../models
 curl -sLO https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
 cd ../recipes/natural_language_processing/rag
->>>>>>> 4f8f404 (swapping standard mistral with granite as default)
 ```
 
 _A full list of supported open models is forthcoming._  
