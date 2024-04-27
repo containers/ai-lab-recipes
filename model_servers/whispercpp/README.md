@@ -19,13 +19,16 @@ make -f Makefile build
 ### Download Whisper model
 
 You can to download the model from HuggingFace. There are various Whisper models available which vary in size and can be found
-[here](https://huggingface.co/ggerganov/whisper.cpp). We will be using the `small` model which is about 466 MB.
+[here](https://huggingface.co/ggerganov/whisper.cpp). We will be using the `large` 5-bit quanitzed model which is about 1.08 GB.
 
-- **small**
-    - Download URL: [https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin)
+- **large-v3-q5_0**
+    - Download URL: [https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin)
+
+- **large-v3-q5_0.en**
+    - Download URL: [https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.en.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.en.bin)
 
 - **base.en**
-    - Download URL: [https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin)
+    - Download URL: [https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin](https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin)
 
 ```bash
 cd ../../models
@@ -36,16 +39,16 @@ cd ../model_servers/whispercpp
 ### Deploy Model Service
 
 Deploy the LLM and volume mount the model of choice.
-Here, we are mounting the `ggml-small.bin` model as downloaded from above.
+Here, we are mounting the `ggml-large-v3-q5_0.bin` model as downloaded from above.
 
 ```bash
 # Note: the :Z may need to be omitted from the model volume mount if not running on Linux
 
 podman run --rm -it \
         -p 8001:8001 \
-        -v /local/path/to/locallm/models/ggml-small.bin:/models/ggml-small.bin:Z,ro \
+        -v /local/path/to/locallm/models/ggml-large-v3-q5_0.bin:/models/ggml-large-v3-q5_0.bin:Z,ro \
         -e HOST=0.0.0.0 \
-        -e MODEL_PATH=/models/ggml-small.bin \
+        -e MODEL_PATH=/models/ggml-large-v3-q5_0.bin \
         -e PORT=8001 \
         whisper:image
 ```

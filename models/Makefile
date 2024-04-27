@@ -25,9 +25,9 @@ download-model-granite:
 download-model-merlinite:
 	$(MAKE) MODEL_URL=https://huggingface.co/instructlab/merlinite-7b-lab-GGUF/resolve/main/merlinite-7b-lab-Q4_K_M.gguf MODEL_NAME=merlinite-7b-lab-Q4_K_M.gguf download-model
 
-.PHONY: download-model-whisper-small # small .bin model type testing
-download-model-whisper-small:
-	$(MAKE) MODEL_NAME=ggml-small.bin MODEL_URL=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin download-model
+.PHONY: download-model-whisper-large
+download-model-whisper-large:
+	$(MAKE) MODEL_NAME=ggml-large-v3-q5_0.bin MODEL_URL=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin download-model
 
 .PHONY: download-model-mistral
 download-model-mistral:

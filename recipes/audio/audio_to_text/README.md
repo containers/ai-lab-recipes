@@ -30,13 +30,13 @@ The rest of this document will explain how to build and run the application from
 If you are just getting started, we recommend using [ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp).
 This is a well performant model with an MIT license.
 It's simple to download a pre-converted whisper model from [huggingface.co](https://huggingface.co)
-here: https://huggingface.co/ggerganov/whisper.cpp. There are a number of options, but we recommend to start with `ggml-small.bin`.
+here: https://huggingface.co/ggerganov/whisper.cpp. There are a number of options, but we recommend to start with `ggml-large-v3-q5_0.bin`.
 
 The recommended model can be downloaded using the code snippet below:
 
 ```bash
 cd ../../../models
-curl -sLO https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
+curl -sLO https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-q5_0.bin
 cd ../recipes/audio/audio_to_text
 ```
 

@@ -8,7 +8,7 @@ spec:
   initContainers:
   - name: model-file
     image: MODEL_IMAGE
-    command: ['/usr/bin/install', "/model/ggml-small.bin", "/shared/"]
+    command: ['/usr/bin/install', "/model/ggml-large-v3-q5_0.bin", "/shared/"]
     volumeMounts:
     - name: model-file
       mountPath: /shared

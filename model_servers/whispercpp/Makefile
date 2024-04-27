@@ -9,12 +9,12 @@ IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
 # VULKAN_IMAGE := $(REGISTRY)/$(BASE_IMAGE_NAME)/$(APP)_vulkan:latest
 
 MODELS_PATH := /app/models
-MODEL_NAME ?= ggml-small.bin
+MODEL_NAME ?= ggml-large-v3-q5_0.bin
 
 .PHONY: all
-all: build download-model-whisper-small run
+all: build download-model-whisper-large run
 
-.PHONY: download-model-whisper-small # small .bin model type testing
-download-model-whisper-small:
+.PHONY: download-model-whisper-large
+download-model-whisper-large:
 	cd ../../models && \
-	make download-model-whisper-small
+	make download-model-whisper-large

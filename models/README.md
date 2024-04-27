@@ -8,7 +8,7 @@ Want to try one of our tested models? Try one or all of the following:
 make download-model-granite
 make download-model-merlinite
 make download-model-mistral
-make download-model-whisper-small
+make download-model-whisper-large
 ```
 
 Want to download and run a model you don't see listed? This is supported with the `MODEL_NAME` and `MODEL_URL` params:

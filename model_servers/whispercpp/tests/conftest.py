@@ -12,7 +12,7 @@ else:
     IMAGE_NAME = os.environ['IMAGE_NAME']
 
 if not 'MODEL_NAME' in os.environ:
-    MODEL_NAME = 'ggml-small.bin'
+    MODEL_NAME = 'ggml-large-v3-q5_0.bin'
 else: 
     MODEL_NAME = os.environ['MODEL_NAME']
 
