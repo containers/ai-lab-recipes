@@ -1,9 +1,8 @@
 from langchain_core.callbacks import StreamingStdOutCallbackHandler
-from langchain.chains import LLMChain
-from langchain_core.prompts.prompt import PromptTemplate
+# from langchain.chains import LLMChain
+# from langchain_core.prompts.prompt import PromptTemplate
 from langchain_openai import OpenAI
-# from langchain_openai import OpenAI
-# from langchain.schema.runnable import Runnable
+from langchain_core.output_parsers import JsonOutputParser
 from fastapi import FastAPI
 import tiktoken
 import os
@@ -24,6 +23,11 @@ v1_model_service = f"{base_model_service}/v1"
 
 revision = os.getenv("MODEL_REVISION", default="no_timm")
 
+def log_template(string: str) -> None:
+    print("==================== PROMPT TEMPLATE ====================")
+    pprint(string)
+    print("================== END PROMPT TEMPLATE ==================")
+    
 # App function
 def count_tokens(string: str) -> int:
     encoding_name = "p50k_base"
@@ -34,14 +38,14 @@ def count_tokens(string: str) -> int:
 # MS Function
 def initialize_model_client() -> OpenAI:
     callbacks = [StreamingStdOutCallbackHandler()]
-    n_gpu_layers = -1  # This has been compiled with METAL framework all GPU for mac ARM64
-    n_batch = 512  # Should be between 1 and n_ctx, consider the amount of VRAM in your GPU. Using default
     openai_client = OpenAI(
         base_url=v1_model_service,
         api_key = "sk-no-key-required",
-        temperature=0.05,
+        tiktoken_model_name="mistral",
+        temperature=0.9,
         callbacks=callbacks,
-        verbose=True,
+        # verbose=True,
+        # schema_json=True,
         max_tokens=4000,
         # streaming=True
     )
@@ -56,15 +60,17 @@ def no_download_json_chain(model: OpenAI, file_name: str, input: str):
             # dropping chunk splitting --> moving to a model with bigger token input
             # splitter = RecursiveJsonSplitter(max_chunk_size=300) 
             # json_chunks = splitter.split_json(json_data=json_data)
-    template = """The user a JSON schema, and some text. Return to me a JSON object based on schema and by selecting the appropriate selections of the user text.
+    template = """You are a world class engineer, who specializes in generating JSON objects. You will be provided text describing something, along with a JSON schema. Generate a JSON object from the schema based on the content of the text you are provided. Considering all possible cases, including but not limited to, text input missing the fields required in the schema, and irrelevant sections of the text input.
     %JSON schema
     {json_schema_string}
     %User input:
     {input}"""
     template = template.format(json_schema_string=json_schema_string, input=input)
+    log_template(template)
+    print("template tokens: ", count_tokens(template))
     return model.invoke(template)
     
 model_client = initialize_model_client()
 # no_download_json_chain(model_client, "fruit.json", "A red banana.")
-test = no_download_json_chain(model_client, "employee.json", "My name is Gregory Pereira. I work in the Emereging Technologies department and the Platform and Services team. I like apples.")
+test = no_download_json_chain(model_client, "employee.json", "My name is Gregory Pereira. I work in the Emereging Technologies department and the Platform and Services team. I like apples, and long walks on the beach.")
 pprint(test)
