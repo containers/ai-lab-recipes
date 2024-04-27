@@ -2,10 +2,11 @@
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_community.callbacks import StreamlitCallbackHandler
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 import streamlit as st
 import tempfile
 import requests
+import json
 import time
 import os
 
@@ -35,15 +36,19 @@ with st.spinner("Checking Model Service Availability..."):
 
 def chunk_text(text):
     chunks = []
-    num_words = len(text.split())
-    text_list = text.split()
     chunk_size = 1024
-    num_chunks = (num_words//chunk_size)+1
-
-    for _ in range(num_chunks):
-        chunk = text_list[:chunk_size]
-        chunks.append(" ".join(chunk))
-        text_list = text_list[chunk_size:]
+    tokens = requests.post(f"{model_service[:-2]}extras/tokenize/",
+                  json={"input":text}).content
+    tokens = json.loads(tokens)["tokens"]
+    num_tokens = len(tokens)
+    num_chunks = (num_tokens//chunk_size)+1
+    for i in range(num_chunks):
+        chunk = tokens[:chunk_size]
+        chunk = requests.post(f"{model_service[:-2]}extras/detokenize/",
+                  json={"tokens":chunk}).content
+        chunk = json.loads(chunk)["text"]
+        chunks.append(chunk)
+        tokens = tokens[chunk_size:]
     return chunks
 
 def read_file(file):
@@ -53,7 +58,7 @@ def read_file(file):
         temp = tempfile.NamedTemporaryFile()
         with open(temp.name, "wb") as f:
             f.write(file.getvalue())
-            loader = PyPDFLoader(temp.name)
+            loader = PyMuPDFLoader(temp.name)
         pages = loader.load()
         text = "".join([p.page_content for p in pages]) 
     
