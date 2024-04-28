@@ -50,7 +50,7 @@ jobs:
         id: build_image
         uses: redhat-actions/buildah-build@v2.13
         with:
-          image: ${{ env.REGISTRY}}/${{ env.REGISTRY_ORG }}/model-converter
+          image: ${{ env.REGISTRY_ORG }}/model-converter
           platforms: ${{ matrix.platforms }}
           tags: latest
           containerfiles: convert_models/Containerfile
