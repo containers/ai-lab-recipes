@@ -24,14 +24,14 @@ cd recipes/natural_language_processing/chatbot
 # from requires authentication, then you will need to volume mount the
 # auth_json file with SELinux separation disabled.
 podman login --auth-file auth.json quay.io/yourrepo
-podman build --build-arg "sshpubkey=$(cat ~/.ssh/id_rsa.pub)" \
+podman build --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" \
            --security-opt label=disable \
 	   -v ./auth.json:/run/containers/0/auth.json \
 	   --cap-add SYS_ADMIN \
 	   -t quay.io/yourrepo/youros:tag .
 
 # for GPU powered sample LLM application with llamacpp cuda model server
-podman build --build-arg "sshpubkey=$(cat ~/.ssh/id_rsa.pub)" \
+podman build --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" \
            --build-arg "model-server-image="quay.io/ai-lab/llamacpp_python_cuda:latest" \
            --from <YOUR BOOTABLE IMAGE WITH NVIDIA/CUDA> \
            --cap-add SYS_ADMIN \
