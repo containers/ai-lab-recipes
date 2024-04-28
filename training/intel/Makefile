@@ -20,3 +20,7 @@ image:
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS}
+
+.PHONY: push
+push:
+	podman push "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"

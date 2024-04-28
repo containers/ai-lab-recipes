@@ -5,12 +5,24 @@ ADD rocm.repo /etc/yum.repos.d/rocm.repo
 # Enable CRB repo for CentOS. For RHEL, it should be enabled on the build host
 RUN source /etc/os-release \
     && export OS_ID="$ID" \
-    && if [ "$OS_ID" == "centos" ]; then \
-        curl -L https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -o /tmp/epel-release-latest-9.noarch.rpm \
-        && rpm -ivh /tmp/epel-release-latest-9.noarch.rpm \
-        && rm -f /tmp/epel-release-latest-9.noarch.rpm \
+    && if [ "$OS_ID" == "centos" ] || [ "$OS_ID" == "rhel" ]; then \
+        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
         && dnf install -y 'dnf-command(config-manager)' \
         && crb enable ;\
     fi
 
 RUN dnf install -y rocm && dnf clean all
+
+ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
+
+# Setup /usr/lib/containers/storage as an additional store for images.
+# Remove once the base images have this set by default.
+RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
+        /etc/containers/storage.conf
+
+# Added for running as an OCI Container to prevent Overlay on Overlay issues.
+VOLUME /var/lib/containers
+
+# Prepull the instructlab image
+
+RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${INSTRUCTLAB_IMAGE}
