@@ -14,6 +14,6 @@
 ## Model Images (x86_64, aarch64)
 
 - quay.io/ai-lab/mistral-7b-instruct:latest
-    - [model download link](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf)
+    - [model download link](https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf)
 - quay.io/ai-lab/codellama-7b:latest
     - [model download link](https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/resolve/main/codellama-7b-instruct.Q4_K_M.gguf) 
