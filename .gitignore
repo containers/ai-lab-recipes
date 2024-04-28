@@ -9,4 +9,4 @@ models/*
 convert_models/converted_models
 recipes/common/bin/*
 */.venv/
-*/.terraform.lock.hcl
+.github/tf/*/.terraform.lock.hcl
