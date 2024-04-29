@@ -1,8 +1,8 @@
 name: Update quay.io/ai-lab instructlab base images
 
 on:
-  # schedule: # schedule the job to run at 12 AM daily
-  #  - cron: '0 0 * * *'
+  schedule: # schedule the job to run at 12 AM daily
+   - cron: '0 0 * * *'
 
   pull_request:
     branches:
