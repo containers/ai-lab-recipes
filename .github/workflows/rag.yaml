@@ -24,7 +24,7 @@ env:
 
 jobs:
   build-and-push-image:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers/ai-lab-recipes'"
     runs-on: ubuntu-22.04
     permissions:
       contents: read

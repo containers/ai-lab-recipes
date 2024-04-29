@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   integration-tests:
-    if: github.repository == 'containers/ai-lab-recipes'
+    if: "github.repository == 'containers/ai-lab-recipes' && github.repository == 'containers/ai-lab-recipes'"
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -131,9 +131,9 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   release-images:
+    if: "success() && github.repository == 'containers/ai-lab-recipes'"
     runs-on: ubuntu-22.04
     needs: integration-tests
-    if: success()
     strategy:
       fail-fast: false
       matrix:

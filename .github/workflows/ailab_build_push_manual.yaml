@@ -16,6 +16,7 @@ env:
 
 jobs:
   build-and-push-llamacpp-python-cuda-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -54,6 +55,7 @@ jobs:
           tags: ${{ steps.build_llamacpp_python_cuda.outputs.tags }}
 
   build-and-push-llamacpp-python-vulkan-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -98,6 +100,7 @@ jobs:
           tags: ${{ steps.build_llamacpp_python_vulkan.outputs.tags }}
 
   build-and-push-llamacpp-python-base-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -141,6 +144,7 @@ jobs:
           tags: ${{ steps.build_llamacpp_python_base.outputs.tags }}
 
   build-and-push-rag-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -184,6 +188,7 @@ jobs:
           tags: ${{ steps.build_rag.outputs.tags }}
 
   build-and-push-chromadb-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -223,6 +228,7 @@ jobs:
           tags: ${{ steps.build_chromadb.outputs.tags }}
 
   build-and-push-codegen-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -263,6 +269,7 @@ jobs:
           tags: ${{ steps.build_codegen_image.outputs.tags }}
 
   build-and-push-chatbot-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -303,6 +310,7 @@ jobs:
           tags: ${{ steps.build_chatbot_image.outputs.tags }}
 
   build-and-push-summarizer-image:
+    if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
