@@ -67,7 +67,7 @@ jobs:
         run: make install
 
       - name: Download model
-        working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
+        working-directory: ./models
         run: make download-model-mistral
 
       - name: Run Functional Tests
