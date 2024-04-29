@@ -91,11 +91,8 @@ jobs:
             containerfile: training/nvidia/Containerfile
             context: training/nvidia
             platforms: linux/amd64
-    runs-on: ubuntu-22.04-2core
+    runs-on: ubuntu-22.04-8-cores
     steps:
-      - name: hello world
-        run: |
-          echo "hello world!"
       - name: Remove unnecessary files
         run: |
           sudo rm -rf /usr/share/dotnet
