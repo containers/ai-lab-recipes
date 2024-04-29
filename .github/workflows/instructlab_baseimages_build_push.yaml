@@ -36,7 +36,7 @@ jobs:
           - image_name: nvidia-builder
             context: training/nvidia-bootc
             arch: amd64
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write
