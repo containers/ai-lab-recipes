@@ -28,6 +28,8 @@ used to override defaults for a variety of make targets.
 |BOOTC_IMAGE_BUILDER | Bootc Image Builder container image 	      	    | `quay.io/centos-bootc/bootc-image-builder`	      |
 |CHROMADB_IMAGE      | ChromaDB image to be used for application      	    | `$(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest`	      |
 |DISK_TYPE           | Disk type to be created by BOOTC_IMAGE_BUILDER 	    | `qcow2` (Options: ami, iso, vmdk, raw)		      |
+|DISK_UID            | Disk UID to be specified by BOOTC_IMAGE_BUILDER      | `$(shell id -u)`					      |
+|DISK_GID            | Disk GID to be specified by BOOTC_IMAGE_BUILDER      | `$(shell id -g)`					      |
 |MODEL_IMAGE 	     | AI Model to be used by application             	    | `$(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest`|
 |SERVER_IMAGE 	     | AI Model Server Application                    	    | `$(REGISTRY)/$(REGISTRY_ORG)/llamacpp_python:latest`    |
 |SSH_PUBKEY 	     | SSH Public key preloaded in bootc image.             | `$(shell cat ${HOME}/.ssh/id_rsa.pub;)`		      |
