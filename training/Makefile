@@ -8,8 +8,8 @@ help:
 
 .PHONY: amd nvidia intel
 amd:
-	make -C amd/ image
+	make -C amd-bootc/ image
 nvidia:
-	make -C nvidia/ dtk image
+	make -C nvidia-bootc/ dtk image
 intel:
-	make -C intel/ image
+	make -C intel-bootc/ image

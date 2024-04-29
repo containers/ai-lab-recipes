@@ -11,9 +11,12 @@ CONTAINER_TOOL_EXTRA_ARGS ?=
 DRIVER_VERSION ?=
 KERNEL_VERSION ?= 
 
+ARCH ?=
+
 .PHONY: image
 image:
 	"${CONTAINER_TOOL}" build \
+		$(ARCH:%=--platform linux/%) \
 		--file Containerfile \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
 		$(FROM:%=--build-arg BASEIMAGE=%) \

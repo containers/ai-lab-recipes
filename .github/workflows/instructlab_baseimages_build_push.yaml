@@ -28,15 +28,14 @@ env:
   REGISTRY_ORG: ai-lab
 
 jobs:
-  build-and-push-builder-image:
+  nvidia-bootc-builder-image:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
         include:
           - image_name: nvidia-builder
-            containerfile: training/nvidia/Containerfile.builder
-            context: training/nvidia
-            platforms: linux/amd64
+            context: training/nvidia-bootc
+            archs: amd64
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -56,13 +55,8 @@ jobs:
       
       - name: Build Image
         id: build_image
-        uses: redhat-actions/buildah-build@v2.13
-        with:
-          image: ${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
-          platforms: ${{ matrix.platforms }}
-          tags: latest
-          containerfiles: ${{ matrix.containerfile }}
-          context: ${{ matrix.context }}
+        run: make dtk ARCH=${{ matrix.archs }}
+        working-directory: ${{ matrix.context }}
 
       - name: Login to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -80,17 +74,16 @@ jobs:
           tags: ${{ steps.build_image.outputs.tags }}
           registry: ${{ env.REGISTRY }}
 
-  build-and-push-image:
+  nvidia-bootc-image:
     if: "success() && !contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     needs: build-and-push-builder-image
     strategy:
       matrix:
         include:
           - image_name: nvidia-bootc
-            label: driver-version=550.54.15 
-            containerfile: training/nvidia/Containerfile
-            context: training/nvidia
-            platforms: linux/amd64
+            driver_version: "550.54.15"
+            context: training/nvidia-bootc
+            archs: amd64
     runs-on: ubuntu-22.04-8-cores
     steps:
       - name: Remove unnecessary files
@@ -102,15 +95,84 @@ jobs:
       
       - name: Build Image
         id: build_image
-        uses: redhat-actions/buildah-build@v2.13
+        run: make image DRIVER_VERSION=${{ matrix.driver_version }} ARCH=${{ matrix.archs }}
+        working-directory: ${{ matrix.context }}
+        
+      - name: Login to Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/podman-login@v1.7
         with:
-          image: ${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
-          platforms: ${{ matrix.platforms }}
-          labels: |
-            ${{ matrix.label }}
-          tags: latest
-          containerfiles: ${{ matrix.containerfile }}
-          context: ${{ matrix.context }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+
+  intel-bootc-image:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    strategy:
+      matrix:
+        include:
+          - image_name: intel-gaudi-bootc
+            context: training/intel-bootc
+            archs: amd64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - uses: actions/checkout@v4.1.1
+      
+      - name: Build Image
+        id: build_image
+        run: make image ARCH=${{ matrix.archs }}
+        working-directory: ${{ matrix.context }}
+
+      - name: Login to Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/podman-login@v1.7
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Push image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
+      
+  amd-bootc-image:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    strategy:
+    matrix:
+      include:
+        - image_name: amd-bootc
+          context: training/amd-bootc
+          archs: amd64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - uses: actions/checkout@v4.1.1
+      
+      - name: Build Image
+        id: build_image
+        run: make image ARCH=${{ matrix.archs }}
+        working-directory: ${{ matrix.context }}
 
       - name: Login to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
