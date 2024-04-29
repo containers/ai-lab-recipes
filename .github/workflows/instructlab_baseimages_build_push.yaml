@@ -2,7 +2,7 @@ name: Update quay.io/ai-lab instructlab base images
 
 on:
   schedule: # schedule the job to run at 12 AM daily
-   - cron: '0 0 * * *'
+   - cron: '0 * * * *'
 
   pull_request:
     branches:
@@ -104,7 +104,7 @@ jobs:
         id: build_image
         uses: redhat-actions/buildah-build@v2.13
         with:
-          image: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
+          image: ${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
           platforms: ${{ matrix.platforms }}
           labels: |
             ${{ matrix.label }}
