@@ -4,18 +4,18 @@ on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
 
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/instructlab_baseimages_build_push.yaml
-      - training/nvidia
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/instructlab_baseimages_build_push.yaml
-      - training/nvidia
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - .github/workflows/instructlab_baseimages_build_push.yaml
+  #     - training/nvidia
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - .github/workflows/instructlab_baseimages_build_push.yaml
+  #     - training/nvidia
   
   workflow_dispatch:
 
