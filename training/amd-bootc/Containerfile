@@ -2,15 +2,6 @@ FROM quay.io/centos-bootc/centos-bootc:stream9
 
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
-# Enable CRB repo for CentOS. For RHEL, it should be enabled on the build host
-RUN source /etc/os-release \
-    && export OS_ID="$ID" \
-    && if [ "$OS_ID" == "centos" ] || [ "$OS_ID" == "rhel" ]; then \
-        rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
-        && dnf install -y 'dnf-command(config-manager)' \
-        && crb enable ;\
-    fi
-
 RUN dnf install -y rocm-smi && dnf clean all
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
