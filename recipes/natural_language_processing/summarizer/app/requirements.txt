@@ -2,3 +2,4 @@ langchain
 langchain_openai
 streamlit
 pymupdf
+rouge_score
