@@ -27,13 +27,13 @@ jobs:
       matrix:
         include:
           - image_name: llamacpp_python
-            model: mistral
+            model: granite
             flavor: base
             directory: llamacpp_python
             platforms: linux/amd64,linux/arm64
             no_gpu: 1
           - image_name: llamacpp_python_cuda
-            model: mistral
+            model: granite
             flavor: cuda
             directory: llamacpp_python
             platforms: linux/amd64

@@ -14,7 +14,7 @@ MODEL_NAME ?= ggml-small.bin
 .PHONY: all
 all: build download-model-whisper-small run
 
-.PHONY: download-model-whisper-small # small .bin model type testing
+.PHONY: download-model-whisper-small
 download-model-whisper-small:
 	cd ../../models && \
 	make download-model-whisper-small

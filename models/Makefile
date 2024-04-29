@@ -25,7 +25,7 @@ download-model-granite:
 download-model-merlinite:
 	$(MAKE) MODEL_URL=https://huggingface.co/instructlab/merlinite-7b-lab-GGUF/resolve/main/merlinite-7b-lab-Q4_K_M.gguf MODEL_NAME=merlinite-7b-lab-Q4_K_M.gguf download-model
 
-.PHONY: download-model-whisper-small # small .bin model type testing
+.PHONY: download-model-whisper-small
 download-model-whisper-small:
 	$(MAKE) MODEL_NAME=ggml-small.bin MODEL_URL=https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin download-model
 
@@ -33,7 +33,11 @@ download-model-whisper-small:
 download-model-mistral:
 	$(MAKE) MODEL_NAME=mistral-7b-instruct-v0.2.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf download-model
 
+.PHONY: download-model-mistral-code
+download-model-mistral-code:
+	$(MAKE) MODEL_NAME=mistral-7b-code-16k-qlora.Q4_K_M.gguf MODEL_URL=https://huggingface.co/TheBloke/Mistral-7B-Code-16K-qlora-GGUF/resolve/main/mistral-7b-code-16k-qlora.Q4_K_M.gguf download-model
+
 .PHONY: clean
 clean:
-	rm -f *tmp
-	rm -f mistral* whisper* granite* merlinite*
+	-rm -f *tmp
+	-rm -f mistral* ggml-* granite* merlinite*

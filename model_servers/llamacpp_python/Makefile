@@ -25,5 +25,5 @@ build-vulkan:
 
 .PHONY: download-model-granite # default model
 download-model-granite:
-	cd ../../models && \
-	make MODEL_NAME=granite-7b-lab-Q4_K_M.gguf MODEL_URL=https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf -f  Makefile download-model
+	cd ../../models/ && \
+	make download-model-granite

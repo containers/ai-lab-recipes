@@ -8,6 +8,7 @@ Want to try one of our tested models? Try one or all of the following:
 make download-model-granite
 make download-model-merlinite
 make download-model-mistral
+make download-model-mistral-code
 make download-model-whisper-small
 ```
 

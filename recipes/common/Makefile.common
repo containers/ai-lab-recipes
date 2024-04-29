@@ -4,7 +4,7 @@ REGISTRY_ORG ?= ai-lab
 IMAGE_NAME ?= $(REGISTRY_ORG)/${APP}:latest
 APP_IMAGE ?= $(REGISTRY)/$(IMAGE_NAME)
 CHROMADB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/chromadb:latest
-MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/mistral-7b-instruct:latest
+MODEL_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/granite-7b-lab:latest
 SERVER_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/llamacpp_python:latest
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub;)
 BOOTC_IMAGE ?= quay.io/$(REGISTRY_ORG)/${APP}-bootc:latest
@@ -62,10 +62,10 @@ UNZIP_EXISTS ?= $(shell command -v unzip)
 RELATIVE_MODELS_PATH := ?=
 RELATIVE_TESTS_PATH := ?=
 
-MISTRAL_MODEL_NAME := mistral-7b-instruct-v0.2.Q4_K_M.gguf
-MISTRAL_MODEL_URL := https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+GRANITE_MODEL_NAME := granite-7b-lab-Q4_K_M.gguf
+GRANITE_MODEL_URL := https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
 
-MODEL_NAME ?= $(MISTRAL_MODEL_NAME)
+MODEL_NAME ?= $(GRANITE_MODEL_NAME)
 
 .PHONY: install
 install::
