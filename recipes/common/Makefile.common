@@ -106,7 +106,12 @@ bootc-run:
 	  $(BOOTC_IMAGE) /sbin/init
 
 .PHONY: bootc-image-builder
-bootc-image-builder: bootc
+bootc-image-builder:
+	@if podman image exists $(BOOTC_IMAGE); then \
+		echo "$(BOOTC_IMAGE) exists in local storage, using it"; \
+	else \
+		$(MAKE) bootc; \
+	fi
 	mkdir -p build/store
 	podman run \
 	  --rm \
