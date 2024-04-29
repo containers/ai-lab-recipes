@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_community.callbacks import StreamlitCallbackHandler
 from langchain_community.document_loaders import PyMuPDFLoader
+from rouge_score import rouge_scorer
 import streamlit as st
 import tempfile
 import requests
@@ -67,6 +68,12 @@ def read_file(file):
     
     return text
 
+def evaluate_summary(text, response):
+    metric = rouge_scorer.RougeScorer(rouge_types=["rouge2"])
+    score = metric.score(target=text,
+                         prediction=response)
+    return score
+
 st.title("🔎 Summarizer")
 file = st.file_uploader("Upload file",type=[".txt",".pdf"])
 
@@ -108,6 +115,16 @@ if file != None:
             existing_answer = response.content
         else:
             with st.spinner("Preparing Aggregated Summary"):
-                response = llm.stream(refine_template.format(text=chunk,existing_answer=existing_answer))
-                st.write_stream(response)
+                stream = llm.stream(refine_template.format(text=chunk,existing_answer=existing_answer))
+                response = st.write_stream(stream)
+
+    rouge = evaluate_summary(text,response)
+    with st.expander("See Evaluation Metrics!"):
+        st.markdown(f"""
+                    #### Evaluation:
+                    Rouge score: **{rouge["rouge2"].fmeasure:.3f}**
+
+                    _The rouge score values range from 0 to 1, where 1 is a perfect score. See more details about the rouge score
+                    [here](https://huggingface.co/spaces/evaluate-metric/rouge)._
+                    """)
         
