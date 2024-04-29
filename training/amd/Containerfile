@@ -11,7 +11,7 @@ RUN source /etc/os-release \
         && crb enable ;\
     fi
 
-RUN dnf install -y rocm && dnf clean all
+RUN dnf install -y rocm-smi && dnf clean all
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 
