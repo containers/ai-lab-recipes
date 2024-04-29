@@ -32,6 +32,8 @@ dtk:
 		.
 image:
 	"${CONTAINER_TOOL}" build \
+	        --security-opt label=disable \
+		--cap-add SYS_ADMIN \
 		$(ARCH:%=--platform linux/%) \
 		--file Containerfile \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
@@ -43,3 +45,7 @@ image:
 		$(CUDA_VERSION:%=--build-arg CUDA_VERSION=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS} \
 		.
+
+.PHONY: push
+push:
+	podman push "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"
