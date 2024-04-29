@@ -77,7 +77,7 @@ jobs:
           context: model_servers/${{ matrix.directory }}/
 
       - name: Download model
-        working-directory: ./model_servers/${{ matrix.directory }}/
+        working-directory: ./models
         run: make download-model-${{ matrix.model }}
 
       - name: Set up Python
