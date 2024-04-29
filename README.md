@@ -49,4 +49,4 @@ For example, learn how to run the [chatbot recipe here](./recipes/natural_langua
 
 Images for many sample applications and models are available in `quay.io`. All
 currently built images are  tracked in
-[ai-lab-recipes-images.md](./ai-lab-recipes-images.md)
+[ailab-images.md](./ailab-images.md)
