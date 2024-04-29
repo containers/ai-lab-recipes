@@ -87,7 +87,7 @@ jobs:
             containerfile: training/nvidia/Containerfile
             context: training/nvidia
             platforms: linux/amd64
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04-2core
     steps:
       - name: Remove unnecessary files
         run: |
