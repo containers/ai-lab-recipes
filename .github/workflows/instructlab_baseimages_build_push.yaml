@@ -87,7 +87,7 @@ jobs:
             containerfile: training/nvidia/Containerfile
             context: training/nvidia
             platforms: linux/amd64
-    runs-on: ubuntu-latest-8core
+    runs-on: ubuntu-latest-8-cores
     permissions:
       contents: read
       packages: write
