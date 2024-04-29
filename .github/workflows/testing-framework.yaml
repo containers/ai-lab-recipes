@@ -57,7 +57,7 @@ jobs:
           ref: 'main'
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3.0.0
+        uses: hashicorp/setup-terraform@v3.1.0
         with:
           terraform_version: "1.7.5"
           terraform_wrapper: false
