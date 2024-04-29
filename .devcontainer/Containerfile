@@ -1,4 +1,4 @@
-FROM quay.io/containers/podman:v4.9.4
+FROM quay.io/containers/podman:v5.0.1
 
 USER root
 

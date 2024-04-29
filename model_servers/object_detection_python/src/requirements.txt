@@ -27,8 +27,8 @@ starlette==0.37.2
 sympy==1.12
 timm==0.9.16
 tokenizers==0.19.1
-torch==2.2.2
-torchvision==0.17.2
+torch==2.3.0
+torchvision==0.18.0
 tqdm==4.66.2
 transformers==4.40.0
 typing_extensions==4.11.0
