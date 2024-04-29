@@ -86,7 +86,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - image_name: instructlab-nvidia
+          - image_name: nvidia-bootc
             label: driver-version=550.54.15 
             containerfile: training/nvidia/Containerfile
             context: training/nvidia
