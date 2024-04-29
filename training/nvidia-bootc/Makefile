@@ -32,7 +32,7 @@ dtk:
 		.
 image:
 	"${CONTAINER_TOOL}" build \
-	        --security-opt label=disable \
+		--security-opt label=disable \
 		--cap-add SYS_ADMIN \
 		$(ARCH:%=--platform linux/%) \
 		--file Containerfile \
@@ -41,6 +41,7 @@ image:
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		--build-arg DRIVER_TOOLKIT_IMAGE=${DRIVER_TOOLKIT_IMAGE} \
+		$(DRIVER_VERSION:%=--label driver-version=%) \
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \
 		$(CUDA_VERSION:%=--build-arg CUDA_VERSION=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS} \

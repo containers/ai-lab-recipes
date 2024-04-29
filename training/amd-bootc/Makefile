@@ -8,10 +8,13 @@ IMAGE_TAG ?= latest
 CONTAINER_TOOL ?= podman
 CONTAINER_TOOL_EXTRA_ARGS ?=
 
+ARCH ?=
+
 .PHONY: image
 image:
 	"${CONTAINER_TOOL}" build \
-	        --security-opt label=disable \
+		$(ARCH:%=--platform linux/%) \
+		--security-opt label=disable \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
