@@ -87,10 +87,7 @@ jobs:
             containerfile: training/nvidia/Containerfile
             context: training/nvidia
             platforms: linux/amd64
-    runs-on: ubuntu-22.04-8-cores
-    permissions:
-      contents: read
-      packages: write
+    runs-on: ubuntu-latest
     steps:
       - name: Remove unnecessary files
         run: |
@@ -98,17 +95,12 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - uses: actions/checkout@v4.1.1
-
-      - name: Install qemu dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
       
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@v2.13
         with:
-          image: ${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
+          image: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ matrix.image_name }}
           platforms: ${{ matrix.platforms }}
           labels: |
             ${{ matrix.label }}
