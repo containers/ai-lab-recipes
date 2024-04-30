@@ -1,26 +1,18 @@
-FROM ?=
+VENDOR ?= amd
+IMAGE_NAME ?= $(VENDOR)-bootc
 
-REGISTRY ?= quay.io
-REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= amd-bootc
-IMAGE_TAG ?= latest
+include ../Makefile.common
 
-CONTAINER_TOOL ?= podman
-CONTAINER_TOOL_EXTRA_ARGS ?=
-
-ARCH ?=
-
-.PHONY: image
-image:
+.PHONY: bootc
+bootc: prepare-files
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
 		--security-opt label=disable \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
+		-v ${OUTDIR}:/tmp:ro \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
+		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
+		--build-arg "INSTRUCTLAB_IMAGE_ID=$(INSTRUCTLAB_IMAGE_ID)" \
 		$(FROM:%=--from=%) \
-		${CONTAINER_TOOL_EXTRA_ARGS}
-
-.PHONY: push
-push:
-	podman push "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"
+		${CONTAINER_TOOL_EXTRA_ARGS} .
