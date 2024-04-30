@@ -14,7 +14,7 @@ concurrency:
 jobs:
   mirror-repository:
     if: github.repository == 'containers/ai-lab-recipes'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4.1.1
         with:
