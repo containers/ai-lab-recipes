@@ -1,4 +1,4 @@
-name: Instructlab Images Testing Framework
+name: Bootc Images Testing Framework
 
 on:
   schedule: # schedule the job to run every day at midnight
@@ -9,7 +9,7 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/instructlab_testing_framework.yaml
+      - .github/workflows/bootc_testing_framework.yaml
   
   workflow_dispatch:
 
@@ -37,11 +37,9 @@ jobs:
       matrix:
         include:
           - arch: amd64
-            aws_image_type: t3a.medium	
+            aws_image_type: t2.micro	
+            image_name: nvidia-bootc
             aws_ami_architecture: x86_64
-          # - arch: amd64
-          #   aws_image_type: g5.8xlarge
-          #   aws_ami_architecture: x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.4
@@ -82,10 +80,18 @@ jobs:
           echo "pem_filename=$(terraform output pem_filename | xargs)" >> $GITHUB_OUTPUT
         working-directory: terraform-test-environment-module
 
-      - name: Set up Python
-        uses: actions/setup-python@v5.1.0
-        with:
-          python-version: '3.11'
+      - name: Ansible Collections
+        run: ansible-galaxy install -r ./provision/requirements.yml
+        working-directory: ./main/training
+
+      - name: Provision
+        run: |
+          ansible-playbook ./main/training/provision/playbook.yml \
+            -i terraform-test-environment-module/hosts.ini \
+            --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }}
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: false
+          image_name: ${{ matrix.image_name }}
 
       - name: Destroy Test Environment
         id: down
