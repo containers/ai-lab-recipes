@@ -1,0 +1,109 @@
+name: Instructlab Images Testing Framework
+
+on:
+  schedule: # schedule the job to run every day at midnight
+   - cron: '0 * * * *'
+
+  # For testing purposes, will remove
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/instructlab_testing_framework.yaml
+  
+  workflow_dispatch:
+
+env:
+  TF_VAR_aws_region: "eu-west-2"
+  TF_VAR_aws_ami_owners: '["125523088429"]'
+  TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
+  TF_VAR_aws_volume_size: 25
+  # TF_VAR_aws_volume_size: 128
+  TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  integration-tests:
+    if: github.repository == 'containers/ai-lab-recipes'
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            aws_image_type: t3a.medium	
+            aws_ami_architecture: x86_64
+          # - arch: amd64
+          #   aws_image_type: g5.8xlarge
+          #   aws_ami_architecture: x86_64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.4
+        with:
+          path: main
+
+      - name: Checkout terraform module
+        id: checkout-module
+        uses: actions/checkout@v4.1.4
+        with:
+          repository: containers/terraform-test-environment-module
+          path: terraform-test-environment-module
+          ref: 'main'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3.1.0
+        with:
+          terraform_version: "1.7.5"
+          terraform_wrapper: false
+
+      - name: Init
+        run: terraform init
+        working-directory: terraform-test-environment-module
+
+      - name: Bootstrap
+        id: up
+        run: terraform apply -auto-approve -lock=false
+        working-directory: terraform-test-environment-module
+        env:
+          TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
+          TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
+      
+      - name: Terraform Output
+        id: terraform-output
+        run: |
+          echo "id=$(terraform output id | xargs)" >> $GITHUB_OUTPUT
+          echo "url=$(terraform output host | xargs)" >> $GITHUB_OUTPUT
+          echo "pem_filename=$(terraform output pem_filename | xargs)" >> $GITHUB_OUTPUT
+        working-directory: terraform-test-environment-module
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.11'
+
+      - name: Destroy Test Environment
+        id: down
+        if: always()
+        run: terraform destroy -auto-approve -lock=false
+        working-directory: terraform-test-environment-module
+        env:
+          TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
+          TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
+      
+      - name: Publish Job Results to Slack
+        id: slack
+        if: always()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
