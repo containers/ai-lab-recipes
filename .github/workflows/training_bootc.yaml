@@ -143,7 +143,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - image_name: intel-gaudi-bootc
+          - image_name: intel-bootc
             context: training/intel-bootc
             arch: amd64
           - image_name: amd-bootc
