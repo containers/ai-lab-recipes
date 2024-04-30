@@ -1,0 +1,11 @@
+FROM registry.access.redhat.com/ubi9/ubi
+
+ARG MODEL_REPO=''
+ARG MODEL_NAME=''
+ARG MODEL_PATH=''
+
+RUN dnf install -y python3-pip && python3 -m pip install huggingface_hub
+RUN mkdir -p "${MODEL_PATH}" \
+    && echo from huggingface_hub import snapshot_download > /root/hf_download \
+    && echo snapshot_download\(repo_id=\'${MODEL_REPO}\', local_dir=\'${MODEL_PATH}\', local_dir_use_symlinks=False\) >> /root/hf_download \
+    && python3 /root/hf_download
