@@ -25,6 +25,5 @@ instruct-amd:
 .PHONY:
 instruct: instruct-nvidia instruct-amd 
 
-
 clean:
 	rm -rf build

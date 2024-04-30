@@ -10,7 +10,7 @@ ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 # Remove once the base images have this set by default.
 RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
         /etc/containers/storage.conf && \
-	cp /tmp/ilab /usr/local/bin/ilab
+	cp /run/.input/ilab /usr/local/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE
 ARG INSTRUCTLAB_IMAGE_ID
@@ -23,5 +23,5 @@ RUN sed -i "s%__REPLACE_CONTAINER_NAME__%${INSTRUCTLAB_IMAGE}%" /usr/local/bin/i
 VOLUME /var/lib/containers
 
 # Prepull the instructlab image
-RUN podman --root /usr/lib/containers/storage pull oci:/tmp/${INSTRUCTLAB_IMAGE_ID}
+RUN podman --root /usr/lib/containers/storage pull oci:/run/.input/${INSTRUCTLAB_IMAGE_ID}
 RUN podman --root /usr/lib/containers/storage image tag ${INSTRUCTLAB_IMAGE_ID} ${INSTRUCTLAB_IMAGE}
