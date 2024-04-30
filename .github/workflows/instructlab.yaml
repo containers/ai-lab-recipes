@@ -1,4 +1,4 @@
-name: Training Bootc image builds
+name: Instructlab image builds
 
 on:
   schedule: # schedule the job to run at 12 AM daily
