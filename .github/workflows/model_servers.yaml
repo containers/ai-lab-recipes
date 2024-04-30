@@ -21,7 +21,7 @@ env:
   REGISTRY_ORG: containers
 
 jobs:
-  build-and-push-image:
+  model-servers-buid-and-push:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     strategy:
       matrix:
