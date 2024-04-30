@@ -1,5 +1,0 @@
-llama-cpp-python
-gradio
-langchain
-chromadb
-sentence-transformers

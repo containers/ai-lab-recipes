@@ -99,9 +99,9 @@ After creating your new recipe by adding the files above you might be asking you
 
 ## Contributing New Model Servers
 
-There are a number of options out there for model servers and we want to ensure that we provide developers with a variety of vetted options for the model server that will meet there applications needs.    
+There are a number of options out there for model servers and we want to ensure that we provide developers with a variety of vetted options for the model server that will meet their application's needs.    
 
-Deciding which model server is right for a particular use case primarily comes down to the kind of model you want to use (LLM, Object Detection, Data Classification, etc..) and the resources available (GPU, CPU, Cloud, Local).
+Deciding which model server is right for a particular use case primarily comes down to the kind of model you want to use (LLM, Object Detection, Data Classification, etc.) and the resources available (GPU, CPU, Cloud, Local).
 
 ### Adding a New Model Server
 

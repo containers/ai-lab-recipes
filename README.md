@@ -22,11 +22,11 @@ default. This server can be used for various generative AI applications with var
 However, each sample application can be paired with a variety of model servers.
 
 Learn how to build and run the llamacpp_python model server by following the
-[llamacpp_python model server README.](/model_servers/llamacpp_python/README.md).
+[llamacpp_python model server README](/model_servers/llamacpp_python/README.md).
 
 ## Current Recipes 
 
-Recipes consist to at least two components: A model server and an AI application.
+Recipes consist of at least two components: A model server and an AI application.
 The model server manages the model, and the AI application provides the specific 
 logic needed to perform some specific task such as chat, summarization, object 
 detection, etc. 
