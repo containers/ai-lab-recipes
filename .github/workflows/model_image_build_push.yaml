@@ -56,7 +56,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.4
 
       - name: Install qemu dependency
         run: |
