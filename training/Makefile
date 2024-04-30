@@ -8,8 +8,23 @@ help:
 
 .PHONY: amd nvidia intel
 amd:
-	make -C amd-bootc/ image
+	make -C amd-bootc/ bootc
 nvidia:
-	make -C nvidia-bootc/ dtk image
+	make -C nvidia-bootc/ dtk bootc
 intel:
-	make -C intel-bootc/ image
+	make -C intel-bootc/ bootc
+
+.PHONY:
+instruct-nvidia:
+	make -C instructlab nvidia
+
+.PHONY:
+instruct-amd:
+	make -C instructlab amd
+
+.PHONY:
+instruct: instruct-nvidia instruct-amd 
+
+
+clean:
+	rm -rf build

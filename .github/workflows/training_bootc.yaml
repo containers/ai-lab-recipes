@@ -107,7 +107,7 @@ jobs:
       
       - name: Build Image
         id: build_image
-        run: make image DRIVER_VERSION=${{ matrix.driver_version }} ARCH=${{ matrix.arch }}
+        run: make bootc DRIVER_VERSION=${{ matrix.driver_version }} ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
         
       - name: Login to Container Registry
@@ -138,7 +138,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  intel-bootc-image:
+  intel-and-amd-bootc-image:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
@@ -160,7 +160,7 @@ jobs:
       
       - name: Build Image
         id: build_image
-        run: make image ARCH=${{ matrix.arch }}
+        run: make bootc ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
 
       - name: Login to Container Registry
