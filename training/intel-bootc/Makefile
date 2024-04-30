@@ -2,7 +2,7 @@ FROM ?=
 
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= intel-gaudi-bootc
+IMAGE_NAME ?= intel-bootc
 IMAGE_TAG ?= latest
 
 CONTAINER_TOOL ?= podman
