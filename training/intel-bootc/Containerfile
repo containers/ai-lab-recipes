@@ -24,8 +24,12 @@ RUN if [ "${OS_VERSION_MAJOR}" == "" ]; then \
     && cd /tmp/habanalabs \
     && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm \
     && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-firmware-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm \
+    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-rdma-core-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm \
+    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-thunk-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm \
+    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-firmware-tools-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm \
     && rpm2cpio habanalabs-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm | cpio -id \
     && rpm2cpio habanalabs-firmware-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm | cpio -id \
+    && rpm2cpio habanalabs-firmware-tools-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm | cpio -id \
     && cd ./usr/src/habanalabs-${DRIVER_VERSION} \
     && make -j$(nproc) KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" GIT_SHA=$(cat dkms.conf | grep "KMD_LAST_GIT_SHA=" | cut -d "=" -f 2) \
     && make -j$(nproc) KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" GIT_SHA=$(cat dkms.conf | grep "KMD_LAST_GIT_SHA=" | cut -d "=" -f 2) -f Makefile.nic \
@@ -37,8 +41,8 @@ RUN if [ "${OS_VERSION_MAJOR}" == "" ]; then \
     && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/accel/habanalabs/habanalabs.ko.xz /tmp/ \
     && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/infiniband/hw/hlib/habanalabs_ib.ko.xz /tmp/ \
     && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hl_cn/habanalabs_cn.ko.xz /tmp/ \
-    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hl_en/habanalabs_en.ko.xz /tmp/     
-
+    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hl_en/habanalabs_en.ko.xz /tmp/  \
+    && cp /tmp/habanalabs/usr/bin/hl-smi /tmp/
 
 FROM ${BASEIMAGE}
 
@@ -48,6 +52,7 @@ COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi /l
 COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi2 /lib/firmware/habanalabs/gaudi2
 COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi3 /lib/firmware/habanalabs/gaudi3
 COPY --from=builder --chown=0:0 /tmp/habanalabs*.xz /tmp/
+COPY --from=builder --chown=0:0 /tmp/hl-smi /usr/bin/
 
 RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         RELEASE=$(dnf info --installed kernel-core | grep Release | awk -F: '{print $2}' | tr -d '[:blank:]') \
