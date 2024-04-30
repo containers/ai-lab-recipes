@@ -28,15 +28,26 @@ RUN if [ "${OS_VERSION_MAJOR}" == "" ]; then \
     && rpm2cpio habanalabs-firmware-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm | cpio -id \
     && cd ./usr/src/habanalabs-${DRIVER_VERSION} \
     && make -j$(nproc) KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" GIT_SHA=$(cat dkms.conf | grep "KMD_LAST_GIT_SHA=" | cut -d "=" -f 2) \
+    && make -j$(nproc) KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" GIT_SHA=$(cat dkms.conf | grep "KMD_LAST_GIT_SHA=" | cut -d "=" -f 2) -f Makefile.nic \
     && xz drivers/accel/habanalabs/habanalabs.ko \
-    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/accel/habanalabs/habanalabs.ko.xz /tmp/habanalabs.ko.xz
+    && xz drivers/net/ethernet/intel/hl_cn/habanalabs_cn.ko \
+    && xz drivers/net/ethernet/intel/hl_en/habanalabs_en.ko \
+    && cd drivers/infiniband/hw/hlib && make KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" \
+    && xz habanalabs_ib.ko \
+    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/accel/habanalabs/habanalabs.ko.xz /tmp/ \
+    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/infiniband/hw/hlib/habanalabs_ib.ko.xz /tmp/ \
+    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hl_cn/habanalabs_cn.ko.xz /tmp/ \
+    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hl_en/habanalabs_en.ko.xz /tmp/     
+
 
 FROM ${BASEIMAGE}
 
 ARG KERNEL_VERSION=''
 
 COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi /lib/firmware/habanalabs/gaudi
-COPY --from=builder --chown=0:0 /tmp/habanalabs.ko.xz /tmp/habanalabs.ko.xz
+COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi2 /lib/firmware/habanalabs/gaudi2
+COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi3 /lib/firmware/habanalabs/gaudi3
+COPY --from=builder --chown=0:0 /tmp/habanalabs*.xz /tmp/
 
 RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         RELEASE=$(dnf info --installed kernel-core | grep Release | awk -F: '{print $2}' | tr -d '[:blank:]') \
@@ -47,6 +58,6 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
        export TARGET_ARCH=$(arch) ;\
        fi \
     && mkdir -p /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/ \
-    && mv /tmp/habanalabs.ko.xz /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/habanalabs.ko.xz \
-    && chown root:root /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/habanalabs.ko.xz \
+    && mv /tmp/*.xz /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/ \
+    && chown root:root /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/habanalabs*.xz \
     && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH}
