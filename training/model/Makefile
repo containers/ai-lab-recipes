@@ -2,7 +2,7 @@ FROM ?=
 
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= granite-model
+IMAGE_NAME ?= granite-7b-lab
 IMAGE_TAG ?= latest
 
 CONTAINER_TOOL ?= podman
