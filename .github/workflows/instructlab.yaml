@@ -24,8 +24,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  REGISTRY: quay.io
-  REGISTRY_ORG: ai-lab
+  REGISTRY: ghcr.io
+  REGISTRY_ORG: containers
 
 jobs:
   instructlab-nvidia:
