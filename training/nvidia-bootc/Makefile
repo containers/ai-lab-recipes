@@ -28,7 +28,7 @@ bootc: dtk check-sshkey prepare-files
 		--cap-add SYS_ADMIN \
 		$(ARCH:%=--platform linux/%) \
 		--file Containerfile \
-		-v ${OUTDIR}:/tmp:ro \
+		-v ${OUTDIR}:/run/.input:ro \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
