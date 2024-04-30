@@ -1,0 +1,20 @@
+[Unit]
+Description=Bootc Fallback Root Filesystem Grow
+Documentation=https://gitlab.com/fedora/bootc/docs
+# For now we skip bare metal cases, and we also have nothing to do
+# for containers.
+ConditionVirtualization=vm
+# This helps verify that we're running in a bootc/ostree based target.
+ConditionPathIsMountPoint=/sysroot
+# We want to run before any e.g. large container images might be pulled.
+DefaultDependencies=no
+Requires=sysinit.target
+After=sysinit.target
+Before=basic.target
+
+[Service]
+ExecStart=/usr/libexec/bootc-generic-growpart
+# So we can temporarily remount the sysroot writable
+MountFlags=slave
+# Just to auto-cleanup our temporary files
+PrivateTmp=yes

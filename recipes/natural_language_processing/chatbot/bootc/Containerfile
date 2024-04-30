@@ -19,6 +19,10 @@ ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp_python:latest
 ARG TARGETARCH
 
+# Include growfs service
+COPY build/usr/lib /usr/lib
+COPY --chmod=0755 build/usr/libexec/bootc-generic-growpart /usr/libexec/bootc-generic-growpart
+
 # Add quadlet files to setup system to automatically run AI application on boot
 COPY build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
 
