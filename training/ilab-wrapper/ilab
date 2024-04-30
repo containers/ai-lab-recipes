@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Template values replaced by container build
+TRAIN_DEVICE="__REPLACE_TRAIN_DEVICE__"
+CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
+CONTAINER_NAME="__REPLACE_CONTAINER_NAME__"
+
+# HF caching uses relative symlink structures, so keep cache relative to
+# the central working directory
+CONTAINER_CACHE="/instructlab/cache"
+HOST_CACHE="$(pwd)/cache"
+WORKDIR="$(pwd)"
+
+has_argument() {
+	match=$1
+	shift
+	for arg in "$@"; do
+		if [[ "$arg" == *"$match"* ]]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+mkdir -p "${HOST_CACHE}"
+PODMAN_COMMAND=("podman" "run" "--rm" "-it" "--device" "${CONTAINER_DEVICE}" \
+		"--security-opt" "label=disable" "--net" "host" \
+		"-v" "${WORKDIR}:/instructlab" "--entrypoint" "" \
+		"-e" "HF_HOME=${CONTAINER_CACHE}" \
+		"${CONTAINER_NAME}")
+if [[ "$1" = "init" ]]; then
+	if ! has_argument "--repository" "$@"; then
+		shift
+		"${PODMAN_COMMAND[@]}" ilab init \
+			--repository https://github.com/instructlab/taxonomy.git "$@"
+		exit $?
+	fi
+elif [[ "$1" = "train" ]]; then
+	if ! has_argument "--device" "$@"; then
+		shift
+		"${PODMAN_COMMAND[@]}" ilab train --device ${TRAIN_DEVICE} "$@"
+		exit $?
+	fi
+fi
+
+"${PODMAN_COMMAND[@]}" ilab "$@"
+
