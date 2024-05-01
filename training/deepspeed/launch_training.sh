@@ -13,24 +13,8 @@ TRAINING_DATA_PATH="/ilab-data/train_model_*.jsonl"
 TESTING_DATA_PATH="/ilab-data/test_model_*.jsonl"
 TAXONOMY_PATH="https://github.com/instructlab/taxonomy.git"
 
-# HF caching uses relative symlink structures, so keep cache relative to
-# the central working directory
 CONTAINER_CACHE="/instructlab/cache"
-HOST_CACHE="$(pwd)/cache"
 WORKDIR="$(pwd)"
-
-has_argument() {
-	match=$1
-	shift
-	for arg in "$@"; do
-		if [[ "$arg" == *"$match"* ]]; then
-			return 0
-		fi
-	done
-	return 1
-}
-
-mkdir -p "${HOST_CACHE}"
 
 PODMAN_COMMAND=("podman" "run" \
 				"-v" "${SDG_OUTPUT_PATH}":/ilab-data \
