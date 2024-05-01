@@ -5,9 +5,6 @@ IMAGE_TAG ?= latest
 
 CONTAINER_TOOL ?= podman
 
-DRIVER_VERSION ?=
-KERNEL_VERSION ?= 
-
 default: image
 
 .PHONY: image
