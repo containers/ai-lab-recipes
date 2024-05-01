@@ -133,7 +133,7 @@ bootc-image-builder:
 install-chromedriver:
 	@if [[ -z "$(LOCAL_CHROMEDRIVER_EXISTS)" ]]; then \
 		if [[ -n "$(UNZIP_EXISTS)" ]]; then \
-			curl --progress-bar --max-time 300 --connect-timeout 60 -LO $(CHROMEDRIVER_MIRROR)/$(CHROMEDRIVER_VERSION)/$(CHROMEDRIVER_DOWNLOAD_PATH); \
+			curl --progress-bar --max-time 3000 --connect-timeout 60 -LO $(CHROMEDRIVER_MIRROR)/$(CHROMEDRIVER_VERSION)/$(CHROMEDRIVER_DOWNLOAD_PATH); \
 			unzip $(CHROMEDRIVER_DOWNLOAD_PATH); \
 			mv chromedriver $(RECIPE_BINARIES_PATH)/; \
 			rm ./$(CHROMEDRIVER_DOWNLOAD_PATH); \
@@ -145,7 +145,7 @@ install-chromedriver:
 
 .PHONY: install-chrome
 install-chrome:
-	curl --progress-bar --max-time 300 --connect-timeout 60 -LO $(CHROME_MIRROR)
+	curl --progress-bar --max-time 3000 --connect-timeout 60 -LO $(CHROME_MIRROR)
 	@if [[ "$(OS)" == "Linux" ]]; then \
 		sudo dpkg -i $(CHROME_DOWNLOAD_PATH); \
 	elif [[ "$(OS)" == "Darwin" ]]; then \
