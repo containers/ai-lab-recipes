@@ -6,6 +6,8 @@ TRAIN_DEVICE="__REPLACE_TRAIN_DEVICE__"
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
 IMAGE_NAME="__REPLACE_IMAGE_NAME__"
 GPU_AMOUNT="__REPLACE_GPU_AMOUNT__"
+NPROC_PER_NODE="__REPLACE_NPROC_PER_NODE__"
+EFFECTIVE_BATCH_SIZE="__REPLACE_EFFECTIVE_BATCH_SIZE__"
 
 # HF caching uses relative symlink structures, so keep cache relative to
 # the central working directory
@@ -43,9 +45,9 @@ if [[ "$1" = "init" ]]; then
 		exit $?
 	fi
 elif [[ "$1" = "train" ]]; then
-	if ! has_argument "--device" "$@"; then
+	if ! has_argument "--nproc_per_node" "$@" || ! has_argument "--effective_batch_size" "$@"; then
 		shift
-		"${PODMAN_COMMAND[@]}" ilab train --device ${TRAIN_DEVICE} "$@"
+		../deepspeed/launch_training.sh ${NPROC_PER_NODE} ${EFFECTIVE_BATCH_SIZE} ${TRAIN_DEVICE}
 		exit $?
 	fi
 elif [[ "$1" = "serve" ]]; then
