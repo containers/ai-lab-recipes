@@ -1,6 +1,5 @@
 #!/bin/bash
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
-CONTAINER_NAME="__REPLACE_CONTAINER_NAME__"
 
 NPROC_PER_NODE="$1"
 EFFECTIVE_BATCH_SIZE="$2"
@@ -36,8 +35,8 @@ mv sdg_out.jsonl /ilab-data/training/test.jsonl"
 # Pre-process generated data before training
 "${PODMAN_COMMAND[@]}" bash -c \
 "python data_process.py --logging_level INFO \
---data_path /ilab-data/training/train.jsonl && \
---data_output_path /ilab-data/training \
+--data_path /ilab-data/training/train.jsonl \
+--data_output_path="/ilab-data/training" \
 --max_seq_len 4096 \
 --model_name_or_path /ilab-data/granite-7b-base"
 
