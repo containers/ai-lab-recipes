@@ -17,12 +17,9 @@ env:
   TF_VAR_aws_region: "eu-west-2"
   TF_VAR_aws_ami_owners: '["125523088429"]'
   TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
-  TF_VAR_aws_volume_size: 25
-  # TF_VAR_aws_volume_size: 128
+  TF_VAR_aws_volume_size: 128
   TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
   TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 concurrency:
   group: ${{ github.workflow }}
@@ -37,7 +34,7 @@ jobs:
       matrix:
         include:
           - arch: amd64
-            aws_image_type: t2.micro	
+            aws_image_type: g5.8xlarge
             image_name: nvidia-bootc
             aws_ami_architecture: x86_64
     steps:
@@ -88,10 +85,10 @@ jobs:
         run: |
           ansible-playbook ./main/training/provision/playbook.yml \
             -i terraform-test-environment-module/hosts.ini \
-            --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }}
+            --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
+            --extra-vars "image_name=${{ matrix.image_name }}" 
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
-          image_name: ${{ matrix.image_name }}
 
       - name: Destroy Test Environment
         id: down
