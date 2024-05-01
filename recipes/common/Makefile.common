@@ -89,7 +89,6 @@ bootc: quadlet
 	  --build-arg APP_IMAGE=$(APP_IMAGE) \
 	  --build-arg SERVER_IMAGE=$(SERVER_IMAGE) \
 	  --build-arg "SSHPUBKEY=$(SSH_PUBKEY)" \
-	  -v /etc/containers/policy.json:/etc/containers/policy.json \
 	  -f bootc/$(CONTAINERFILE) \
 	  -t ${BOOTC_IMAGE} bootc
 	@echo ""
@@ -121,7 +120,6 @@ bootc-image-builder:
 	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  --privileged \
 	  --pull newer \
-	  -v /etc/containers/policy.json:/etc/containers/policy.json \
 	  -v ./build:/output \
 	  -v ./build/store:/store \
 	  $(BOOTC_IMAGE_BUILDER) \

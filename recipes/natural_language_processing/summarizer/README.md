@@ -130,7 +130,7 @@ To build a bootable container image that includes this sample summarizer workloa
 Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
 
 ```bash
-make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 bootc
+make FROM=registry.redhat.io/rhel9/rhel-bootc:9.4 bootc
 ```
 
 Selecting the ARCH for the bootc/Containerfile is simple using the Makefile ARCH= variable.
