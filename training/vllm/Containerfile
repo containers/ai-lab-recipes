@@ -1,0 +1,5 @@
+FROM quay.io/wxpe/tgis-vllm:release.4e3ff78
+
+USER root
+RUN ln -s /usr/lib64/libcuda.so.1 /usr/lib64/libcuda.so
+COPY mixtral.jinja .

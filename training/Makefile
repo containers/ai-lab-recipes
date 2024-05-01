@@ -5,14 +5,17 @@ help:
 	@echo "  - amd"
 	@echo "  - nvidia"
 	@echo "  - intel"
+	@echo "	 - vllm"
 
-.PHONY: amd nvidia intel
+.PHONY: amd nvidia intel vllm
 amd:
 	make -C amd-bootc/ bootc
 nvidia:
 	make -C nvidia-bootc/ dtk bootc
 intel:
 	make -C intel-bootc/ bootc
+vllm:
+	make -C vllm/ image
 
 .PHONY:
 instruct-nvidia:
@@ -27,3 +30,4 @@ instruct: instruct-nvidia instruct-amd
 
 clean:
 	rm -rf build
+
