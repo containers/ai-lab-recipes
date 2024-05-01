@@ -25,6 +25,7 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
     fi \
     && if [ "${OS_VERSION_MAJOR}" == "" ]; then \
         . /etc/os-release \
+	&& export OS_ID="$(echo ${ID})" \
         && export OS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
        fi \
     && if [ "${BUILD_ARCH}" == "" ]; then \
@@ -32,9 +33,13 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         && export TARGET_ARCH=$(echo "${BUILD_ARCH}" | sed 's/+64k//') ;\
         fi \
     && export KVER=$(echo ${KERNEL_VERSION} | cut -d '-' -f 1) \
-        KREL=$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/\.el._*.*\..\+$//' | cut -d'.' -f 1) \
-        KDIST="."$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/^.*\(\.el._*.*\)\..\+$/\1/' | cut -d'.' -f 2) \
-        DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) \
+    && KREL=$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/\.el._*.*\..\+$//' | cut -d'.' -f 1) \
+    && if [ "${OS_ID}" == "rhel" ]; then \
+		KDIST="."$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | cut -d '.' -f 2-) ;\
+	else \
+		KDIST="."$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/^.*\(\.el._*.*\)\..\+$/\1/' | cut -d'.' -f 2) ;\
+	fi \
+    && DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) \
     && git clone --depth 1 --single-branch -b rhel${OS_VERSION_MAJOR} https://github.com/NVIDIA/yum-packaging-precompiled-kmod \
     && cd yum-packaging-precompiled-kmod \
     && mkdir BUILD BUILDROOT RPMS SRPMS SOURCES SPECS \
