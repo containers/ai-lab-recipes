@@ -78,7 +78,7 @@ build:
 	podman build --squash-all $(ARCH:%=--platform linux/%) $(FROM:%=--from %) -t ${APP_IMAGE} app/
 
 .PHONY: bootc
-bootc: quadlet
+bootc: quadlet growfs
 	podman build \
 	  $(ARCH:%=--arch %) \
 	  $(FROM:%=--from %) \
@@ -155,6 +155,11 @@ install-chrome:
 		diskutil unmount "/Volumes/Google Chrome" || true; \
 		rm $(CHROME_DOWNLOAD_PATH); \
 	fi;
+
+.PHONY: growfs
+growfs: quadlet
+	# Add growfs service
+	mkdir -p build/usr; cp -R ../../common/usr/ build/usr/
 
 .PHONY: quadlet
 quadlet:
