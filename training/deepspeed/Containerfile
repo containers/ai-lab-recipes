@@ -1,9 +1,14 @@
 # Containerfile for running deepspeed training 
-FROM nvidia/cuda:12.1.1-cudnn8-devel-ubi9
+FROM nvcr.io/nvidia/cuda:12.1.1-cudnn8-devel-ubi9
 
 RUN dnf install -y python python-devel git
 RUN python -m ensurepip --upgrade
-RUN pip3 install -r requirements.txt
+RUN pip3 install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121
+RUN pip3 install packaging wheel
+RUN pip3 install flash-attn==2.5.7
+RUN pip3 install deepspeed==0.14.2
+RUN pip3 install transformers==4.40.1
+RUN pip3 install ipdb jupyterlab gpustat matplotlib hydra-core datasets rich numba
 RUN git clone https://github.com/instructlab/training.git
 RUN mkdir -p /ilab-data/training_output
 
