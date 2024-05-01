@@ -50,3 +50,7 @@ For example, learn how to run the [chatbot recipe here](./recipes/natural_langua
 Images for many sample applications and models are available in `quay.io`. All
 currently built images are  tracked in
 [ailab-images.md](./ailab-images.md)
+
+## [Training](./training/README.md)
+
+Linux Operating System Bootable containers enabled for AI Training
