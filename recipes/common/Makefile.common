@@ -51,7 +51,7 @@ ifeq ($(OS),Darwin) # This structure may vary if we upgrade chromedriver, see in
 	CHROME_DOWNLOAD_PATH := googlechrome.dmg
 else ifeq ($(OS),Linux)
 	CHROMEDRIVER_DOWNLOAD_PATH := chromedriver_linux64.zip
-	CHROME_DOWNLOAD_PATH := google-chrome-stable_current_amd64.deb
+	CHROME_DOWNLOAD_PATH := google-chrome-stable_current_$(ARCH).deb
 endif
 
 CHROME_MIRROR := https://www.slimjet.com/chrome/files/$(CHROMEDRIVER_VERSION)/$(CHROME_DOWNLOAD_PATH)
