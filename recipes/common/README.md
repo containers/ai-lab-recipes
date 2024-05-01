@@ -39,4 +39,4 @@ used to override defaults for a variety of make targets.
 
 Examples
 
-make bootc FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 APP_IMAGE=quay.io/myorg/chatbot-bootc
+make bootc FROM=registry.redhat.io/rhel9/rhel-bootc:9.4 APP_IMAGE=quay.io/myorg/chatbot-bootc

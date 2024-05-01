@@ -27,7 +27,6 @@ bootc: quadlet
 	  --build-arg CHROMADB_IMAGE=$(CHROMADB_IMAGE) \
 	  --build-arg SERVER_IMAGE=$(SERVER_IMAGE) \
 	  --build-arg "SSHPUBKEY=$(SSH_PUBKEY)" \
-	  -v /etc/containers/policy.json:/etc/containers/policy.json \
 	  -f bootc/$(CONTAINERFILE) \
 	  -t ${BOOTC_IMAGE} .
 	@echo ""

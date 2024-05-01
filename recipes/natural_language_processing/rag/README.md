@@ -159,7 +159,7 @@ make BOOTC_IMAGE=quay.io/your/rag-bootc:latest bootc
 Substituting the bootc/Containerfile FROM command is simple using the Makefile FROM option.
 
 ```
-make FROM=registry.redhat.io/rhel9-beta/rhel-bootc:9.4 BOOTC_IMAGE=quay.io/your/rag-bootc:latest bootc
+make FROM=registry.redhat.io/rhel9/rhel-bootc:9.4 BOOTC_IMAGE=quay.io/your/rag-bootc:latest bootc
 ```
 
 The magic happens when you have a bootc enabled system running. If you do, and you'd like to update the operating system to the OS you just built
