@@ -15,7 +15,25 @@
   - name: Gather facts for first time
     ansible.builtin.setup:
 
-  - name: Required Packages
+  - name: Check Podman Present
     ansible.builtin.package:
       name: podman
       state: present
+
+  - name: Bootc install
+    ignore_unreachable: true
+    containers.podman.podman_container:
+      name: "{{ image_name }}"
+      image: "quay.io/ai-lab/{{ image_name }}:latest"
+      state: started
+      auto_remove: yes
+      cap_add:
+        - sys_admin
+      security_opt:
+        - "label=type:unconfined_t"
+      volumes:
+        - "/:/target"
+        - "/var/lib/containers:/var/lib/containers"
+      privileged: yes
+      pid_mode: host
+      command: "bootc install to-filesystem --karg=console=ttyS0,115200n8 --replace=alongside /target"
