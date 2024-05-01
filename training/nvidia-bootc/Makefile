@@ -39,7 +39,7 @@ dtk:
 		.
 
 .PHONY: image
-image: check-sshkey prepare-files
+bootc: check-sshkey prepare-files
 	"${CONTAINER_TOOL}" build \
 		--security-opt label=disable \
 		--cap-add SYS_ADMIN \
