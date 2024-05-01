@@ -23,10 +23,8 @@ all: build download-model-facebook-detr-resnet-101 run
 
 .PHONY: download-model-facebook-detr-resnet-101
 download-model-facebook-detr-resnet-101:
-	pip install -r ../../convert_models/requirements.txt
-	cd ../../convert_models/ && \
-	python3.11 download_huggingface.py -m facebook/detr-resnet-101
-	cp -r ../../convert_models/converted_models/facebook ../../models/
+	cd ../../models/ && \
+	python download_hf_models.py -m facebook/detr-resnet-101
 
 .PHONY: test
 test:
