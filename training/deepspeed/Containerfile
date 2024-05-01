@@ -1,0 +1,12 @@
+# Containerfile for running deepspeed training 
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubi9
+
+RUN dnf install -y python python-devel git
+RUN python -m ensurepip --upgrade
+RUN pip3 install -r requirements.txt
+RUN git clone https://github.com/instructlab/training.git
+RUN mkdir -p /ilab-data/training_output
+
+WORKDIR /training
+
+CMD ["/bin/bash"]
