@@ -64,3 +64,9 @@ Sometimes, interrupting the build process may lead to wanting a complete restart
 ```
 make <platform> CONTAINER_TOOL_EXTRA_ARGS="--no-cache"
 ```
+
+The building of accelerated images requires a lot of temporary disk space. In case you need to specify a directory for temporary storage, this can be done with the `TMPDIR` environment variable:
+
+```
+make <platform> TMPDIR=/path/to/tmp
+```
