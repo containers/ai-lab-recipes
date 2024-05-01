@@ -1,15 +1,21 @@
-Bare metal bootc containers
+Linux Operating System Bootable containers enabled for AI Training
 ===
 
 In order to run accelerated AI workloads, we've prepared [bootc](https://github.com/containers/bootc) container images for the major AI platforms.
 
 # Makefile targets
 
-| Target      | Description                                             |
-|-------------|---------------------------------------------------------|
-| amd         | Create bootable container for AMD platform              |
-| nvidia      | Create bootable container for NVidia platform           |
-| intel       | Create bootable container for Intel Habanalabs platform |
+| Target          | Description                                                         |
+|-----------------|---------------------------------------------------------------------|
+| instruct-amd    | Create instruct lab image for bootable container for AMD platform   |
+| instruct-intel  | Create instruct lab image for bootable container for Intel platform |
+| instruct-nvidia | Create instruct lab image for bootable container for Nvidia platform|
+| amd             | Create bootable container for AMD platform                          |
+| intel           | Create bootable container for Intel Habanalabs platform             |
+| nvidia          | Create bootable container for NVidia platform                       |
+| cloud-amd       | Add cloud-init to bootable container for AMD platform               |
+| cloud-intel     | Add cloud-init to bootable container for Intel platform             |
+| cloud-nvidia    | Add cloud-init to bootable container for Nvidia platform            |
 
 # Makefile variables
 
@@ -23,6 +29,14 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 | CONTAINER_TOOL            | Container tool used for build                   | `podman`                                    |
 | CONTAINER_TOOL_EXTRA_ARGS | Container tool extra arguments                  | ` `                                         |
 
+# How to build Instructlab containers
+
+In order to do AI Training you need to build instructlab container images.
+
+Simply execute `make instructlab-<platform>`. For example to build the `instructlab-amd`, `instructlab-intel` and `instructlab-nvidia` containers, respectively:
+
+Once you have these container images built it is time to build bootc container images.
+
 # How to build bootc container images
 
 In order to build the images (by default based on CentOS Stream), a simple `make <platform>` should be enough. For example to build the `nvidia`, `amd` and `intel` bootc containers, respectively:
@@ -33,13 +47,7 @@ make amd
 make intel
 ```
 
-Using the Makefile variables listed above, the builds can be customized. For example to build the NVidia image and tag it with `myregistry.com/ai-training/nvidia:v1`:
-
-```
-make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia IMAGE_TAG=v1
-```
-
-# How to build bootc container images based on Red Hat Enterprise Linux
+## How to build bootc container images based on Red Hat Enterprise Linux
 
 In order to build the training images based on Red Hat Enterprise Linux bootc images, the appropriate base container image must be used in the `FROM` field and the build process must be run on an *entitled Red Hat 9.x Enterprise Linux* with a valid subscription.
 
@@ -55,6 +63,15 @@ Of course, the other Makefile variables are still available, so the following is
 
 ```
 make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia IMAGE_TAG=v1 FROM=registry.redhat.io/rhel9/rhel-bootc:9.4
+```
+
+# How to build Cloud ready images
+
+Bootc container images can be installed on physical machines, virtual machines and in the cloud.  Often it is useful to add the cloud-init package when running the operarting systems in the cloud.
+
+To add cloud-init to your existing bootc container image, executing make cloud-<platform>
+```
+make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia IMAGE_TAG=v1  should be enough. For example to build the `cloud-nvidia`, `cloud-amd` and `cloud-intel` bootc containers, respectively:
 ```
 
 # Troubleshooting

@@ -1,0 +1,47 @@
+FROM ?=
+VENDOR ?=
+
+REGISTRY ?= quay.io
+REGISTRY_ORG ?= ai-lab
+IMAGE_NAME ?= $(VENDOR)-bootc
+IMAGE_TAG ?= latest
+
+CONTAINER_TOOL ?= podman
+CONTAINER_TOOL_EXTRA_ARGS ?=
+
+ARCH ?=
+
+DRIVER_VERSION ?=
+KERNEL_VERSION ?=
+
+ARCH ?=
+
+INSTRUCTLAB_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/instructlab-$(VENDOR):$(IMAGE_TAG)
+INSTRUCTLAB_IMAGE_ID = $(shell $(CONTAINER_TOOL) image inspect $(INSTRUCTLAB_IMAGE) --format {{.Id}})
+WRAPPER = $(CURDIR)/../ilab-wrapper/ilab
+OUTDIR = $(CURDIR)/../build
+
+SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub 2> /dev/null)
+
+.PHONY: prepare-files
+prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)
+
+$(OUTDIR):
+	mkdir -p $(OUTDIR)
+
+$(OUTDIR)/$(WRAPPER): $(OUTDIR)
+	cp -f $(WRAPPER) $(OUTDIR)
+
+$(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID):
+	@mkdir -p $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)
+	$(CONTAINER_TOOL) push --compress=false $(INSTRUCTLAB_IMAGE) oci:$(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)/
+
+.PHONY: check-sshkey
+check-sshkey:
+	@test -n "$(SSH_PUBKEY)" || \
+		(echo -n "Error: no ssh key defined! "; \
+		 echo "Create ~/.ssh/id_rsa.pub or set SSH_PUBKEY"; exit 1)
+
+.PHONY: push
+push:
+	podman push "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"

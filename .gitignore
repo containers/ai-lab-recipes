@@ -10,3 +10,5 @@ models/*
 convert_models/converted_models
 recipes/common/bin/*
 */.venv/
+training/cloud/examples
+training/instructlab/instructlab
