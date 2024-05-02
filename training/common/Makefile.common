@@ -19,20 +19,39 @@ ARCH ?=
 
 INSTRUCTLAB_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/instructlab-$(VENDOR):$(IMAGE_TAG)
 VLLM_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/vllm:$(IMAGE_TAG)
+TRAIN_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/deepspeed-trainer:$(IMAGE_TAG)
 INSTRUCTLAB_IMAGE_ID = $(shell $(CONTAINER_TOOL) image inspect $(INSTRUCTLAB_IMAGE) --format {{.Id}})
+VLLM_IMAGE_ID = $(shell $(CONTAINER_TOOL) image inspect $(VLLM_IMAGE) --format {{.Id}})
+TRAIN_IMAGE_ID = $(shell $(CONTAINER_TOOL) image inspect $(TRAIN_IMAGE) --format {{.Id}})
 WRAPPER = $(CURDIR)/../ilab-wrapper/ilab
+QLORA_WRAPPER = $(CURDIR)/../ilab-wrapper/ilab-qlora
+TRAIN_WRAPPER =  $(CURDIR)/../ilab-wrapper/ilab-training-launcher
 OUTDIR = $(CURDIR)/../build
 
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub 2> /dev/null)
 
 .PHONY: prepare-files
-prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)
+prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(QLORA_WRAPPER) $(OUTDIR)/$(TRAIN_WRAPPER) $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID) $(OUTDIR)/$(VLLM_IMAGE_ID) $(OUTDIR)/$(TRAIN_IMAGE_ID) 
 
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
 $(OUTDIR)/$(WRAPPER): $(OUTDIR)
 	cp -f $(WRAPPER) $(OUTDIR)
+$(OUTDIR)/$(QLORA_WRAPPER): $(OUTDIR)
+	cp -f $(QLORA_WRAPPER) $(OUTDIR)
+$(OUTDIR)/$(TRAIN_WRAPPER): $(OUTDIR)
+	cp -f $(TRAIN_WRAPPER) $(OUTDIR)
+
+$(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID):
+	@mkdir -p $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)
+	$(CONTAINER_TOOL) push --compress=false $(INSTRUCTLAB_IMAGE) oci:$(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)/
+$(OUTDIR)/$(VLLM_IMAGE_ID):
+	@mkdir -p $(OUTDIR)/$(VLLM_IMAGE_ID)
+	$(CONTAINER_TOOL) push --compress=false $(VLLM_IMAGE) oci:$(OUTDIR)/$(VLLM_IMAGE_ID)/
+$(OUTDIR)/$(TRAIN_IMAGE_ID):
+	@mkdir -p $(OUTDIR)/$(TRAIN_IMAGE_ID)
+	$(CONTAINER_TOOL) push --compress=false $(TRAIN_IMAGE) oci:$(OUTDIR)/$(TRAIN_IMAGE_ID)/
 
 .PHONY: check-sshkey
 check-sshkey:
