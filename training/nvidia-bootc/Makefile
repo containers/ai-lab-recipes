@@ -42,7 +42,7 @@ bootc: dtk check-sshkey prepare-files growfs
 		$(CUDA_VERSION:%=--build-arg CUDA_VERSION=%) \
 		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
 		--build-arg "INSTRUCTLAB_IMAGE_ID=$(INSTRUCTLAB_IMAGE_ID)" \
-		--build-arg "VLLM_IMAGE=$(VLLMIMAGE)" \
+		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
 		--build-arg "VLLM_IMAGE_ID=$(VLLM_IMAGE_ID)" \
 		--build-arg "TRAIN_IMAGE=$(TRAIN_IMAGE)" \
 		--build-arg "TRAIN_IMAGE_ID=$(TRAIN_IMAGE_ID)" \
