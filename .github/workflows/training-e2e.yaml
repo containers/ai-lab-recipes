@@ -84,13 +84,14 @@ jobs:
 
       - name: Provision
         run: |
-          ssh_public_key=$(printf '%s\n' "${{ steps.terraform-output.outputs.ssh_public_key }}" | sed -e 's/[\/&]/\\&/g')
+          cp ./main/training/provision/ansible.cfg ./ && \
           ansible-playbook ./main/training/provision/playbook.yml \
             -vvv \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
+            --extra-vars "ansible_ssh_timeout=1800" \
             --extra-vars "image_name=${{ matrix.image_name }}" \
-            --extra-vars "ssh_public_key=$ssh_public_key" \
+            --extra-vars "ssh_public_key='${{ steps.terraform-output.outputs.ssh_public_key }}'" \
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:

@@ -15,55 +15,71 @@
   - name: Gather facts for first time
     ansible.builtin.setup:
 
-  - name: Check Podman Present
-    ansible.builtin.package:
-      name: podman
+  - name: Required packages
+    ansible.builtin.dnf:
+      name:
+      - podman
       state: present
+      disable_gpg_check: true
 
-  - name: Get size of root filesystem
-    ansible.builtin.shell:
-      cmd: |
-        df -h /var/tmp/
-        podman system info
+  - name: Temp Image Containerfile
+    ansible.builtin.template:
+      src: ./templates/Containerfile.j2
+      dest: /tmp/Containerfile
 
-  - name: Login to default registry and create ${XDG_RUNTIME_DIR}/containers/auth.json
+  - name: Login to default registry
     containers.podman.podman_login:
       username: "{{ registry_user }}"
       password: "{{ registry_password }}"
       registry: quay.io
+      authfile: /etc/containers/auth.json
 
-  # - name: Building an image with ssh key
-  #   ignore_unreachable: true
-  #   containers.podman.podman_container:
-  #     name: localhost/temp_image
-  #     image: "quay.io/ai-lab/{{ image_name }}:latest"
-  #     command:
-  #     - mkdir /usr/etc-system
-  #     - test -n "{{ ssh_public_key }}"
-  #     - echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf
-  #     - echo "{{ ssh_public_key }}"" > /usr/etc-system/ec2-user.keys && chmod 0600 /usr/etc-system/ec2-user.keys
-  #     state: present
-  #     recreate: true
+  - name: Pull the parent image
+    async: 1000
+    poll: 0
+    register: pull_result
+    containers.podman.podman_image:
+      name: "quay.io/ai-lab/{{ image_name }}:latest"
+      pull: true
+      auth_file: /etc/containers/auth.json
+      arch: amd64
+      state: present
 
-  - name: Download the dockerfile for SSH wrapper container
-    ansible.builtin.get_url:
-      url: "https://gist.githubusercontent.com/Gregory-Pereira/235943787f8fd1586852debe11725fc4/raw/c0aa0a09e55def3b3f42e8130e328b0170a22141/Containerfile"
-      dest: "/tmp/Containerfile" 
+  - name: Check on parent image pull
+    async_status:
+      jid: "{{ pull_result.ansible_job_id }}"
+    register: job_result
+    until: job_result.finished
+    retries: 100
+    delay: 10
 
-  - name: Sed SSH key into Containerfile
-    ansible.builtin.command:
-      cmd: | 
-        sed -i 's|REPLACE_ME|{{ ssh_public_key }}|g' /tmp/Containerfile && \
-        sed -i 's|BASE_IMAGE|{{ image_name }}|g' /tmp/Containerfile && \
-        cat /tmp/Containerfile && \
-        whoami
-    environment:
-      ssh_public_key: "{{ ssh_public_key }}"
-
-  - name: Building an image with ssh key
+  - name: Check the images was pulled
     ansible.builtin.command:
       cmd: |
-        podman build -t localhost/temp_image:latest -f /tmp/Containerfile
+        podman images -a
+
+  # - name: Simulate long running op (15 sec), wait for up to 45 sec, poll every 5 sec
+  #   ansible.builtin.command: /bin/sleep 15
+  #   async: 45
+  #   poll: 5
+
+  # - name: Build Temp image
+  #   containers.podman.podman_image:
+  #     name: "quay.io/ai-lab/{{ image_name }}:latest"
+  #     build:
+  #       target: temp_image
+  #       file: /tmp/Containerfile
+  #     state: build
+  #     auth_file: /etc/containers/auth.json
+
+  # - name: Pause for 5 minutes
+  #   ansible.builtin.pause:
+  #     minutes: 5
+
+  # - name: Building an image with ssh key
+  #   ansible.builtin.command:
+  #     cmd: |
+  #       podman build -t localhost/temp_image:latest -f /tmp/Containerfile
 
   # - name: check podman images for sanity
   #   ansible.builtin.command:
