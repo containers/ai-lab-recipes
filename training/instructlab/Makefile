@@ -6,6 +6,7 @@ IMAGE_TAG ?= latest
 
 .PHONY: instructlab
 instructlab:
+	mkdir -p ../build
 	git clone https://github.com/instructlab/instructlab.git 2> /dev/null || true
 	(cd instructlab; git pull origin main)
 
