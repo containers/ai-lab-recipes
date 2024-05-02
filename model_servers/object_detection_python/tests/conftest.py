@@ -5,6 +5,7 @@ REGISTRY = os.getenv("REGISTRY", "ghcr.io")
 IMAGE_NAME = os.getenv("IMAGE_NAME", "containers/object_detection_python:latest")
 MODEL_NAME = os.getenv("MODEL_NAME", "facebook/detr-resnet-101")
 MODELS_DIR = os.getenv("MODELS_DIR", "/app/models")
+
 MODEL_PATH = f"{MODELS_DIR}/{MODEL_NAME}"
 
 PORT = os.getenv("PORT", 8000)
