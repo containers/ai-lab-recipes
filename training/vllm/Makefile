@@ -4,6 +4,7 @@ default: image
 
 .PHONY: image
 image:
+	@mkdir -p ../build
 	"${CONTAINER_TOOL}" build \
 			$(ARCH:%=--platform linux/%) \
 			--file Containerfile \

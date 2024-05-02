@@ -4,6 +4,8 @@ IMAGE_NAME ?= $(VENDOR)-bootc
 
 include ../common/Makefile.common
 
+default: bootc
+
 .PHONY: bootc
 bootc: prepare-files growfs
 	"${CONTAINER_TOOL}" build \

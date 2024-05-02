@@ -10,6 +10,8 @@ ENABLE_RT ?=
 
 include ../common/Makefile.common
 
+default: bootc
+
 .PHONY: dtk
 dtk:
 	"${CONTAINER_TOOL}" build \
