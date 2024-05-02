@@ -8,12 +8,16 @@ help:
 	@echo "  - make instruct-nvidia"
 	@echo "  - make instruct-vllm"
 	@echo
+	@echo "Once instruct images created, create advanced training containers, deepspeed only for nvidia"
+	@echo
+	@echo "  - make deepspeed"
+	@echo "  - make vllm"
+	@echo
 	@echo "Once instruct images are created, creat bootc container images"
 	@echo
-	@echo "  - make bootc-amd"
-	@echo "  - make bootc-intel"
-	@echo "  - make bootc-nvidia"
-	@echo "  - make bootc-vllm"
+	@echo "  - make amd"
+	@echo "  - make intel"
+	@echo "  - make nvidia"
 	@echo
 	@echo "If these images are going to be used on a cloud, you might want to add cloud-init."
 	@echo
@@ -36,6 +40,14 @@ instruct-nvidia:
 .PHONY:
 instruct: instruct-amd instruct-nvidia
 
+.PHONY: deepspeed
+deepspeed:
+	make -C deepspeed/ image
+
+.PHONY: vllm
+vllm:
+	make -C vllm/ image
+
 #
 # Create bootc container images prepared for AI
 #
@@ -46,8 +58,6 @@ intel:
 	make -C intel-bootc/ bootc
 nvidia:
 	make -C nvidia-bootc/ dtk bootc
-vllm:
-	make -C vllm/ image
 
 #
 # Make Bootc container images preinstalled with cloud-init
