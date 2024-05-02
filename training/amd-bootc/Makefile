@@ -1,10 +1,11 @@
+
 VENDOR ?= amd
 IMAGE_NAME ?= $(VENDOR)-bootc
 
-include ../Makefile.common
+include ../common/Makefile.common
 
 .PHONY: bootc
-bootc: prepare-files
+bootc: prepare-files growfs
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
 		--security-opt label=disable \

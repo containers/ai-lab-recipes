@@ -1,9 +1,9 @@
 IMAGE_NAME ?= intel-bootc
 
-include ../Makefile.common
+include ../common/Makefile.common
 
 .PHONY: bootc
-bootc:
+bootc: growfs
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
 		--file Containerfile \

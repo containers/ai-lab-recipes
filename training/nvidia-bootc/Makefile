@@ -8,7 +8,7 @@ CUDA_VERSION ?=
 OS_VERSION_MAJOR ?=
 ENABLE_RT ?=
 
-include ../Makefile.common
+include ../common/Makefile.common
 
 .PHONY: dtk
 dtk:
@@ -21,7 +21,7 @@ dtk:
 		$(FROM:%=--from=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
 
-.PHONY: bootc
+.PHONY: bootc growfs
 bootc: dtk check-sshkey prepare-files
 	"${CONTAINER_TOOL}" build \
 		--security-opt label=disable \
