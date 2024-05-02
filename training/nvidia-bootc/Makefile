@@ -31,7 +31,7 @@ bootc: dtk check-sshkey prepare-files growfs
 		$(ARCH:%=--platform linux/%) \
 		--file Containerfile \
 		-v ${OUTDIR}:/run/.input:ro \
-		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
+		--tag "${BOOTC_IMAGE}" \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \

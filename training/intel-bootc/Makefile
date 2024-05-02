@@ -11,7 +11,7 @@ bootc: growfs
 		--security-opt label=disable \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
-		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
+		--tag "${BOOTC_IMAGE}" \
 		-v ${OUTDIR}:/run/.input:ro \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \

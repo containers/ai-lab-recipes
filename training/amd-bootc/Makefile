@@ -14,7 +14,7 @@ bootc: prepare-files growfs
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
 		-v ${OUTDIR}:/run/.input:ro \
-		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
+		--tag "${BOOTC_IMAGE}" \
 		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
 		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \

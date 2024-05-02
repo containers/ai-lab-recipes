@@ -13,7 +13,7 @@ help:
 	@echo "  - make deepspeed"
 	@echo "  - make vllm"
 	@echo
-	@echo "Once instruct images are created, creat bootc container images"
+	@echo "Once instruct images are created, create bootc container images"
 	@echo
 	@echo "  - make amd"
 	@echo "  - make intel"
@@ -29,6 +29,12 @@ help:
 	@echo "Make prune. This command will remove all buildah containers if left behind from podman build and then prune all unused container images. Useful if you are running out of space."
 	@echo
 	@echo "  - make prune"
+	@echo
+	@echo "To create a disk image"
+	@echo
+	@echo "  - make disk-amd"
+	@echo "  - make disk-intel"
+	@echo "  - make disk-nvidia"
 
 #
 # Create instructlab AI container images
@@ -89,6 +95,18 @@ cloud: cloud-amd cloud-intel cloud
 prune:
 	buildah rm --all
 	podman image prune -f
+
+# Create disk images with bootc-image-builder
+#
+.PHONY: disk-amd
+disk-amd:
+	make -C amd-bootc/ bootc-image-builder
+.PHONY: disk-intel
+disk-intel:
+	make -C intel-bootc/ bootc-image-builder
+.PHONY: disk-nvidia
+disk-nvidia:
+	make -C nvidia-bootc/ bootc-image-builder
 
 clean:
 	rm -rf build
