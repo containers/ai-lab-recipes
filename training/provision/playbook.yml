@@ -1,7 +1,7 @@
 ---
 - name: Test Environment Provisioning
   hosts: test_environments
-  remote_user: fedora
+  remote_user: ec2-user
   become: true
   gather_facts: false
 
@@ -20,24 +20,74 @@
       name: podman
       state: present
 
-  - name: Bootc install
-    ignore_unreachable: true
-    containers.podman.podman_container:
-      name: "{{ image_name }}"
-      image: "quay.io/ai-lab/{{ image_name }}:latest"
-      state: started
-      auto_remove: yes
-      cap_add:
-        - sys_admin
-      security_opt:
-        - "label=type:unconfined_t"
-      volumes:
-        - "/:/target"
-        - "/var/lib/containers:/var/lib/containers"
-      privileged: yes
-      pid_mode: host
-      command: "bootc install to-filesystem --karg=console=ttyS0,115200n8 --replace=alongside /target"
+  - name: Get size of root filesystem
+    ansible.builtin.shell:
+      cmd: |
+        df -h /var/tmp/
+        podman system info
 
-  - name: Restart instance
-    ansible.builtin.reboot:
-      test_command: pwd
+  - name: Login to default registry and create ${XDG_RUNTIME_DIR}/containers/auth.json
+    containers.podman.podman_login:
+      username: "{{ registry_user }}"
+      password: "{{ registry_password }}"
+      registry: quay.io
+
+  # - name: Building an image with ssh key
+  #   ignore_unreachable: true
+  #   containers.podman.podman_container:
+  #     name: localhost/temp_image
+  #     image: "quay.io/ai-lab/{{ image_name }}:latest"
+  #     command:
+  #     - mkdir /usr/etc-system
+  #     - test -n "{{ ssh_public_key }}"
+  #     - echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf
+  #     - echo "{{ ssh_public_key }}"" > /usr/etc-system/ec2-user.keys && chmod 0600 /usr/etc-system/ec2-user.keys
+  #     state: present
+  #     recreate: true
+
+  - name: Download the dockerfile for SSH wrapper container
+    ansible.builtin.get_url:
+      url: "https://gist.githubusercontent.com/Gregory-Pereira/235943787f8fd1586852debe11725fc4/raw/c0aa0a09e55def3b3f42e8130e328b0170a22141/Containerfile"
+      dest: "/tmp/Containerfile" 
+
+  - name: Sed SSH key into Containerfile
+    ansible.builtin.command:
+      cmd: | 
+        sed -i 's|REPLACE_ME|{{ ssh_public_key }}|g' /tmp/Containerfile && \
+        sed -i 's|BASE_IMAGE|{{ image_name }}|g' /tmp/Containerfile && \
+        cat /tmp/Containerfile && \
+        whoami
+    environment:
+      ssh_public_key: "{{ ssh_public_key }}"
+
+  - name: Building an image with ssh key
+    ansible.builtin.command:
+      cmd: |
+        podman build -t localhost/temp_image:latest -f /tmp/Containerfile
+
+  # - name: check podman images for sanity
+  #   ansible.builtin.command:
+  #     cmd: |
+  #       podman images 
+
+  # - name: Bootc install
+  #   ignore_unreachable: true
+  #   containers.podman.podman_container:
+  #     name: "{{ image_name }}"
+  #     image: localhost/temp_image:latest
+  #     state: started
+  #     auto_remove: yes
+  #     cap_add:
+  #       - sys_admin
+  #     security_opt:
+  #       - "label=type:unconfined_t"
+  #     volumes:
+  #       - "/:/target"
+  #       - "/var/lib/containers:/var/lib/containers"
+  #     privileged: yes
+  #     pid_mode: host
+  #     command: "bootc install to-filesystem --karg=console=ttyS0,115200n8 --replace=alongside /target"
+
+  # - name: Restart instance
+  #   ansible.builtin.reboot:
+  #     test_command: which ilab

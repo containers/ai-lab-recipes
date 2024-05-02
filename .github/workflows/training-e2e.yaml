@@ -15,9 +15,9 @@ on:
 
 env:
   TF_VAR_aws_region: "eu-west-2"
-  TF_VAR_aws_ami_owners: '["125523088429"]'
-  TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
-  TF_VAR_aws_volume_size: 128
+  TF_VAR_aws_ami_owners: '["309956199498"]'
+  TF_VAR_aws_ami_name: '["*RHEL-9.4*"]'
+  TF_VAR_aws_volume_size: 500
   TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
   TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
@@ -74,6 +74,7 @@ jobs:
         run: |
           echo "id=$(terraform output id | xargs)" >> $GITHUB_OUTPUT
           echo "url=$(terraform output host | xargs)" >> $GITHUB_OUTPUT
+          echo "ssh_public_key=$(terraform output ssh_public_key | xargs)" >> $GITHUB_OUTPUT
           echo "pem_filename=$(terraform output pem_filename | xargs)" >> $GITHUB_OUTPUT
         working-directory: terraform-test-environment-module
 
@@ -83,16 +84,23 @@ jobs:
 
       - name: Provision
         run: |
+          ssh_public_key=$(printf '%s\n' "${{ steps.terraform-output.outputs.ssh_public_key }}" | sed -e 's/[\/&]/\\&/g')
           ansible-playbook ./main/training/provision/playbook.yml \
+            -vvv \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
-            --extra-vars "image_name=${{ matrix.image_name }}" 
+            --extra-vars "image_name=${{ matrix.image_name }}" \
+            --extra-vars "ssh_public_key=$ssh_public_key" \
+            --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
+            --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
 
-      - name: log some networking information
+      - name: run the e2e tests
         run: |
-          ifconfig
+          ssh -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
+          ${{ steps.terraform-output.outputs.url }} \
+          curl -sLO /tmp https://raw.githubusercontent.com/stefwalter/instructlab/container-testing/scripts/basic-workflow-tests.sh
 
       - name: Destroy Test Environment
         id: down
