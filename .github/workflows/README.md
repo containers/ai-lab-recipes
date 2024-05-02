@@ -25,6 +25,9 @@ Finally all of our testing framework workflows will call `terraform destroy` to 
 
 IMPORTATNT: If you are doing development and testing, please make sure that instances in AWS are spun down before leaving if you have access to the AWS account.
 
-### testing_bootc specific pieces
+### training-e2e
 
-This workflow is based off of `Fedroa 40`. It provisions a `g5.8xlarge` AWS EC2 instance. In the ansible playbook for this workflow, it will first check that the only requirement -- podman -- is installed to before running the bootc install.
+The test environment is initially based off of `Fedroa 40`. 
+It bootstraps a `g5.8xlarge` AWS EC2 instance with Terraform.
+Provisioning is executed with ansible. The ansible playbook is invoking bootc install and
+reboots the instance.
