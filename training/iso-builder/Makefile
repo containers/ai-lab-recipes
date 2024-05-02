@@ -18,7 +18,7 @@ image:
 	"${CONTAINER_TOOL}" build \
 		--file Containerfile \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
-		$(FROM:%=--build-arg BASEIMAGE=%) \
+		$(FROM:%=--from=%) \
 		$(MODEL_REPO:%=--build-arg MODEL_REPO=%) \
 		$(MODEL_PATH:%=--build-arg MODEL_PATH=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS}
