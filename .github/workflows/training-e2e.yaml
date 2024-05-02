@@ -1,4 +1,4 @@
-name: Bootc Images Testing Framework
+name: traning E2E
 
 on:
   schedule: # schedule the job to run every day at midnight
@@ -26,7 +26,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  integration-tests:
+  e2e:
     if: github.repository == 'containers/ai-lab-recipes'
     runs-on: ubuntu-22.04
     strategy:

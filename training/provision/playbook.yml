@@ -37,3 +37,9 @@
       privileged: yes
       pid_mode: host
       command: "bootc install to-filesystem --karg=console=ttyS0,115200n8 --replace=alongside /target"
+
+  - name: Restart instance
+    ansible.builtin.reboot:
+
+  - name: Check if ssh was successful
+    ansible.builtin.shell: pwd
