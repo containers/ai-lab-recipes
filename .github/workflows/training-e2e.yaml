@@ -90,6 +90,10 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
 
+      - name: log some networking information
+        run: |
+          ifconfig
+
       - name: Destroy Test Environment
         id: down
         if: always()
