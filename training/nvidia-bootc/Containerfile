@@ -82,6 +82,8 @@ ARG CUDA_VERSION='12.3.2'
 ARG TARGET_ARCH=''
 ENV TARGETARCH=${TARGET_ARCH}
 
+ARG EXTRA_RPM_PACKAGES=''
+
 # Disable vGPU version compability check by default
 ARG DISABLE_VGPU_VERSION_CHECK=true
 ENV DISABLE_VGPU_VERSION_CHECK=$DISABLE_VGPU_VERSION_CHECK
@@ -118,6 +120,7 @@ RUN if [ "${TARGET_ARCH}" == "" ]; then \
         cuda-cudart-${CUDA_DASHED_VERSION} \
         nvidia-persistenced-${DRIVER_VERSION} \
         nvidia-container-toolkit \
+        ${EXTRA_RPM_PACKAGES} \
     && if [ "$DRIVER_TYPE" != "vgpu" ] && [ "$TARGET_ARCH" != "arm64" ]; then \
         versionArray=(${DRIVER_VERSION//./ }); \
         DRIVER_BRANCH=${versionArray[0]}; \
