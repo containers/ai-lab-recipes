@@ -2,7 +2,11 @@ FROM quay.io/centos-bootc/centos-bootc:stream9
 
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
-RUN dnf install -y rocm-smi && dnf clean all
+ARG EXTRA_RPM_PACKAGES=''
+RUN dnf install -y \
+  rocm-smi \
+  ${EXTRA_RPM_PACKAGES} \
+  && dnf clean all
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 

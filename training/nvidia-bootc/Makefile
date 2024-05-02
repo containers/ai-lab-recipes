@@ -33,6 +33,7 @@ bootc: dtk check-sshkey prepare-files
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \
+		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		--build-arg DRIVER_TOOLKIT_IMAGE=${DRIVER_TOOLKIT_IMAGE} \
 		$(DRIVER_VERSION:%=--label driver-version=%) \
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \

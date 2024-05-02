@@ -47,6 +47,7 @@ RUN if [ "${OS_VERSION_MAJOR}" == "" ]; then \
 FROM ${BASEIMAGE}
 
 ARG KERNEL_VERSION=''
+ARG EXTRA_RPM_PACKAGES=''
 
 COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi /lib/firmware/habanalabs/gaudi
 COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi2 /lib/firmware/habanalabs/gaudi2
@@ -65,4 +66,6 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
     && mkdir -p /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/ \
     && mv /tmp/*.xz /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/ \
     && chown root:root /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/habanalabs*.xz \
-    && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH}
+    && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH} \
+    && xargs --no-run-if-empty dnf install -y <<< "${EXTRA_RPM_PACKAGES}" \
+    && dnf clean all
