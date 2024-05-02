@@ -43,3 +43,12 @@ check-sshkey:
 .PHONY: push
 push:
 	podman push "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+.PHONY: growfs
+growfs:
+	# Add growfs service
+	mkdir -p build; cp -R ../common/usr build
+
+.PHONY: clean
+clean:
+	rm -rf build

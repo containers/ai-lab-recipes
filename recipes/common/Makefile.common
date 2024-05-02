@@ -159,7 +159,7 @@ install-chrome:
 .PHONY: growfs
 growfs: quadlet
 	# Add growfs service
-	mkdir build; cp -R ../../common/usr build/
+	mkdir -p build; cp -R ../../common/usr build/
 
 .PHONY: quadlet
 quadlet:
