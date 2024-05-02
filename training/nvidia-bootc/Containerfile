@@ -149,7 +149,7 @@ RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
 	cp /run/.input/ilab /usr/local/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE
-ARG INSTRUCTLAB_IMAGE_ID
+ARG VLLM_IMAGE
 
 RUN sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' /usr/local/bin/ilab
 RUN sed -i 's/__REPLACE_CONTAINER_DEVICE__/nvidia.com\/gpu=all/' /usr/local/bin/ilab
@@ -158,6 +158,9 @@ RUN sed -i "s%__REPLACE_CONTAINER_NAME__%${INSTRUCTLAB_IMAGE}%" /usr/local/bin/i
 # Added for running as an OCI Container to prevent Overlay on Overlay issues.
 VOLUME /var/lib/containers
 
-RUN podman --root /usr/lib/containers/storage pull oci:/run/.input/${INSTRUCTLAB_IMAGE_ID}
-RUN podman --root /usr/lib/containers/storage image tag ${INSTRUCTLAB_IMAGE_ID} ${INSTRUCTLAB_IMAGE}
+RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) && \
+    podman --root /usr/lib/containers/storage image tag ${IID} ${VLLM_IMAGE}
+RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
+    podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}
+
 RUN podman system reset --force 2>/dev/null

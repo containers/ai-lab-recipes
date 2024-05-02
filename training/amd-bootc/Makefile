@@ -13,7 +13,7 @@ bootc: prepare-files
 		-v ${OUTDIR}:/run/.input:ro \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
 		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
-		--build-arg "INSTRUCTLAB_IMAGE_ID=$(INSTRUCTLAB_IMAGE_ID)" \
+		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--from=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS} .

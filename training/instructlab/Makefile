@@ -11,19 +11,8 @@ instructlab:
 
 .PHONY: nvidia
 nvidia: instructlab
-	podman build --squash-all -t ${REGISTRY}/${REGISTRY_ORG}/instructlab-$@:${IMAGE_TAG} instructlab/containers/cuda
+	podman build --layers=false --squash-all -t oci:../build/instructlab-$@ instructlab/containers/cuda
 
 .PHONY: amd
 amd: instructlab
-	podman build --squash-all -t ${IMAGE} ${REGISTRY}/${REGISTRY_ORG}/instructlab-$@:${IMAGE_TAG} -f instructlab/containers/rocm/Containerfile instructlab
-
-.PHONY: push-amd
-push-amd:
-	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-amd:${IMAGE_TAG}
-
-.PHONY: push-nvidia
-push-nvidia:
-	podman push ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia:${IMAGE_TAG}
-
-.PHONY: push
-push: push-amd push-nvidia
+	podman build --layers=false --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab

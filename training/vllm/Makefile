@@ -1,12 +1,4 @@
-REGISTRY ?= quay.io
-REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= vllm
-IMAGE_TAG ?= latest
-
 CONTAINER_TOOL ?= podman
-
-DRIVER_VERSION ?=
-KERNEL_VERSION ?= 
 
 default: image
 
@@ -15,4 +7,6 @@ image:
 	"${CONTAINER_TOOL}" build \
 			$(ARCH:%=--platform linux/%) \
 			--file Containerfile \
-			--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
+			--layers=false \
+			--squash-all \
+			--tag oci:../build/vllm .
