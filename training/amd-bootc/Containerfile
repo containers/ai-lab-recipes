@@ -8,16 +8,14 @@ RUN dnf install -y \
   ${EXTRA_RPM_PACKAGES} \
   && dnf clean all
 
-ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
-
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
 RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
         /etc/containers/storage.conf && \
 	cp /run/.input/ilab /usr/local/bin/ilab
 
-ARG INSTRUCTLAB_IMAGE
-ARG INSTRUCTLAB_IMAGE_ID
+ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
+ARG VLLM_IMAGE
 
 RUN sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' /usr/local/bin/ilab
 RUN sed -i 's/__REPLACE_CONTAINER_DEVICE__/nvidia.com\/gpu=all/' /usr/local/bin/ilab
@@ -27,5 +25,7 @@ RUN sed -i "s%__REPLACE_CONTAINER_NAME__%${INSTRUCTLAB_IMAGE}%" /usr/local/bin/i
 VOLUME /var/lib/containers
 
 # Prepull the instructlab image
-RUN podman --root /usr/lib/containers/storage pull oci:/run/.input/${INSTRUCTLAB_IMAGE_ID}
-RUN podman --root /usr/lib/containers/storage image tag ${INSTRUCTLAB_IMAGE_ID} ${INSTRUCTLAB_IMAGE}
+RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) && \
+    podman --root /usr/lib/containers/storage image tag ${IID} ${VLLM_IMAGE}
+RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-amd) && \
+    podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}

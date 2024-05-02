@@ -55,6 +55,9 @@ COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi3 /
 COPY --from=builder --chown=0:0 /tmp/habanalabs*.xz /tmp/
 COPY --from=builder --chown=0:0 /tmp/hl-smi /usr/bin/
 
+ARG INSTRUCTLAB_IMAGE
+ARG VLLM_IMAGE
+
 RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         RELEASE=$(dnf info --installed kernel-core | grep Release | awk -F: '{print $2}' | tr -d '[:blank:]') \
         && VERSION=$(dnf info --installed kernel-core | grep Version | awk -F: '{print $2}' | tr -d '[:blank:]') \
@@ -69,3 +72,9 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
     && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH} \
     && xargs --no-run-if-empty dnf install -y <<< "${EXTRA_RPM_PACKAGES}" \
     && dnf clean all
+
+# Prepull the instructlab image
+RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) && \
+    podman --root /usr/lib/containers/storage image tag ${IID} ${VLLM_IMAGE}
+#RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-intel) && \
+#    podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}

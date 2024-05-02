@@ -39,6 +39,6 @@ bootc: dtk check-sshkey prepare-files
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \
 		$(CUDA_VERSION:%=--build-arg CUDA_VERSION=%) \
 		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
-		--build-arg "INSTRUCTLAB_IMAGE_ID=$(INSTRUCTLAB_IMAGE_ID)" \
+		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
 		--build-arg "SSHPUBKEY=$(SSH_PUBKEY)" \
 		${CONTAINER_TOOL_EXTRA_ARGS} .

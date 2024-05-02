@@ -18,6 +18,7 @@ KERNEL_VERSION ?=
 ARCH ?=
 
 INSTRUCTLAB_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/instructlab-$(VENDOR):$(IMAGE_TAG)
+VLLM_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/vllm:$(IMAGE_TAG)
 INSTRUCTLAB_IMAGE_ID = $(shell $(CONTAINER_TOOL) image inspect $(INSTRUCTLAB_IMAGE) --format {{.Id}})
 WRAPPER = $(CURDIR)/../ilab-wrapper/ilab
 OUTDIR = $(CURDIR)/../build
@@ -32,10 +33,6 @@ $(OUTDIR):
 
 $(OUTDIR)/$(WRAPPER): $(OUTDIR)
 	cp -f $(WRAPPER) $(OUTDIR)
-
-$(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID):
-	@mkdir -p $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)
-	$(CONTAINER_TOOL) push --compress=false $(INSTRUCTLAB_IMAGE) oci:$(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)/
 
 .PHONY: check-sshkey
 check-sshkey:
