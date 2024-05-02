@@ -1,6 +1,6 @@
 default: cloud
 
-include ../Makefile.common
+include ../common/Makefile.common
 
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
