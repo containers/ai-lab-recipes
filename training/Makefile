@@ -25,6 +25,10 @@ help:
 	@echo "  - make cloud-intel"
 	@echo "  - make cloud-nvidia"
 	@echo "  - make cloud-vllm"
+	@echo
+	@echo "Make prune. This command will remove all buildah containers if left behind from podman build and then prune all unused container images. Usefull if you are running out of space."
+	@echo
+	@echo "  - make prune"
 
 #
 # Create instructlab AI container images
@@ -76,6 +80,15 @@ cloud-nvidia:
 
 .PHONY:
 cloud: cloud-amd cloud-intel cloud
+
+#
+# We often see users running out of space. These commands are useful for freeing wasted space.
+# Note becarful to not run this target if a podman build is in progress.
+#
+.PHONY: prune
+prune:
+	buildah rm --all
+	podman image prune -f
 
 clean:
 	rm -rf build
