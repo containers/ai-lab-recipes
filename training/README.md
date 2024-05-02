@@ -29,11 +29,11 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 | CONTAINER_TOOL            | Container tool used for build                   | `podman`                                    |
 | CONTAINER_TOOL_EXTRA_ARGS | Container tool extra arguments                  | ` `                                         |
 
-# How to build Instructlab containers
+# How to build InstructLab containers
 
 In order to do AI Training you need to build instructlab container images.
 
-Simply execute `make instructlab-<platform>`. For example to build the `instructlab-amd`, `instructlab-intel` and `instructlab-nvidia` containers, respectively:
+Simply execute `make instruct-<platform>`. For example to build the `instruct-amd`, `instruct-intel` and `instruct-nvidia` containers, respectively:
 
 Once you have these container images built it is time to build bootc container images.
 
@@ -67,11 +67,14 @@ make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia I
 
 # How to build Cloud ready images
 
-Bootc container images can be installed on physical machines, virtual machines and in the cloud.  Often it is useful to add the cloud-init package when running the operarting systems in the cloud.
+Bootc container images can be installed on physical machines, virtual machines and in the cloud.  Often it is useful to add the cloud-init package when running the operating systems in the cloud.
 
-To add cloud-init to your existing bootc container image, executing make cloud-<platform>
+To add cloud-init to your existing bootc container image, executing `make cloud-<platform>` should be enough. For example to build the `cloud-nvidia`, `cloud-amd` and `cloud-intel` bootc containers, respectively:
+
 ```
-make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia IMAGE_TAG=v1  should be enough. For example to build the `cloud-nvidia`, `cloud-amd` and `cloud-intel` bootc containers, respectively:
+make cloud-nvidia
+make cloud-amd
+make cloud-intel
 ```
 
 # Troubleshooting
