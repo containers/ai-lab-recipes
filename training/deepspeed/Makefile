@@ -6,7 +6,7 @@ default: image
 .PHONY: image
 image:
 	@mkdir -p ../build
-	rm -rf ../build/deepspeed-trainer .
+	rm -rf ../build/deepspeed-trainer
 	"${CONTAINER_TOOL}" build \
 			$(ARCH:%=--platform linux/%) \
 			--file Containerfile \
