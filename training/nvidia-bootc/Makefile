@@ -21,8 +21,8 @@ dtk:
 		$(FROM:%=--from=%) \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
 
-.PHONY: bootc growfs
-bootc: dtk check-sshkey prepare-files
+.PHONY: bootc
+bootc: dtk check-sshkey prepare-files growfs
 	"${CONTAINER_TOOL}" build \
 		--security-opt label=disable \
 		--cap-add SYS_ADMIN \
