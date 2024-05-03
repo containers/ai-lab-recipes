@@ -1,7 +1,10 @@
 FROM quay.io/opendatahub/workbench-images:cuda-ubi9-python-3.9-20231206
+USER root
+RUN  dnf install -y gcc-toolset-13-gcc gcc-toolset-13-gcc-c++
+USER 1001
 WORKDIR /locallm
 COPY src .
 ENV CMAKE_ARGS="-DLLAMA_CUBLAS=on -DLLAMA_AVX2=OFF -DLLAMA_FMA=OFF -DLLAMA_F16C=OFF"
 ENV FORCE_CMAKE=1
-RUN pip install --no-cache-dir -r ./requirements.txt
+RUN CC="/opt/rh/gcc-toolset-13/root/usr/bin/gcc" CXX="/opt/rh/gcc-toolset-13/root/usr/bin/g++" pip install --no-cache-dir -r ./requirements.txt
 ENTRYPOINT [ "sh", "run.sh" ]
