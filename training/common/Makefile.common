@@ -5,17 +5,24 @@ REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
 IMAGE_NAME ?= $(VENDOR)-bootc
 IMAGE_TAG ?= latest
+BOOTC_IMAGE ?= ${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}
 
 CONTAINER_TOOL ?= podman
 CONTAINER_TOOL_EXTRA_ARGS ?=
 EXTRA_RPM_PACKAGES ?=
+GRAPH_ROOT=$(shell podman info --format '{{ .Store.GraphRoot }}')
+AUTH_JSON ?=
+
+BOOTC_IMAGE_BUILDER ?= quay.io/centos-bootc/bootc-image-builder
+IMAGE_BUILDER_CONFIG ?=
+DISK_TYPE ?= qcow2
+DISK_UID ?= $(shell id -u)
+DISK_GID ?= $(shell id -g)
 
 ARCH ?=
 
 DRIVER_VERSION ?=
 KERNEL_VERSION ?=
-
-ARCH ?=
 
 INSTRUCTLAB_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/instructlab-$(VENDOR):$(IMAGE_TAG)
 VLLM_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/vllm:$(IMAGE_TAG)
@@ -67,6 +74,27 @@ push:
 growfs:
 	# Add growfs service
 	mkdir -p build; cp -R ../common/usr build
+
+.PHONY: bootc-image-builder
+bootc-image-builder:
+	mkdir -p build/store
+	podman run \
+	  --rm \
+	  -ti \
+	  -v $(GRAPH_ROOT):/var/lib/containers/storage \
+	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
+	  $(IMAGE_BUILDER_CONFIG:%=-v %:/config.json) \
+	  --privileged \
+	  --pull newer \
+	  -v ./build:/output \
+	  -v ./build/store:/store \
+	  $(BOOTC_IMAGE_BUILDER) \
+	  $(ARCH:%=--target-arch %) \
+	  $(IMAGE_BUILDER_CONFIG:%=--config /config.json) \
+	  --type $(DISK_TYPE) \
+	  --chown $(DISK_UID):$(DISK_GID) \
+	  --local \
+	  $(BOOTC_IMAGE)
 
 .PHONY: clean
 clean:

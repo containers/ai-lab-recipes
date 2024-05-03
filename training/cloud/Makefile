@@ -16,7 +16,7 @@ cloud: init
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}-cloud:${IMAGE_TAG}" \
-		--from="${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
+		--from="${BOOTC_IMAGE}" \
 		examples/cloud-init
 
 .PHONY: push
