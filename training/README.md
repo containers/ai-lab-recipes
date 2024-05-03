@@ -38,11 +38,11 @@ Note: AI content is huge and requires a lot of disk space >200GB free to build.
 
 In order to do AI Training you need to build instructlab container images.
 
-Simply execute `make instructlab-<platform>`. For example:
+Simply execute `make instruct-<platform>`. For example:
 
-* make instructlab-amd
-* make instructlab-intel
-* make instructlab-nvidia
+* make instruct-amd
+* make instruct-intel
+* make instruct-nvidia
 
 Once you have these container images built it is time to build vllm.
 
