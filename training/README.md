@@ -7,15 +7,17 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 
 | Target          | Description                                                         |
 |-----------------|---------------------------------------------------------------------|
-| instruct-amd    | Create instruct lab image for bootable container for AMD platform   |
-| instruct-intel  | Create instruct lab image for bootable container for Intel platform |
-| instruct-nvidia | Create instruct lab image for bootable container for Nvidia platform|
 | amd             | Create bootable container for AMD platform                          |
-| intel           | Create bootable container for Intel Habanalabs platform             |
-| nvidia          | Create bootable container for NVidia platform                       |
+| deepspeed       | DeepSpeed container for optimization deep learning                  |
 | cloud-amd       | Add cloud-init to bootable container for AMD platform               |
 | cloud-intel     | Add cloud-init to bootable container for Intel platform             |
 | cloud-nvidia    | Add cloud-init to bootable container for Nvidia platform            |
+| instruct-amd    | Create instruct lab image for bootable container for AMD platform   |
+| instruct-intel  | Create instruct lab image for bootable container for Intel platform |
+| instruct-nvidia | Create instruct lab image for bootable container for Nvidia platform|
+| intel           | Create bootable container for Intel Habanalabs platform             |
+| nvidia          | Create bootable container for NVidia platform                       |
+| vllm            | Containerized inference/serving engine for LLMs                     |
 
 # Makefile variables
 
@@ -29,13 +31,28 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 | CONTAINER_TOOL            | Container tool used for build                   | `podman`                                    |
 | CONTAINER_TOOL_EXTRA_ARGS | Container tool extra arguments                  | ` `                                         |
 
-# How to build InstructLab containers
+
+Note: AI content is huge and requires a lot of disk space >200GB free to build.
+
+# How to build Instructlab containers
 
 In order to do AI Training you need to build instructlab container images.
 
-Simply execute `make instruct-<platform>`. For example to build the `instruct-amd`, `instruct-intel` and `instruct-nvidia` containers, respectively:
+Simply execute `make instructlab-<platform>`. For example:
 
-Once you have these container images built it is time to build bootc container images.
+* make instructlab-amd
+* make instructlab-intel
+* make instructlab-nvidia
+
+Once you have these container images built it is time to build vllm.
+
+# How to build the vllm inference engine
+
+* make vllm
+
+# On nvidia systems, you need to build the deepspeed container
+
+* make deepspeed
 
 # How to build bootc container images
 
@@ -67,14 +84,11 @@ make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia I
 
 # How to build Cloud ready images
 
-Bootc container images can be installed on physical machines, virtual machines and in the cloud.  Often it is useful to add the cloud-init package when running the operating systems in the cloud.
+Bootc container images can be installed on physical machines, virtual machines and in the cloud.  Often it is useful to add the cloud-init package when running the operarting systems in the cloud.
 
-To add cloud-init to your existing bootc container image, executing `make cloud-<platform>` should be enough. For example to build the `cloud-nvidia`, `cloud-amd` and `cloud-intel` bootc containers, respectively:
-
+To add cloud-init to your existing bootc container image, executing make cloud-<platform>
 ```
-make cloud-nvidia
-make cloud-amd
-make cloud-intel
+make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia IMAGE_TAG=v1  should be enough. For example to build the `cloud-nvidia`, `cloud-amd` and `cloud-intel` bootc containers, respectively:
 ```
 
 # Troubleshooting
