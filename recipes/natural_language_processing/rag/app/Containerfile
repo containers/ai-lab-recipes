@@ -16,6 +16,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /rag/requirements.txt
 COPY rag_app.py .
+COPY manage_vectordb.py .
 EXPOSE  8501
 ENV  HF_HUB_CACHE=/rag/models/
 ENTRYPOINT [ "streamlit", "run" ,"rag_app.py" ]
