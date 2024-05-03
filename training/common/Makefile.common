@@ -44,11 +44,11 @@ $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
 $(OUTDIR)/$(WRAPPER): $(OUTDIR)
-	cp -f $(WRAPPER) $(OUTDIR)
+	cp -pf $(WRAPPER) $(OUTDIR)
 $(OUTDIR)/$(QLORA_WRAPPER): $(OUTDIR)
-	cp -f $(QLORA_WRAPPER) $(OUTDIR)
+	cp -pf $(QLORA_WRAPPER) $(OUTDIR)
 $(OUTDIR)/$(TRAIN_WRAPPER): $(OUTDIR)
-	cp -f $(TRAIN_WRAPPER) $(OUTDIR)
+	cp -pf $(TRAIN_WRAPPER) $(OUTDIR)
 
 $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID):
 	@mkdir -p $(OUTDIR)/$(INSTRUCTLAB_IMAGE_ID)
@@ -73,7 +73,7 @@ push:
 .PHONY: growfs
 growfs:
 	# Add growfs service
-	mkdir -p build; cp -R ../common/usr build
+	mkdir -p build; cp -pR ../common/usr build
 
 .PHONY: bootc-image-builder
 bootc-image-builder:
