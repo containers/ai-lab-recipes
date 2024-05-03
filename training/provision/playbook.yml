@@ -1,7 +1,7 @@
 ---
 - name: Test Environment Provisioning
   hosts: test_environments
-  remote_user: fedora
+  remote_user: ec2-user
   become: true
   gather_facts: false
 
@@ -15,29 +15,42 @@
   - name: Gather facts for first time
     ansible.builtin.setup:
 
-  - name: Check Podman Present
-    ansible.builtin.package:
-      name: podman
+  - name: Required packages
+    ansible.builtin.dnf:
+      name:
+      - https://s3.eu-west-2.amazonaws.com/amazon-ssm-eu-west-2/latest/linux_amd64/amazon-ssm-agent.rpm
+      - podman
       state: present
+      disable_gpg_check: true
 
-  - name: Bootc install
-    ignore_unreachable: true
-    containers.podman.podman_container:
-      name: "{{ image_name }}"
-      image: "quay.io/ai-lab/{{ image_name }}:latest"
-      state: started
-      auto_remove: yes
-      cap_add:
-        - sys_admin
-      security_opt:
-        - "label=type:unconfined_t"
-      volumes:
-        - "/:/target"
-        - "/var/lib/containers:/var/lib/containers"
-      privileged: yes
-      pid_mode: host
-      command: "bootc install to-filesystem --karg=console=ttyS0,115200n8 --replace=alongside /target"
+  - name: Derived Image Containerfile
+    ansible.builtin.template:
+      src: ./templates/Containerfile.j2
+      dest: /tmp/Containerfile
+
+  - name: Login to default registry
+    containers.podman.podman_login:
+      username: "{{ registry_user }}"
+      password: "{{ registry_password }}"
+      registry: quay.io
+      authfile: /etc/containers/auth.json
+
+  - name: Build and Install the Bootc Image
+    async: 1000
+    poll: 0
+    register: build_result
+    ansible.builtin.shell: |
+      podman build -t derived_image:latest -f /tmp/Containerfile --authfile=/etc/containers/auth.json .
+      podman run --rm --privileged --pid=host --security-opt label=type:unconfined_t -v /:/target -v /var/lib/containers:/var/lib/containers derived_image:latest bootc install to-filesystem --karg=console=ttyS0,115200n8 --replace=alongside /target
+  
+  - name: Check on Build and Install Bootc Image
+    async_status:
+      jid: "{{ build_result.ansible_job_id }}"
+    register: job_result
+    until: job_result.finished
+    retries: 100
+    delay: 10
 
   - name: Restart instance
     ansible.builtin.reboot:
-      test_command: pwd
+      test_command: which ilab

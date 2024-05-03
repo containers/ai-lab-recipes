@@ -108,5 +108,6 @@ disk-intel:
 disk-nvidia:
 	make -C nvidia-bootc/ bootc-image-builder
 
+.PHONY: clean
 clean:
 	rm -rf build
