@@ -151,7 +151,7 @@ install-chrome:
 	elif [[ "$(OS)" == "Darwin" ]]; then \
 		open $(CHROME_DOWNLOAD_PATH); \
 		ls "/Volumes/Google Chrome/Google Chrome.app/Contents/MacOS/Google Chrome"; \
-		cp -r "/Volumes/Google Chrome/Google Chrome.app" "$(RECIPE_BINARIES_PATH)/"; \
+		cp -pr "/Volumes/Google Chrome/Google Chrome.app" "$(RECIPE_BINARIES_PATH)/"; \
 		diskutil unmount "/Volumes/Google Chrome" || true; \
 		rm $(CHROME_DOWNLOAD_PATH); \
 	fi;
@@ -159,7 +159,7 @@ install-chrome:
 .PHONY: growfs
 growfs: quadlet
 	# Add growfs service
-	mkdir -p build; cp -R ../../common/usr build/
+	mkdir -p build; cp -pR ../../common/usr build/
 
 .PHONY: quadlet
 quadlet:
@@ -176,7 +176,7 @@ quadlet:
 	    -e "s|MODEL_IMAGE|${MODEL_IMAGE}|g" \
 	    quadlet/${APP}.yaml \
 	    > build/${APP}.yaml
-	cp quadlet/${APP}.kube build/${APP}.kube
+	cp -p quadlet/${APP}.kube build/${APP}.kube
 
 .PHONY: run
 run: 
