@@ -1,8 +1,8 @@
 name: Testing Framework
 
 on:
-  schedule: # schedule the job to run every hour
-   - cron: '0 * * * *'
+  schedule: # schedule the job to run once a day
+   - cron: '0 0 * * *'
   
   workflow_dispatch:
 
