@@ -26,7 +26,7 @@ help:
 	@echo "  - make cloud-nvidia"
 	@echo "  - make cloud-vllm"
 	@echo
-	@echo "Make prune. This command will remove all buildah containers if left behind from podman build and then prune all unused container images. Usefull if you are running out of space."
+	@echo "Make prune. This command will remove all buildah containers if left behind from podman build and then prune all unused container images. Useful if you are running out of space."
 	@echo
 	@echo "  - make prune"
 
