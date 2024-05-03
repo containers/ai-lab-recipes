@@ -85,6 +85,7 @@ jobs:
       - name: Provision
         run: |
           ansible-playbook ./main/training/provision/playbook.yml \
+            -vv \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "image_name=${{ matrix.image_name }}" \
