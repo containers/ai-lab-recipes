@@ -84,9 +84,7 @@ jobs:
 
       - name: Provision
         run: |
-          cp ./main/training/provision/ansible.cfg ./ && \
           ansible-playbook ./main/training/provision/playbook.yml \
-            -vvv \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "image_name=${{ matrix.image_name }}" \
@@ -99,7 +97,7 @@ jobs:
       - name: run the e2e tests
         run: |
           ssh -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
-          ${{ steps.terraform-output.outputs.url }} \
+          root@${{ steps.terraform-output.outputs.url }} \
           curl -sLO /tmp https://raw.githubusercontent.com/stefwalter/instructlab/container-testing/scripts/basic-workflow-tests.sh
 
       - name: Destroy Test Environment
@@ -111,14 +109,14 @@ jobs:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
       
-      - name: Publish Job Results to Slack
-        id: slack
-        if: always()
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      # - name: Publish Job Results to Slack
+      #   id: slack
+      #   if: always()
+      #   uses: slackapi/slack-github-action@v1.26.0
+      #   with:
+      #     payload: |
+      #       {
+      #         "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
