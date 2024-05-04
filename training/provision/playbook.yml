@@ -65,16 +65,13 @@
     until: job_result.finished
     retries: 100
     delay: 10
-  
-  # - name: List images
-  #   register: list_result
-  #   ansible.builtin.shell: |
-  #     podman images
-  
-  # - ansible.builtin.debug: msg="{{ list_result }}"
 
-  # - name: Restart instance
-  #   ansible.builtin.reboot:
-  #     test_command: which ilab
-  #   # vars:
-  #   #   remote_user: root
+  - name: Remove the host from the known_host file
+    ansible.builtin.known_hosts:
+      name: "{{ inventory_hostname }}"
+      state: absent
+    delegate_to: localhost
+
+  - name: Reboot
+    ansible.builtin.shell: systemctl reboot
+    ignore_errors: true
