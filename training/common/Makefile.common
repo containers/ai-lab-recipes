@@ -15,6 +15,7 @@ AUTH_JSON ?=
 
 BOOTC_IMAGE_BUILDER ?= quay.io/centos-bootc/bootc-image-builder
 IMAGE_BUILDER_CONFIG ?=
+IMAGE_BUILDER_EXTRA_ARGS ?=
 DISK_TYPE ?= qcow2
 DISK_UID ?= $(shell id -u)
 DISK_GID ?= $(shell id -g)
@@ -83,17 +84,19 @@ bootc-image-builder:
 	  -ti \
 	  -v $(GRAPH_ROOT):/var/lib/containers/storage \
 	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
-	  $(IMAGE_BUILDER_CONFIG:%=-v %:/config.json) \
+	  $(IMAGE_BUILDER_CONFIG:%=-v %:/config$(suffix $(IMAGE_BUILDER_CONFIG))) \
 	  --privileged \
 	  --pull newer \
 	  -v ./build:/output \
 	  -v ./build/store:/store \
+	  ${CONTAINER_TOOL_EXTRA_ARGS} \
 	  $(BOOTC_IMAGE_BUILDER) \
 	  $(ARCH:%=--target-arch %) \
-	  $(IMAGE_BUILDER_CONFIG:%=--config /config.json) \
+	  $(IMAGE_BUILDER_CONFIG:%=--config /config$(suffix $(IMAGE_BUILDER_CONFIG))) \
 	  --type $(DISK_TYPE) \
 	  --chown $(DISK_UID):$(DISK_GID) \
 	  --local \
+	  ${IMAGE_BUILDER_EXTRA_ARGS} \
 	  $(BOOTC_IMAGE)
 
 .PHONY: clean
