@@ -52,6 +52,9 @@ jobs:
           path: terraform-test-environment-module
           ref: 'main'
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.0
         with:
@@ -80,12 +83,12 @@ jobs:
         working-directory: terraform-test-environment-module
 
       - name: Ansible Collections
-        run: ansible-galaxy install -r ./provision/requirements.yml
+        run: ansible-galaxy install -r ./ansible-testing/provision/requirements.yml
         working-directory: ./main/training
 
       - name: Provision
         run: |
-          ansible-playbook ./main/training/provision/playbook.yml \
+          ansible-playbook ./main/training/ansible-testing/provision/playbook.yml \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "image_name=${{ matrix.image_name }}" \
@@ -93,7 +96,7 @@ jobs:
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
-          ANSIBLE_CONFIG: ./main/training/provision/ansible.cfg
+          ANSIBLE_CONFIG: ./main/training/ansible-testing/provision/ansible.cfg
 
       # - name: Check Connectivity
       #   run: ssh -o StrictHostKeyChecking=no \
@@ -105,6 +108,19 @@ jobs:
       #     ssh -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
       #     root@${{ steps.terraform-output.outputs.url }} \
       #     curl -sLO /tmp https://raw.githubusercontent.com/stefwalter/instructlab/container-testing/scripts/basic-workflow-tests.sh
+
+      - name: Run e2e tests
+        run: |
+          ansible-playbook ./main/training/ansible-testing/e2e-tests/playbook.yml \
+            -vvv \
+            -i terraform-test-environment-module/hosts.ini \
+            --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
+            --extra-vars "image_name=${{ matrix.image_name }}" \
+            --extra-vars "ssh_public_key='${{ steps.terraform-output.outputs.ssh_public_key }}'" \
+            --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
+            --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
+        env:
+          ANSIBLE_CONFIG: ./main/training/ansible-testing/e2e-tests/ansible.cfg
 
       - name: Destroy Test Environment
         id: down
