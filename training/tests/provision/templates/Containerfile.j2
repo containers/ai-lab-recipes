@@ -1,9 +1,6 @@
 FROM quay.io/ai-lab/{{ image_name }}:latest
 
-USER root
-
 RUN mkdir /usr/etc-system && \
-    chown -R root:root /usr/etc-system && \
-    echo 'AuthorizedKeysFile /usr/etc-system/root.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
     echo {{ ssh_public_key }} > /usr/etc-system/root.keys && \
     chmod 0600 /usr/etc-system/root.keys

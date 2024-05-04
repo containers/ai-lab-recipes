@@ -76,7 +76,3 @@
     ansible.builtin.shell: systemctl reboot
     ignore_errors: true
     ignore_unreachable: true
-
-  - name: Wait for connection to become reachable/usable
-    wait_for_connection:
-      delay: 30
