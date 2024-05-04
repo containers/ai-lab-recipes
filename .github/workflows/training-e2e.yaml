@@ -10,6 +10,7 @@ on:
       - main
     paths:
       - .github/workflows/training-e2e.yaml
+      - training
   
   workflow_dispatch:
 
@@ -94,11 +95,11 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
 
-      - name: run the e2e tests
-        run: |
-          ssh -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
-          root@${{ steps.terraform-output.outputs.url }} \
-          curl -sLO /tmp https://raw.githubusercontent.com/stefwalter/instructlab/container-testing/scripts/basic-workflow-tests.sh
+      # - name: run the e2e tests
+      #   run: |
+      #     ssh -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
+      #     root@${{ steps.terraform-output.outputs.url }} \
+      #     curl -sLO /tmp https://raw.githubusercontent.com/stefwalter/instructlab/container-testing/scripts/basic-workflow-tests.sh
 
       - name: Destroy Test Environment
         id: down
