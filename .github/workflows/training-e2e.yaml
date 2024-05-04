@@ -52,8 +52,12 @@ jobs:
           path: terraform-test-environment-module
           ref: 'main'
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3.18
+      #   timeout-minutes: 15
+      #   with:
+      #     limit-access-to-actor: true
+      #     detached: true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.0
@@ -96,6 +100,7 @@ jobs:
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
+          ANSIBLE_HOST_KEY_CHECKING: false
           ANSIBLE_CONFIG: ./main/training/ansible-testing/provision/ansible.cfg
 
       # - name: Check Connectivity
@@ -120,6 +125,7 @@ jobs:
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
+          ANSIBLE_HOST_KEY_CHECKING: false
           ANSIBLE_CONFIG: ./main/training/ansible-testing/e2e-tests/ansible.cfg
 
       - name: Destroy Test Environment

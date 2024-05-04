@@ -19,4 +19,4 @@
     git:
       repo: https://github.com/instructlab/instructlab.git
       dest: /tmp/instructlab
-      version: main
+      version: d905a25bed58b3649e7d7eef74257eea79be6e94
