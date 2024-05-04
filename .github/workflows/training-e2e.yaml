@@ -10,7 +10,7 @@ on:
       - main
     paths:
       - .github/workflows/training-e2e.yaml
-      - training
+      - ./training/**
   
   workflow_dispatch:
 
@@ -93,7 +93,12 @@ jobs:
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
-          ANSIBLE_HOST_KEY_CHECKING: false
+          ANSIBLE_CONFIG: ./main/training/provision/ansible.cfg
+
+      # - name: Check Connectivity
+      #   run: ssh -o StrictHostKeyChecking=no \
+      #         -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
+      #         root@${{ steps.terraform-output.outputs.url }} which ilab
 
       # - name: run the e2e tests
       #   run: |
