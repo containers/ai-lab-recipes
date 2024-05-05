@@ -6,8 +6,4 @@ RUN set -eu && mkdir /usr/etc-system && \
     echo $sshpubkey > /usr/etc-system/root.keys && \
     chmod 0600 /usr/etc-system/root.keys
 
-# RUN useradd -G root ec2-user && \
-#     mkdir /home/ec2-user/.ssh && \
-#     echo $sshpubkey > /home/ec2-user/.ssh/authorized_keys && \
-#     chmod 0600 /home/ec2-user/.ssh/authorized_keys && \
-#     chown -R ec2-user:root /home/ec2-user
+RUN dnf install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
