@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   e2e:
-    if: github.repository == 'containers/ai-lab-recipes'
+    if: github.repository == 'containers/ai-lab-recipes && !contains(github.event.pull_request.labels.*.name, 'hold-tests')'
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
