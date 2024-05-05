@@ -16,6 +16,7 @@ FROM ?=
 ARCH ?=
 CONTAINERFILE ?= Containerfile
 GRAPH_ROOT=$(shell podman info --format '{{ .Store.GraphRoot }}')
+UMASK=$(shell umask)
 
 ROOTLESS_AUTH_JSON=${XDG_RUNTIME_DIR}/containers/auth.json
 ROOTFUL_AUTH_JSON=/run/containers/0/auth.json
@@ -156,8 +157,14 @@ install-chrome:
 		rm $(CHROME_DOWNLOAD_PATH); \
 	fi;
 
+.PHONY: check-umask
+check-umask:
+	@test "$(UMASK)" = "0022" || \
+		(echo; echo -n "Error: umask $(UMASK) will cause unexpected behaviour: use umask 022! "; \
+		 echo "Verify the `ai-lab-recipes` git repository was cloned with umask 0022"; exit 1)
+
 .PHONY: growfs
-growfs: quadlet
+growfs: quadlet check-umask
 	# Add growfs service
 	mkdir -p build; cp -pR ../../common/usr build/
 
