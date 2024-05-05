@@ -37,6 +37,7 @@
 
   - name: Pull the Parent Image
     async: 1000
+    poll: 0
     register: pull_result
     containers.podman.podman_image:
       name: "quay.io/ai-lab/{{ image_name }}:latest"
@@ -66,7 +67,7 @@
         --pull=never \
         --retry=5 \
         --retry-delay=15 > /tmp/build.log 2>&1
-        
+
   - name: Check on Build Bootc Image
     async_status:
       jid: "{{ build_result.ansible_job_id }}"
@@ -84,7 +85,7 @@
         --authfile=/etc/containers/auth.json \
         --privileged \
         --pid=host \ 
-        --pull=never
+        --pull=never \
         --security-opt label=type:unconfined_t \ 
         -v /:/target \
         -v /var/lib/containers:/var/lib/containers \ 
