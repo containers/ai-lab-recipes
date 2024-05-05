@@ -21,6 +21,11 @@
       dest: /tmp/basic-workflow-tests.sh
       mode: 755
 
+  # Allow for debugging with tmate
+  - name: Wait for 15 minutes
+    pause:
+      minutes: 15
+
   - name: Run tests
     ansible.builtin.shell: /tmp/basic-workflow-tests.sh
     register: out

@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   e2e:
-    if: github.repository == 'containers/ai-lab-recipes'
+    if: github.repository == 'containers/ai-lab-recipes' && !contains(github.event.pull_request.labels.*.name, 'hold-tests')
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -100,7 +100,7 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3.18
-        timeout-minutes: 15
+        timeout-minutes: 20
         with:
           detached: true
           limit-access-to-actor: false
@@ -116,6 +116,15 @@ jobs:
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
           ANSIBLE_CONFIG: ./main/training/tests/ansible.cfg
+
+      # # This should exist in the final workflow
+      # - name: Setup tmate session
+      #   if: ${{ failure() }}
+      #   uses: mxschmitt/action-tmate@v3.18
+      #   timeout-minutes: 15
+      #   with:
+      #     detached: true
+      #     limit-access-to-actor: false
 
       - name: Destroy Test Environment
         id: down
