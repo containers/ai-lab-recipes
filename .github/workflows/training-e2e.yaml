@@ -1,8 +1,8 @@
 name: traning E2E
 
 on:
-  # schedule: # schedule the job to run every day at midnight
-  #  - cron: '0 * * * *'
+  schedule: # schedule the job to run every day at midnight
+    - cron: '0 12 * * *'
 
   # For testing purposes, will remove
   pull_request:
@@ -51,13 +51,6 @@ jobs:
           repository: containers/terraform-test-environment-module
           path: terraform-test-environment-module
           ref: 'main'
-
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3.18
-      #   timeout-minutes: 45
-      #   with:
-      #     detached: true
-      #     limit-access-to-actor: true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3.1.0
@@ -110,23 +103,11 @@ jobs:
         timeout-minutes: 15
         with:
           detached: true
-          limit-access-to-actor: true
-
-      # - name: Check Connectivity
-      #   run: ssh -o StrictHostKeyChecking=no \
-      #         -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
-      #         root@${{ steps.terraform-output.outputs.url }} which ilab
-
-      # - name: run the e2e tests
-      #   run: |
-      #     ssh -i terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
-      #     root@${{ steps.terraform-output.outputs.url }} \
-      #     curl -sLO /tmp https://raw.githubusercontent.com/stefwalter/instructlab/container-testing/scripts/basic-workflow-tests.sh
-
-      - name: Run e2e tests
+          limit-access-to-actor: false
+      
+      - name: Run tests
         run: |
           ansible-playbook ./main/training/tests/e2e-tests/playbook.yml \
-            -vv \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "image_name=${{ matrix.image_name }}" \

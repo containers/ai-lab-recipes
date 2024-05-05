@@ -15,8 +15,20 @@
   - name: Gather facts for first time
     ansible.builtin.setup:
 
-  - name: Clone repository
-    git:
-      repo: https://github.com/instructlab/instructlab.git
-      dest: /tmp/instructlab
-      version: d905a25bed58b3649e7d7eef74257eea79be6e94
+  - name: Get test script
+    ansible.builtin.get_url:
+      url: https://raw.githubusercontent.com/instructlab/instructlab/main/scripts/basic-workflow-tests.sh
+      dest: /tmp/basic-workflow-tests.sh
+      mode: 755
+
+  - name: Run tests
+    ansible.builtin.shell: /tmp/basic-workflow-tests.sh
+    register: out
+
+  - name: Test Results - stdout
+    debug:
+      msg: "{{out.stdout_lines}}"
+
+  - name: Test Results - stderr
+    debug:
+      msg: "{{out.stderr_lines}}"
