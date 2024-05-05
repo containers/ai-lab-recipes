@@ -93,7 +93,7 @@ jobs:
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
-          ANSIBLE_CONFIG: ./main/training/tests/provision/ansible.cfg
+          ANSIBLE_CONFIG: ./main/training/tests/ansible.cfg
 
       - name: Wait for 4 minutes
         run: sleep 240
@@ -115,7 +115,7 @@ jobs:
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
             --extra-vars "registry_password=${{ secrets.REGISTRY_PASSWORD }}"
         env:
-          ANSIBLE_CONFIG: ./main/training/tests/e2e-tests/ansible.cfg
+          ANSIBLE_CONFIG: ./main/training/tests/ansible.cfg
 
       - name: Destroy Test Environment
         id: down
