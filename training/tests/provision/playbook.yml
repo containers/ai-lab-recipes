@@ -36,6 +36,7 @@
       authfile: /etc/containers/auth.json
 
   - name: Pull the Parent Image
+    async: 1000
     register: pull_result
     containers.podman.podman_image:
       name: "quay.io/ai-lab/{{ image_name }}:latest"
