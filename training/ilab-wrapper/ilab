@@ -107,12 +107,14 @@ PODMAN_COMMAND=("podman" "run" "--rm" "-it" "--device" "${CONTAINER_DEVICE}" \
 		"--security-opt" "label=disable" "--net" "host" \
 		"-v" "${WORKDIR}:/instructlab" "--entrypoint" "" \
 		"-e" "HF_HOME=${CONTAINER_CACHE}" \
+		"-e" "HF_TOKEN=${HF_TOKEN}" \
 		"${IMAGE_NAME}")
 PODMAN_COMMAND_SERVE=("podman" "run" "--rm" "-it" "--device" "${CONTAINER_DEVICE}" \
 		"--security-opt" "label=disable" "--net" "host" \
 		"-v" "${WORKDIR}:/instructlab" \
 		"--shm-size=10gb" \
 		"-e" "HF_HOME=${CONTAINER_CACHE}/" \
+		"-e" "HF_TOKEN=${HF_TOKEN}" \
 		"${VLLM_NAME}" "--host=0.0.0.0" "--port=8080" "--tensor-parallel-size=${GPU_AMOUNT}")
 
 if [[ "$1" = "init" ]]; then
