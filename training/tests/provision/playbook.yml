@@ -35,6 +35,23 @@
       registry: quay.io
       authfile: /etc/containers/auth.json
 
+  - name: Pull the Parent Image
+    register: pull_result
+    containers.podman.podman_image:
+      name: "quay.io/ai-lab/{{ image_name }}:latest"
+      pull: true
+      auth_file: /etc/containers/auth.json
+      arch: amd64
+      state: present
+
+  - name: Check on Pulling the parent image
+    async_status:
+      jid: "{{ pull_result.ansible_job_id }}"
+    register: job_result
+    until: job_result.finished
+    retries: 100
+    delay: 10
+
   - name: Build the Bootc Image
     async: 1000
     poll: 0
