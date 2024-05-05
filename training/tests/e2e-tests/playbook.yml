@@ -1,0 +1,22 @@
+---
+- name: Test Environment Provisioning
+  hosts: test_environments
+  remote_user: root
+  become: true
+  gather_facts: false
+
+  tasks:
+  
+  - name: Wait until the instance is ready
+    ansible.builtin.wait_for_connection:
+    delay: 15
+    timeout: 180
+  
+  - name: Gather facts for first time
+    ansible.builtin.setup:
+
+  - name: Clone repository
+    git:
+      repo: https://github.com/instructlab/instructlab.git
+      dest: /tmp/instructlab
+      version: d905a25bed58b3649e7d7eef74257eea79be6e94

@@ -1,0 +1,13 @@
+FROM quay.io/ai-lab/{{ image_name }}:latest
+ARG sshpubkey
+
+RUN set -eu && mkdir /usr/etc-system && \
+    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo $sshpubkey > /usr/etc-system/root.keys && \
+    chmod 0600 /usr/etc-system/root.keys
+
+# RUN useradd -G root ec2-user && \
+#     mkdir /home/ec2-user/.ssh && \
+#     echo $sshpubkey > /home/ec2-user/.ssh/authorized_keys && \
+#     chmod 0600 /home/ec2-user/.ssh/authorized_keys && \
+#     chown -R ec2-user:root /home/ec2-user

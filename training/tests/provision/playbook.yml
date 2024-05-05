@@ -40,7 +40,7 @@
     poll: 0
     register: build_result
     ansible.builtin.shell: |
-      podman build -t quay.io/ai-lab/derived_image:latest -f /tmp/Containerfile --authfile=/etc/containers/auth.json .
+      podman build -t quay.io/ai-lab/derived_image:latest --build-arg "sshpubkey={{ ssh_public_key }}" -f /tmp/Containerfile --authfile=/etc/containers/auth.json .
       podman push quay.io/ai-lab/derived_image:latest --authfile=/etc/containers/auth.json
 
   - name: Check on Build Bootc Image
@@ -56,7 +56,13 @@
     poll: 0
     register: install_result
     ansible.builtin.shell: |
-      podman run --authfile=/etc/containers/auth.json --rm --privileged --pid=host --security-opt label=type:unconfined_t -v /etc/containers/:/etc/containers -v /:/target -v /var/lib/containers:/var/lib/containers quay.io/ai-lab/derived_image:latest bootc install to-filesystem --karg=console=ttyS0,115200n8 --replace=alongside /target
+      podman run --authfile=/etc/containers/auth.json \
+        --rm --privileged --pid=host \ 
+        --security-opt label=type:unconfined_t \ 
+        -v /etc/containers/:/etc/containers \
+        -v /:/target \
+        -v /var/lib/containers:/var/lib/containers quay.io/ai-lab/derived_image:latest \ 
+        bootc install to-filesystem --karg=console=ttyS0,115200n8 --karg=systemd.journald.forward_to_console=1 --replace=alongside /target 
 
   - name: Check on Install Bootc Image
     async_status:
@@ -75,3 +81,4 @@
   - name: Reboot
     ansible.builtin.shell: systemctl reboot
     ignore_errors: true
+    ignore_unreachable: true
