@@ -2,7 +2,7 @@ FROM quay.io/ai-lab/{{ image_name }}:latest
 ARG sshpubkey
 
 RUN set -eu && mkdir /usr/etc-system && \
-    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo 'AuthorizedKeysFile /usr/etc-system/%u.keys' > /etc/ssh/sshd_config.d/30-auth-system.conf && \
     echo $sshpubkey > /usr/etc-system/root.keys && \
     chmod 0600 /usr/etc-system/root.keys
 

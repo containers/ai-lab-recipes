@@ -1,8 +1,8 @@
 name: traning E2E
 
 on:
-  # schedule: # schedule the job to run every day at midnight
-  #  - cron: '0 * * * *'
+  schedule: # schedule the job to run every day at midnight
+    - cron: '0 12 * * *'
 
   # For testing purposes, will remove
   pull_request:
@@ -86,7 +86,6 @@ jobs:
       - name: Provision
         run: |
           ansible-playbook ./main/training/tests/provision/playbook.yml \
-            -v \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "image_name=${{ matrix.image_name }}" \
@@ -99,17 +98,16 @@ jobs:
       - name: Wait for 4 minutes
         run: sleep 240
 
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3.18
-      #   timeout-minutes: 15
-      #   with:
-      #     detached: true
-      #     limit-access-to-actor: true
-
-      - name: Run e2e tests
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3.18
+        timeout-minutes: 15
+        with:
+          detached: true
+          limit-access-to-actor: false
+      
+      - name: Run tests
         run: |
           ansible-playbook ./main/training/tests/e2e-tests/playbook.yml \
-            -vvvv \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "image_name=${{ matrix.image_name }}" \
