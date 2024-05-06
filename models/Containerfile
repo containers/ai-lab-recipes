@@ -7,7 +7,7 @@
 #	    https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
 # podman build --build-arg="MODEL_URL=https://..." -t quay.io/yourimage .
 #
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.3-15
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.4-6
 
 # Can be substituted using the --build-arg defined above
 ARG MODEL_URL=https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
