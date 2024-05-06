@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-311:1-52.1712567218
+FROM registry.access.redhat.com/ubi9/python-311:1-62.1714671026
 WORKDIR /image_understanding
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
