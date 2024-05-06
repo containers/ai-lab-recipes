@@ -7,14 +7,14 @@ on:
     paths:
       - 'convert_models/**'
       - '!convert_models/README.md'
-      - '.github/workflows/model-converter.yaml'
+      - '.github/workflows/model_converter.yaml'
   push:
     branches:
       - main
     paths:
       - 'convert_models/**'
       - '!convert_models/README.md'
-      - '.github/workflows/model-converter.yaml'
+      - '.github/workflows/model_converter.yaml'
   
   workflow_dispatch:
 
