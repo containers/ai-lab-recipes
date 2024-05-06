@@ -4,7 +4,6 @@ on:
   schedule: # schedule the job to run every day at midnight
     - cron: '0 12 * * *'
 
-  # For testing purposes, will remove
   pull_request:
     branches:
       - main
@@ -98,13 +97,20 @@ jobs:
       - name: Wait for 4 minutes
         run: sleep 240
 
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v3.18
+      #   timeout-minutes: 20
+      #   with:
+      #     detached: true
+      #     limit-access-to-actor: false
+      
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3.18
-        timeout-minutes: 20
+        timeout-minutes: 60
         with:
           detached: true
           limit-access-to-actor: false
-      
+
       - name: Run tests
         run: |
           ansible-playbook ./main/training/tests/e2e-tests/playbook.yml \
@@ -117,14 +123,14 @@ jobs:
         env:
           ANSIBLE_CONFIG: ./main/training/tests/ansible.cfg
 
-      # # This should exist in the final workflow
-      # - name: Setup tmate session
-      #   if: ${{ failure() }}
-      #   uses: mxschmitt/action-tmate@v3.18
-      #   timeout-minutes: 15
-      #   with:
-      #     detached: true
-      #     limit-access-to-actor: false
+      # This should exist in the final workflow
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3.18
+        timeout-minutes: 15
+        with:
+          detached: true
+          limit-access-to-actor: false
 
       - name: Destroy Test Environment
         id: down
@@ -135,14 +141,14 @@ jobs:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
       
-      # - name: Publish Job Results to Slack
-      #   id: slack
-      #   if: always()
-      #   uses: slackapi/slack-github-action@v1.26.0
-      #   with:
-      #     payload: |
-      #       {
-      #         "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-      #       }
-      #   env:
-      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Publish Job Results to Slack
+        id: slack
+        if: always()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
