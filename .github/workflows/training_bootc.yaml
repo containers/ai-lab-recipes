@@ -2,14 +2,14 @@ name: Training Bootc image builds
 
 on:
   schedule: # schedule the job to run at 12 AM daily
-   - cron: '0 0 * * *'
+   - cron: '0 12 * * *'
 
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/training_bootc.yaml
-      - ./training/**
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - .github/workflows/training_bootc.yaml
+  #     - ./training/**
   # push:
   #   branches:
   #     - main
@@ -149,7 +149,7 @@ jobs:
           - image_name: amd-bootc
             context: training/amd-bootc
             arch: amd64
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04-2core
     steps:
       - name: Remove unnecessary files
         run: |
