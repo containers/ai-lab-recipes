@@ -12,7 +12,6 @@ bootc: growfs
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
 		--tag "${BOOTC_IMAGE}" \
-		-v ${OUTDIR}:/run/.input:ro \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \
