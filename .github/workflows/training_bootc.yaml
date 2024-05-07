@@ -169,7 +169,7 @@ jobs:
         id: pull_image
         working-directory: ${{ matrix.context }}
         run: |
-          podman pull quay.io/ai-lab/${{matrix.image_name}}:latest
+          podman pull quay.io/ai-lab/vllm:latest
       
       - name: Build Image
         id: build_image
