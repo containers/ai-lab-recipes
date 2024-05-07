@@ -163,7 +163,7 @@ jobs:
 
       - run: |
             sudo apt-get update
-            sudo apt-get ugrade
+            sudo apt-get upgrade
             podman --version
 
       - name: Login to Container Registry
