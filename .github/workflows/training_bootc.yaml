@@ -165,11 +165,12 @@ jobs:
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: pull base image
+      - name: pull images
         id: pull_image
         working-directory: ${{ matrix.context }}
         run: |
           podman pull quay.io/ai-lab/vllm:latest
+          podman pull quay.io/ai-lab/deepspeed-trainer:latest
       
       - name: Build Image
         id: build_image
