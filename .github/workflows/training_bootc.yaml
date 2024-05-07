@@ -4,17 +4,17 @@ on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
-  #     - training/nvidia
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/training_bootc.yaml
+      - training/nvidia
   # push:
   #   branches:
   #     - main
   #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
+  #     - .github/workflows/training_bootc.yaml
   #     - training/nvidia
   
   workflow_dispatch:
@@ -52,7 +52,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
-      
+
       - name: Build Image
         id: build_image
         run: make dtk ARCH=${{ matrix.arch }}
@@ -157,10 +157,18 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - uses: actions/checkout@v4.1.4
+
+      - name: pull base image
+        id: pull_image
+        working-directory: ${{ matrix.context }}
+        run: |
+          podman pull quay.io/ai-lab/${{matrix.image_name}}:latest \
+            --retry=4 \
+            --retry-delay=15
       
       - name: Build Image
         id: build_image
-        run: make bootc ARCH=${{ matrix.arch }}
+        run: make bootc ARCH=${{ matrix.arch }} CONTAINER_TOOL_EXTRA_ARGS=--pull=never
         working-directory: ${{ matrix.context }}
 
       - name: Login to Container Registry
