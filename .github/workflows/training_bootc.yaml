@@ -9,13 +9,13 @@ on:
       - main
     paths:
       - .github/workflows/training_bootc.yaml
-      - training/nvidia
+      - ./training/**
   # push:
   #   branches:
   #     - main
   #   paths:
   #     - .github/workflows/training_bootc.yaml
-  #     - training/nvidia
+  #     - ./training/**
   
   workflow_dispatch:
 
@@ -29,7 +29,7 @@ env:
 
 jobs:
   nvidia-bootc-builder-image:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
         include:
@@ -87,7 +87,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   nvidia-bootc-image:
-    if: "success() && !contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers/ai-lab-recipes'"
+    if: "success() && !contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     needs: nvidia-bootc-builder-image
     strategy:
       matrix:
@@ -139,7 +139,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   intel-and-amd-bootc-image:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
         include:
