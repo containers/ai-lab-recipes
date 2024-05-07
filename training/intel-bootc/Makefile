@@ -6,7 +6,7 @@ default: bootc
 
 .PHONY: bootc
 bootc: growfs
-	"${CONTAINER_TOOL}" build \
+	${CONTAINER_TOOL} build \
 		$(ARCH:%=--platform linux/%) \
 		--security-opt label=disable \
 		--cap-add SYS_ADMIN \
