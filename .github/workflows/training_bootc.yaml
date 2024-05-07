@@ -165,8 +165,7 @@ jobs:
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bashrc
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-            sudo apt-get install build-essential
-            sudo brew install gcc podman
+            brew install podman
             podman --version
 
       - name: Login to Container Registry
