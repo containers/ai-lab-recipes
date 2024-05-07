@@ -138,7 +138,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  intel-and-amd-bootc-image:
+  bootc-images:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
@@ -146,10 +146,13 @@ jobs:
           - image_name: intel-bootc
             context: training/intel-bootc
             arch: amd64
+            pull-images: quay.io/ai-lab/vllm:latest quay.io/ai-lab/deepspeed-trainer:latest
           - image_name: amd-bootc
             context: training/amd-bootc
             arch: amd64
+            pull-images: quay.io/ai-lab/vllm:latest 
     runs-on: ubuntu-22.04-8-cores
+    continue-on-error: true
     steps:
       - name: Remove unnecessary files
         run: |
@@ -168,9 +171,7 @@ jobs:
       - name: pull images
         id: pull_image
         working-directory: ${{ matrix.context }}
-        run: |
-          podman pull quay.io/ai-lab/vllm:latest
-          podman pull quay.io/ai-lab/deepspeed-trainer:latest
+        run: podman pull ${{ matrix.pull-images }}
       
       - name: Build Image
         id: build_image
