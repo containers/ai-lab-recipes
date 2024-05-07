@@ -175,7 +175,7 @@ jobs:
       
       - name: Build Image
         id: build_image
-        run: make bootc ARCH=${{ matrix.arch }} CONTAINER_TOOL_EXTRA_ARGS=--pull=never
+        run: make bootc ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
 
       - name: Push image
