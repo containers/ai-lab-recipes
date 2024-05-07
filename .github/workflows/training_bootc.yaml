@@ -4,17 +4,17 @@ on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
-  #     - training/nvidia
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/training_bootc.yaml
+      - training/nvidia
   # push:
   #   branches:
   #     - main
   #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
+  #     - .github/workflows/training_bootc.yaml
   #     - training/nvidia
   
   workflow_dispatch:
@@ -29,7 +29,7 @@ env:
 
 jobs:
   nvidia-bootc-builder-image:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers/ai-lab-recipes'"
     strategy:
       matrix:
         include:
@@ -52,7 +52,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
-      
+
       - name: Build Image
         id: build_image
         run: make dtk ARCH=${{ matrix.arch }}
@@ -87,7 +87,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   nvidia-bootc-image:
-    if: "success() && !contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "success() && !contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers/ai-lab-recipes'"
     needs: nvidia-bootc-builder-image
     strategy:
       matrix:
@@ -139,7 +139,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   intel-and-amd-bootc-image:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers/ai-lab-recipes'"
     strategy:
       matrix:
         include:
@@ -157,19 +157,24 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - uses: actions/checkout@v4.1.4
-      
-      - name: Build Image
-        id: build_image
-        run: make bootc ARCH=${{ matrix.arch }}
-        working-directory: ${{ matrix.context }}
 
       - name: Login to Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: redhat-actions/podman-login@v1.7
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.REGISTRY_USER }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: pull base image
+        id: pull_image
+        working-directory: ${{ matrix.context }}
+        run: |
+          podman pull quay.io/ai-lab/${{matrix.image_name}}:latest
+      
+      - name: Build Image
+        id: build_image
+        run: make bootc ARCH=${{ matrix.arch }} CONTAINER_TOOL_EXTRA_ARGS=--pull=never
+        working-directory: ${{ matrix.context }}
 
       - name: Push image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
