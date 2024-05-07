@@ -161,13 +161,6 @@ jobs:
 
       - uses: actions/checkout@v4.1.4
 
-      - run: |
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            (echo; echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"') >> /home/runner/.bashrc
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-            brew install podman
-            podman --version
-
       - name: Login to Container Registry
         uses: redhat-actions/podman-login@v1.7
         with:
