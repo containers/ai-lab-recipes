@@ -1,11 +1,11 @@
 ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
-
-FROM ${BASEIMAGE} as builder
+FROM ${BASEIMAGE}
 
 ARG OS_VERSION_MAJOR=''
 ARG DRIVER_VERSION=1.15.1-15
 ARG TARGET_ARCH=''
 ARG KERNEL_VERSION=''
+ARG REDHAT_VERSION='el9'
 
 RUN if [ "${OS_VERSION_MAJOR}" == "" ]; then \
         . /etc/os-release \
@@ -15,68 +15,37 @@ RUN if [ "${OS_VERSION_MAJOR}" == "" ]; then \
        export TARGET_ARCH=$(arch) ;\
        fi \
     && if [ "${KERNEL_VERSION}" == "" ]; then \
-        NEWER_KERNEL_CORE=$(dnf info kernel-core | awk -F: '/^Source/{gsub(/.src.rpm/, "", $2); print $2}' | sort -n | tail -n1) \
-        && RELEASE=$(dnf info ${NEWER_KERNEL_CORE} | awk -F: '/^Release/{print $2}' | tr -d '[:blank:]') \
-        && VERSION=$(dnf info ${NEWER_KERNEL_CORE} | awk -F: '/^Version/{print $2}' | tr -d '[:blank:]') \
-       && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
+       export KERNEL_VERSION=$(dnf info kernel | awk '/Version/ {v=$3} /Release/ {r=$3} END {print v"-"r}') ;\
        fi \
-    && dnf install -y make git kernel-devel-${KERNEL_VERSION} \
-    && mkdir /tmp/habanalabs \
-    && cd /tmp/habanalabs \
-    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm \
-    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-firmware-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm \
-    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-rdma-core-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm \
-    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-thunk-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm \
-    && curl -LO https://vault.habana.ai/artifactory/rhel/${OS_VERSION_MAJOR}/9.2/habanalabs-firmware-tools-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm \
-    && rpm2cpio habanalabs-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.noarch.rpm | cpio -id \
-    && rpm2cpio habanalabs-firmware-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm | cpio -id \
-    && rpm2cpio habanalabs-firmware-tools-${DRIVER_VERSION}.el${OS_VERSION_MAJOR}.${TARGET_ARCH}.rpm | cpio -id \
-    && cd ./usr/src/habanalabs-${DRIVER_VERSION} \
-    && make -j$(nproc) KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" GIT_SHA=$(cat dkms.conf | grep "KMD_LAST_GIT_SHA=" | cut -d "=" -f 2) \
-    && make -j$(nproc) KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" GIT_SHA=$(cat dkms.conf | grep "KMD_LAST_GIT_SHA=" | cut -d "=" -f 2) -f Makefile.nic \
-    && xz drivers/accel/habanalabs/habanalabs.ko \
-    && xz drivers/net/ethernet/intel/hl_cn/habanalabs_cn.ko \
-    && xz drivers/net/ethernet/intel/hl_en/habanalabs_en.ko \
-    && cd drivers/infiniband/hw/hlib && make KVERSION="${KERNEL_VERSION}.${TARGET_ARCH}" \
-    && xz habanalabs_ib.ko \
-    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/accel/habanalabs/habanalabs.ko.xz /tmp/ \
-    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/infiniband/hw/hlib/habanalabs_ib.ko.xz /tmp/ \
-    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hl_cn/habanalabs_cn.ko.xz /tmp/ \
-    && cp /tmp/habanalabs/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hl_en/habanalabs_en.ko.xz /tmp/  \
-    && cp /tmp/habanalabs/usr/bin/hl-smi /tmp/
-
-FROM ${BASEIMAGE}
-
-ARG KERNEL_VERSION=''
-ARG EXTRA_RPM_PACKAGES=''
-
-COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi /lib/firmware/habanalabs/gaudi
-COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi2 /lib/firmware/habanalabs/gaudi2
-COPY --from=builder --chown=0:0 /tmp/habanalabs/lib/firmware/habanalabs/gaudi3 /lib/firmware/habanalabs/gaudi3
-COPY --from=builder --chown=0:0 /tmp/habanalabs*.xz /tmp/
-COPY --from=builder --chown=0:0 /tmp/hl-smi /usr/bin/
+    && if [ -f /etc/redhat-release ]; then \
+       dnf install -y https://mirror.stream.centos.org/9-stream/CRB/x86_64/os/Packages/ninja-build-1.10.2-6.el9.x86_64.rpm ;\
+       fi \
+    && dnf install -y make git kmod kernel-headers-${KERNEL_VERSION} \
+       http://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm \
+    && if [ -f /etc/centos-release ]; then \
+       dnf -y install ninja-build ;\
+       fi 
+# Create the repository configuration file
+RUN echo "[vault]" > /etc/yum.repos.d/vault.repo \
+    && echo "name=Habana Vault" >> /etc/yum.repos.d/vault.repo \
+    && echo "baseurl=https://vault.habana.ai/artifactory/rhel/9/9.2" >> /etc/yum.repos.d/vault.repo \
+    && echo "enabled=1" >> /etc/yum.repos.d/vault.repo \
+    && echo "gpgcheck=0" >> /etc/yum.repos.d/vault.repo
+# Install habanalabs modules,firmware and libraries
+RUN dnf install -y libarchive* pandoc \ 
+    habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION} \
+    habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION} \
+    habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION} \
+    habanalabs-firmware-tools-${DRIVER_VERSION}.${REDHAT_VERSION} \
+    habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION} \
+    && dnf clean all
+RUN depmod -a 
 
 # Include growfs service
 COPY build/usr /usr
 
 ARG INSTRUCTLAB_IMAGE
 ARG VLLM_IMAGE
-
-RUN if [ "${KERNEL_VERSION}" == "" ]; then \
-       NEWER_KERNEL_CORE=$(dnf info kernel-core | awk -F: '/^Source/{gsub(/.src.rpm/, "", $2); print $2}' | sort -n | tail -n1) \
-       && RELEASE=$(dnf info ${NEWER_KERNEL_CORE} | awk -F: '/^Release/{print $2}' | tr -d '[:blank:]') \
-       && VERSION=$(dnf info ${NEWER_KERNEL_CORE} | awk -F: '/^Version/{print $2}' | tr -d '[:blank:]') \
-       && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
-    fi \
-    && if [ "${TARGET_ARCH}" == "" ]; then \
-       export TARGET_ARCH=$(arch) ;\
-       fi \
-    && mkdir -p /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/ \
-    && mv /tmp/*.xz /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/ \
-    && chown root:root /lib/modules/${KERNEL_VERSION}.${TARGET_ARCH}/extra/habanalabs*.xz \
-    && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH} \
-    && xargs --no-run-if-empty dnf install -y <<< "${EXTRA_RPM_PACKAGES}" \
-    && dnf clean all
 
 # Prepull the instructlab image
 RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) && \
