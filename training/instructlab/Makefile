@@ -22,3 +22,8 @@ nvidia: instructlab
 amd: instructlab
 	rm -rf ../build/instructlab-$@
 	podman build --layers=false --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab
+
+.PHONY: intel
+intel: instructlab
+	rm -rf ../build/instructlab-$@
+	podman build --layers=false --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/hpu/Containerfile instructlab

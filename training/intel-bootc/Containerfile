@@ -81,5 +81,5 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
 # Prepull the instructlab image
 RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) && \
     podman --root /usr/lib/containers/storage image tag ${IID} ${VLLM_IMAGE}
-#RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-intel) && \
-#    podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}
+RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-intel) && \
+    podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}
