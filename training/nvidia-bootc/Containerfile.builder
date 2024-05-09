@@ -6,8 +6,9 @@ ARG ENABLE_RT=''
 USER root
 
 RUN if [ "${KERNEL_VERSION}" == "" ]; then \
-        RELEASE=$(dnf info kernel-core | grep Release | awk -F: '{print $2}' | tr -d '[:blank:]') \
-        && VERSION=$(dnf info kernel-core | grep Version | awk -F: '{print $2}' | tr -d '[:blank:]') \
+        NEWER_KERNEL_CORE=$(dnf info kernel-core | awk -F: '/^Source/{gsub(/.src.rpm/, "", $2); print $2}' | sort -n | tail -n1) \
+        && RELEASE=$(dnf info ${NEWER_KERNEL_CORE} | awk -F: '/^Release/{print $2}' | tr -d '[:blank:]') \
+        && VERSION=$(dnf info ${NEWER_KERNEL_CORE} | awk -F: '/^Version/{print $2}' | tr -d '[:blank:]') \
         && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
         fi \
     && echo "${KERNEL_VERSION}" \
