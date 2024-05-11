@@ -1,9 +1,6 @@
 import pytest_container
 from .conftest import MS
 import tenacity
-# import os
-
-# MODEL_PATH = os.getenv("MODEL_PATH", "/app/models/facebook/detr-resnet-101")
 
 CONTAINER_IMAGES = [MS]
 

@@ -11,9 +11,6 @@ include ../common/Makefile.common
 
 IMAGE_NAME ?= $(REGISTRY_ORG)/$(APP):latest
 IMAGE := $(REGISTRY)/$(IMAGE_NAME)
-# CUDA_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(APP)_cuda:latest
-# VULKAN_IMAGE := $(REGISTRY)/$(REGISTRY_ORG)/$(APP)_vulkan:latest
-
 
 # Run override required because of the multi-directory models and model_path vs models_dir
 .PHONY: run
