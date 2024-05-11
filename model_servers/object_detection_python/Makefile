@@ -28,5 +28,6 @@ download-model-facebook-detr-resnet-101:
 
 .PHONY: test
 test:
+	pip install -r ../../convert_models/requirements.txt
 	cp -r ../../models/facebook ./
 	REGISTRY=$(REGISTRY) MODEL_NAME=$(MODEL_NAME) MODELS_DIR=$(MODELS_DIR) IMAGE_NAME=$(IMAGE_NAME) PORT=$(PORT) pytest -s -vvv
