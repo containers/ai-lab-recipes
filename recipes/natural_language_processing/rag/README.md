@@ -4,7 +4,7 @@ This demo provides a simple recipe to help developers start to build out their o
 
 There are a few options today for local Model Serving, but this recipe will use [`llama-cpp-python`](https://github.com/abetlen/llama-cpp-python) and their OpenAI compatible Model Service. There is a Containerfile provided that can be used to build this Model Service within the repo, [`model_servers/llamacpp_python/base/Containerfile`](/model_servers/llamacpp_python/base/Containerfile).
 
-In order for the LLM to interact with our documents, we need them stored and available in such a manner that we can retrieve a small subset of them that are relevant to our query. To do this we employ a Vector Database alongside an embedding model. The embedding model converts our documents into numerical representations, vectors, such that similarity searches can be easily performed. The Vector Database stores these vectors for us and makes them available to the LLM. In this recipe we will use [chromaDB](https://docs.trychroma.com/) as our Vector Database.
+In order for the LLM to interact with our documents, we need them stored and available in such a manner that we can retrieve a small subset of them that are relevant to our query. To do this we employ a Vector Database alongside an embedding model. The embedding model converts our documents into numerical representations, vectors, such that similarity searches can be easily performed. The Vector Database stores these vectors for us and makes them available to the LLM. In this recipe we can use [chromaDB](https://docs.trychroma.com/) or [Milvus](https://milvus.io/) as our Vector Database.
 
 Our AI Application will connect to our Model Service via it's OpenAI compatible API. In this example we rely on [Langchain's](https://python.langchain.com/docs/get_started/introduction) python package to simplify communication with our Model Service and we use [Streamlit](https://streamlit.io/) for our UI layer. Below please see an example of the RAG application.     
 
@@ -78,16 +78,41 @@ snapshot_download(repo_id="BAAI/bge-base-en-v1.5",
 
 ### Deploy the Vector Database 
 
-To deploy the Vector Database service locally, simply use the existing ChromaDB image. 
+To deploy the Vector Database service locally, simply use the existing ChromaDB or Milvus image. The Vector Database is ephemeral and will need to be re-populated each time the container restarts. When implementing RAG in production, you will want a long running and backed up Vector Database.
 
+
+#### ChromaDB
 ```bash
 podman pull chromadb/chroma
 ```
 ```bash
 podman run --rm -it -p 8000:8000 chroma
 ```
-
-This Vector Database is ephemeral and will need to be re-populated each time the container restarts. When implementing RAG in production, you will want a long running and backed up Vector Database.
+#### Milvus
+```bash
+podman pull milvusdb/milvus:master-20240426-bed6363f
+```
+```bash
+podman run -it \
+        --name milvus-standalone \
+        --security-opt seccomp:unconfined \
+        -e ETCD_USE_EMBED=true \
+        -e ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml \
+        -e COMMON_STORAGETYPE=local \
+        -v $(pwd)/volumes/milvus:/var/lib/milvus \
+        -v $(pwd)/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml \
+        -p 19530:19530 \
+        -p 9091:9091 \
+        -p 2379:2379 \
+        --health-cmd="curl -f http://localhost:9091/healthz" \
+        --health-interval=30s \
+        --health-start-period=90s \
+        --health-timeout=20s \
+        --health-retries=3 \
+        milvusdb/milvus:master-20240426-bed6363f \
+        milvus run standalone  1> /dev/null
+```
+Note: For running the Milvus instance, make sure you have the `$(pwd)/volumes/milvus` directory and `$(pwd)/embedEtcd.yaml` file as shown in this repository. These are required by the database for its operations.
 
 
 ### Build the Model Service

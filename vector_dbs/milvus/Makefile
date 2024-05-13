@@ -19,7 +19,7 @@ build:
 
 .PHONY: run
 run:
-	podman run -d \
+	podman run -it \
 		--name milvus-standalone \
 		--security-opt seccomp:unconfined \
 		-e ETCD_USE_EMBED=true \
