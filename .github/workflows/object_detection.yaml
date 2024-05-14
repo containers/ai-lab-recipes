@@ -1,0 +1,89 @@
+name: Object Detection
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ./recipes/computer_vision/object_detection/**
+      - .github/workflows/object_detection.yaml
+  push:
+    branches:
+      - main
+    paths:
+      - ./recipes/computer_vision/object_detection/**
+      - .github/workflows/object_detection.yaml
+
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  REGISTRY_ORG: containers
+  RECIPE_NAME: object_detection
+  RECIPE_TYPE: computer_vision
+  IMAGE_NAME: object_detection_client
+
+jobs:
+  object-detection-client-build-and-push:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+    services:
+      registry:
+        image: registry:2.8.3
+        ports:
+          - 5000:5000
+    steps:
+      - uses: actions/checkout@v4.1.4
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Build Image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2.13
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ env.IMAGE_NAME }}
+          tags: latest
+          platforms: linux/amd64,linux/arm64
+          containerfiles: ./recipes/${{ env.RECIPE_TYPE }}/${{ env.RECIPE_NAME }}/app/Containerfile
+          context: recipes/${{ env.RECIPE_TYPE }}/${{ env.RECIPE_NAME }}/app
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        working-directory: ./recipes/${{ env.RECIPE_TYPE }}/${{ env.RECIPE_NAME }}
+        run: make install
+
+      - name: Download model
+        working-directory: ./models
+        run: make download-model-facebook-detr-resnet-101
+
+      - name: Run Functional Tests
+        shell: bash
+        run: make functional-tests
+        working-directory: ./recipes/${{ env.RECIPE_TYPE }}/${{ env.RECIPE_NAME }}
+
+      - name: Login to Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/podman-login@v1.7
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Image
+        id: push_image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ env.REGISTRY }}

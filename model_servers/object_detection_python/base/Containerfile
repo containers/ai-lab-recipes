@@ -1,9 +1,8 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-62.1714671026
 ARG PORT=8000
 WORKDIR /app
-COPY src/requirements.txt .
+COPY src .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir --upgrade -r requirements.txt
-COPY src/object_detection_server.py .
 EXPOSE $PORT
-ENTRYPOINT [ "uvicorn", "object_detection_server:app", "--host", "0.0.0.0" ]
+ENTRYPOINT [ "sh", "./run.sh" ]

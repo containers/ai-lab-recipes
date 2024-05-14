@@ -44,6 +44,12 @@ jobs:
             directory: whispercpp
             platforms: linux/amd64,linux/arm64
             no_gpu: 1
+          - image_name: object_detection_python
+            model: facebook-detr-resnet-101
+            flavor: base
+            directory: object_detection_python
+            platforms: linux/amd64,linux/arm64
+            no_gpu: 1
     runs-on: ubuntu-22.04
     permissions:
       contents: read
