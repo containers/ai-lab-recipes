@@ -56,7 +56,7 @@ for msg in st.session_state.messages:
 
 @st.cache_resource()
 def memory():
-    memory = ConversationBufferWindowMemory(return_messages=True,k=10)
+    memory = ConversationBufferWindowMemory(return_messages=True,k=3)
     return memory
 
 model_name = "" 
