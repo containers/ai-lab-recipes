@@ -5,16 +5,16 @@ on:
     branches:
       - main
     paths:
-      - ./recipes/common/Makefile.common
-      - ./recipes/natural_language_processing/rag/**
-      - .github/workflows/rag.yaml
+      - 'recipes/common/Makefile.common'
+      - 'recipes/natural_language_processing/rag/**'
+      - '.github/workflows/rag.yaml'
   push:
     branches:
       - main
     paths:
-      - ./recipes/common/Makefile.common
-      - ./recipes/natural_language_processing/rag/**
-      - .github/workflows/rag.yaml
+      - 'recipes/common/Makefile.common'
+      - 'recipes/natural_language_processing/rag/**'
+      - '.github/workflows/rag.yaml'
 
   workflow_dispatch:
 

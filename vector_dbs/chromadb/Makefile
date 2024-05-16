@@ -3,4 +3,4 @@ APPIMAGE ?= quay.io/ai-lab/${APP}:latest
 
 .PHONY: build
 build:
-	podman build -f chromadb/Containerfile -t ${APPIMAGE} .
+	podman build -f Containerfile -t ${APPIMAGE} .

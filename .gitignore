@@ -12,3 +12,4 @@ recipes/common/bin/*
 */.venv/
 training/cloud/examples
 training/instructlab/instructlab
+vector_dbs/milvus/volumes/milvus/*

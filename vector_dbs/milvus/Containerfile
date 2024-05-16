@@ -1,0 +1,2 @@
+FROM docker.io/milvusdb/milvus:master-20240426-bed6363f
+ADD embedEtcd.yaml /milvus/configs/embedEtcd.yaml
