@@ -50,7 +50,7 @@ podman pod list
 podman ps
 ```
 
-Once the Pod and its containers are running, the application can be accessed at `http://localhost:8501`. 
+Once the Pod and its containers are running, the application can be accessed at `http://localhost:8501`. However, if you started the app via the podman desktop UI, a random port will be assigned instead of `8501`. Please use the AI App Details `Open AI App` button to access it instead. 
 Please refer to the section below for more details about [interacting with the chatbot application](#interact-with-the-ai-application).
 
 To stop and remove the Pod, run:
