@@ -46,10 +46,18 @@ def get_models():
 with st.spinner("Checking Model Service Availability..."):
     server = checking_model_service()
 
+def enableInput():
+    st.session_state["input_disabled"] = False
+
+def disableInput():
+    st.session_state["input_disabled"] = True
+
 st.title("💬 Chatbot")  
 if "messages" not in st.session_state:
     st.session_state["messages"] = [{"role": "assistant", 
                                      "content": "How can I help you?"}]
+if "input_disabled" not in st.session_state:
+    enableInput()
 
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
@@ -86,10 +94,11 @@ chain = LLMChain(llm=llm,
                 verbose=False,
                 memory=memory())
 
-if prompt := st.chat_input():
+if prompt := st.chat_input(disabled=st.session_state["input_disabled"],on_submit=disableInput):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").markdown(prompt)
     response = chain.invoke(prompt)
     st.chat_message("assistant").markdown(response["text"])    
     st.session_state.messages.append({"role": "assistant", "content": response["text"]})
+    enableInput()
     st.rerun()
