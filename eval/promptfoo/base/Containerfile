@@ -1,0 +1,8 @@
+FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:1-47.1715773198
+WORKDIR /promptfoo
+RUN npm install promptfoo
+ENV PROMPTFOO_DISABLE_TELEMETRY=1
+RUN mkdir evals
+ENV PROMPTFOO_CONFIG_DIR=/promptfoo/evals
+COPY promptfooconfig.yaml /promptfoo
+ENTRYPOINT [ "npx", "promptfoo@latest", "view", "--yes" ]
