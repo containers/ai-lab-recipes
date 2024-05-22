@@ -21,19 +21,26 @@
       dest: /tmp/basic-workflow-tests.sh
       mode: 755
 
+  - name: Login to subman
+    ignore_errors: yes
+    community.general.redhat_subscription module:
+      auto_attach: true
+      password: "{{ subman_pass }}"
+      username: "{{ subman_user }}"
+
   # Allow for debugging with tmate
-  # - name: Wait for 15 minutes
-  #   pause:
-  #     minutes: 15
+  - name: Wait for 30 minutes
+    pause:
+      minutes: 30
 
   - name: Run tests
-    ansible.builtin.shell: /tmp/basic-workflow-tests.sh
+    ansible.builtin.shell: /tmp/basic-workflow-tests.sh -cm
     register: out
 
-  - name: Test Results - stdout
-    debug:
-      msg: "{{out.stdout_lines}}"
+  # - name: Test Results - stdout
+  #   debug:
+  #     msg: "{{out.stdout_lines}}"
 
-  - name: Test Results - stderr
-    debug:
-      msg: "{{out.stderr_lines}}"
+  # - name: Test Results - stderr
+  #   debug:
+  #     msg: "{{out.stderr_lines}}"
