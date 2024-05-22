@@ -17,7 +17,7 @@ application:
         - 8000
       image: quay.io/redhat-et/locallm-object-detection-server:latest
     - name: object-detection-client
-      contextdir: ./client
+      contextdir: ./app
       containerfile: Containerfile
       arch:
         - arm64
