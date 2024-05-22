@@ -1,4 +1,5 @@
-FROM quay.io/centos-bootc/centos-bootc:stream9
+ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
+FROM ${BASEIMAGE}
 
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
