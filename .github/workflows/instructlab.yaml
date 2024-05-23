@@ -4,18 +4,18 @@ on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
-  #     - training/nvidia
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/instructlab.yaml
+      - training/instructlab/Makefile
   # push:
   #   branches:
   #     - main
   #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
-  #     - training/nvidia
+  #     - .github/workflows/instructlab.yaml
+  #     - training/instructlab/Makefile
   
   workflow_dispatch:
 
@@ -28,13 +28,18 @@ env:
   REGISTRY_ORG: containers
 
 jobs:
-  instructlab-nvidia:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+  instructlab-image-builds:
+    # if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     strategy:
       matrix:
         include:
-          - make_target: nvidia
+          # - make_target: nvidia
+          #   containerfile_path: training/instructlab/instructlab/containers/cuda/Containerfile
           - make_target: amd
+            containerfile_path: training/instructlab/instructlab/containers/rocm/Containerfile
+          - make_target: intel
+            containerfile_path: training/instructlab/instructlab/containers/hpu/Containerfile
     runs-on: ubuntu-latest
     # runs-on: ubuntu-22.04-2core # starting with minimal option
     steps:
@@ -45,10 +50,19 @@ jobs:
 
       - uses: actions/checkout@v4.1.6
       
+      - name: Make Instructlab
+        run: make instructlab
+        working-directory: ./training/instructlab
+
       - name: Build Image
         id: build_image
-        run: make ${{ matrix.make_target}}
-        working-directory: ./training/instructlab
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/instructlab-${{ matrix.make_target }}
+          tags: latest ${{ github.sha }}
+          platforms: linux/amd64
+          containerfiles: ${{ matrix.containerfile_path }}
+          context: training/instructlab/instructlab/
 
       - name: Login to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
