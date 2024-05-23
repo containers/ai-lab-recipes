@@ -33,7 +33,7 @@ if [[ -z "${GPU_AMOUNT}" ]]; then
 	fi
 fi
 
-if [[ "$GPU_AMOUNT" -le 2 ]]; then
+if [[ "$GPU_AMOUNT" -lt 2 ]]; then
 	echo "WARNING: You need at least 2 GPUs to load full precision models"
 fi
 
