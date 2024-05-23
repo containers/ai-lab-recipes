@@ -60,7 +60,7 @@ As stated above, by default the model service will use [`facebook/detr-resnet-10
 
 ```bash
 # from path model_servers/object_detection_python from repo containers/ai-lab-recipes
-make MODEL_NAME=facebook/detr-resnet-50 MODEL_PATH=/models/facebook/detr-resnet-50 run
+make MODEL_NAME=facebook/detr-resnet-50 MODEL_PATH=/models/facebook/detr-resnet-101 run
 ```
 
 ## Build the AI Application
@@ -81,7 +81,7 @@ This could be any appropriately hosted Model Service (running locally or in the 
 The following Podman command can be used to run your AI Application:
 
 ```bash
-podman run -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8000/detection object_detection_client
+podman run -p 8501:8501 -e MODEL_ENDPOINT=http://10.88.0.1:8000 object_detection_client
 ```
 
 ### Interact with the AI Application
