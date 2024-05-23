@@ -1,9 +1,5 @@
 default: instructlab
 
-REGISTRY ?= quay.io
-REGISTRY_ORG ?= ai-lab
-IMAGE_TAG ?= latest
-
 INSTRUCTLAB_GIT_REPO ?= https://github.com/instructlab/instructlab.git
 INSTRUCTLAB_GIT_BRANCH ?= main
 
