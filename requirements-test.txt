@@ -1,7 +1,7 @@
 pip==24.0
 pytest-container==0.4.2
 pytest-selenium==4.1.0
-pytest-testinfra==10.1.0
+pytest-testinfra==10.1.1
 pytest==8.2.1
 requests==2.31.0
 selenium==4.20.0

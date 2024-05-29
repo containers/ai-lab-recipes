@@ -7,7 +7,7 @@ fastapi==0.111.0
 filelock==3.14.0
 fsspec==2024.3.1
 h11==0.14.0
-huggingface-hub==0.23.0
+huggingface-hub==0.23.2
 idna==3.7
 Jinja2==3.1.4
 MarkupSafe==2.1.5
@@ -16,8 +16,8 @@ networkx==3.3
 numpy==1.26.4
 packaging==24.0
 pillow==10.3.0
-pydantic==2.7.1
-pydantic_core==2.18.2
+pydantic==2.7.2
+pydantic_core==2.18.3
 PyYAML==6.0.1
 regex==2024.4.28
 requests==2.31.0
