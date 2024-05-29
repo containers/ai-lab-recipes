@@ -47,6 +47,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
+      - name: Set up Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.12'
+
       - name: Build Image
         id: build_image
         uses: redhat-actions/buildah-build@v2.13
@@ -56,11 +61,6 @@ jobs:
           platforms: linux/amd64, linux/arm64
           containerfiles: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app/Containerfile
           context: recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app
-
-      - name: Set up Python
-        uses: actions/setup-python@v5.1.0
-        with:
-          python-version: '3.11'
 
       - name: Install Dependencies
         working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
