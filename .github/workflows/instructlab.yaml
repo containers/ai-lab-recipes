@@ -37,9 +37,9 @@ jobs:
           # - make_target: nvidia
           #   containerfile_path: training/instructlab/instructlab/containers/cuda/Containerfile
           - make_target: amd
-            containerfile_path: training/instructlab/instructlab/containers/rocm/Containerfile
+            containerfile_path: instructlab/containers/rocm/Containerfile
           - make_target: intel
-            containerfile_path: training/instructlab/instructlab/containers/hpu/Containerfile
+            containerfile_path: instructlab/containers/hpu/Containerfile
     runs-on: ubuntu-latest
     # runs-on: ubuntu-22.04-2core # starting with minimal option
     steps:
@@ -54,15 +54,34 @@ jobs:
         run: make instructlab
         working-directory: ./training/instructlab
 
+      - name: Checkout buildah codebase
+        id: checkout-buildah
+        uses: actions/checkout@v4.1.6
+        with:
+          repository: containers/buildah
+          path: buildah
+          ref: 'main'
+
+      - name: Setup Buildah v1.36
+        working-directory: buildah
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y install bats btrfs-progs git go-md2man golang libapparmor-dev libglib2.0-dev libgpgme11-dev libseccomp-dev libselinux1-dev make skopeo
+          make runc all SECURITYTAGS="apparmor seccomp"
+          sudo make install install.runc
+
       - name: Build Image
         id: build_image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/instructlab-${{ matrix.make_target }}
-          tags: latest ${{ github.sha }}
-          platforms: linux/amd64
-          containerfiles: ${{ matrix.containerfile_path }}
-          context: training/instructlab/instructlab/
+        working-directory: ./training/instructlab
+        run: |
+          buildah --version
+          buildah bud --platform linux/amd64 \
+            -f ${{ matrix.containerfile_path }} \
+            --format docker \
+            --tls-verify=true \
+            -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/instructlab-${{ matrix.make_target}}:latest \
+            instructlab/
+        
 
       - name: Login to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
