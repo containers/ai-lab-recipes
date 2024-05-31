@@ -39,7 +39,10 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
-llm = ChatOpenAI(base_url=model_service, 
+model_name = os.getenv("MODEL_NAME", "")
+
+llm = ChatOpenAI(base_url=model_service,
+                 model=model_name,
                  api_key="EMPTY",
                  streaming=True)
 
