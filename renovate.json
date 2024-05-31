@@ -6,10 +6,10 @@
   "packageRules": [
     {
       "matchPackageNames": ["langchain"],
-      "allowedVersions": "<0.2.0"
+      "allowedVersions": "<0.2.2"
     },
     {
-      "matchPackageNames": ["langchain-openai"], 
+      "matchPackageNames": ["langchain-openai"],
       "allowedVersions": "<=0.1.7"
     }
   ]
