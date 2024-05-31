@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - arch: amd64
@@ -124,13 +125,13 @@ jobs:
           ANSIBLE_CONFIG: ./main/training/tests/ansible.cfg
 
       # This should exist in the final workflow
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3.18
-        timeout-minutes: 15
-        with:
-          detached: true
-          limit-access-to-actor: false
+      # - name: Setup tmate session
+      #   if: ${{ failure() }}
+      #   uses: mxschmitt/action-tmate@v3.18
+      #   timeout-minutes: 15
+      #   with:
+      #     detached: true
+      #     limit-access-to-actor: false
 
       - name: Destroy Test Environment
         id: down
