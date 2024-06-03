@@ -67,7 +67,7 @@ def memory():
     memory = ConversationBufferWindowMemory(return_messages=True,k=3)
     return memory
 
-model_name = "" 
+model_name = os.getenv("MODEL_NAME", "") 
 
 if server == "Ollama":
     models = get_models()
