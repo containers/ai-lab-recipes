@@ -6,19 +6,22 @@
   gather_facts: false
 
   tasks:
-  
+
   - name: Wait until the instance is ready
     ansible.builtin.wait_for_connection:
     delay: 10
     timeout: 60
-  
+
   - name: Gather facts for first time
     ansible.builtin.setup:
 
   - name: Required Packages
     ansible.builtin.package:
-      name: podman
+      name: "{{ item }}"
       state: present
+    with_items:
+    - podman
+    - python3-libdnf5
 
   - name: Models host directory
     ansible.builtin.file:
