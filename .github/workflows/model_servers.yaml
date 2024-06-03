@@ -32,12 +32,17 @@ jobs:
             directory: llamacpp_python
             platforms: linux/amd64,linux/arm64
             no_gpu: 1
-          - image_name: llamacpp_python_cuda
+          - image_name: llamacpp-python-cuda
             model: granite
             flavor: cuda
             directory: llamacpp_python
-            platforms: linux/amd64
-            cuda: 1
+            platforms: linux/amd64,linux/arm64
+          - image_name: llamacpp-python-vulkan
+            model: granite
+            flavor: vulkan
+            directory: llamacpp_python
+            platforms: linux/arm64
+            no_gpu: 1
           - image_name: whispercpp
             model: whisper-small
             flavor: base
