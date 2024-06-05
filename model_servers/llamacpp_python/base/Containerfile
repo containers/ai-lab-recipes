@@ -1,4 +1,5 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-62.1716478620
+ENV CHAT_FORMAT=llama-2
 WORKDIR /locallm
 COPY src .
 USER root
