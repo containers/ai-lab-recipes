@@ -1,4 +1,16 @@
-default: instructlab
+MAKEFLAGS += -j2
+
+help:
+	@echo "Build a instructlab container image for specified vendor "
+	@echo
+	@echo "  - make amd"
+	@echo "  - make intel"
+	@echo "  - make nvidia"
+
+default: help
+
+.PHONY: all
+all: nvidia intel amd
 
 INSTRUCTLAB_GIT_REPO ?= https://github.com/instructlab/instructlab.git
 INSTRUCTLAB_GIT_BRANCH ?= main

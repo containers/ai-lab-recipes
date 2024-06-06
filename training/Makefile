@@ -1,3 +1,8 @@
+MAKEFLAGS += -j2
+
+.PHONY: all
+all: deepspeed vllm
+
 default: help
 
 help:
