@@ -19,6 +19,7 @@ dtk:
 		$(ENABLE_RT:%=--build-arg ENABLE_RC=%) \
 		$(FROM:%=--from=%) \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--file Containerfile.builder \
 		--tag "${DRIVER_TOOLKIT_IMAGE}" \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
@@ -34,6 +35,7 @@ bootc: dtk check-sshkey prepare-files growfs
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
 		--build-arg "INSTRUCTLAB_IMAGE_ID=$(INSTRUCTLAB_IMAGE_ID)" \
 		--build-arg "SSHPUBKEY=$(SSH_PUBKEY)" \

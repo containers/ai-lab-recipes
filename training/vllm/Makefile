@@ -1,4 +1,5 @@
 CONTAINER_TOOL ?= podman
+SOURCE_DATE_EPOCH ?= $(shell git log -1 --pretty=%ct)
 
 default: image
 
@@ -8,6 +9,7 @@ image:
 	rm -rf ../build/vllm
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--file Containerfile \
 		--layers=false \
 		--squash-all \

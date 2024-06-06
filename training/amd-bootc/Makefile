@@ -1,4 +1,3 @@
-
 VENDOR ?= amd
 IMAGE_NAME ?= $(VENDOR)-bootc
 
@@ -12,6 +11,7 @@ bootc: prepare-files growfs
 		$(ARCH:%=--platform linux/%) \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--from=%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
 		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
 		--cap-add SYS_ADMIN \

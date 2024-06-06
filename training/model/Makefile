@@ -17,6 +17,7 @@ image:
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(MODEL_PATH:%=--build-arg MODEL_PATH=%) \
 		$(MODEL_REPO:%=--build-arg MODEL_REPO=%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--file Containerfile \
 		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
 		${CONTAINER_TOOL_EXTRA_ARGS} .

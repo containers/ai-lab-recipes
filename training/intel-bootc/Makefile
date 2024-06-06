@@ -12,6 +12,7 @@ bootc: growfs prepare-files
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
 		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
 		--cap-add SYS_ADMIN \
