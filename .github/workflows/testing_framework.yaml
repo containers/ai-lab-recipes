@@ -3,7 +3,7 @@ name: Testing Framework
 on:
   schedule: # schedule the job to run once a day
    - cron: '0 0 * * *'
-  
+
   workflow_dispatch:
 
   # pull_request: ## temporary for debugging development purposes
@@ -13,7 +13,7 @@ on:
 env:
   TF_VAR_aws_region: "eu-west-2"
   TF_VAR_aws_ami_owners: '["125523088429"]'
-  TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-*"]'
+  TF_VAR_aws_ami_name: '["Fedora-Cloud-Base-39*"]'
   TF_VAR_aws_volume_size: 100
   TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
   TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -34,7 +34,7 @@ jobs:
       matrix:
         include:
           - arch: amd64
-            aws_image_type: t3a.medium	
+            aws_image_type: t3a.medium
             aws_ami_architecture: x86_64
           - arch: arm64
             aws_image_type: m7g.medium
@@ -73,7 +73,7 @@ jobs:
         env:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
-      
+
       - name: Terraform Output
         id: terraform-output
         run: |
@@ -108,7 +108,7 @@ jobs:
         run: make integration-tests
         env:
           URL: ${{ steps.terraform-output.outputs.url }}
- 
+
       - name: Destroy Test Environment
         id: down
         if: always()
@@ -117,7 +117,7 @@ jobs:
         env:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
-      
+
       - name: Publish Job Results to Slack
         id: slack
         if: always()
@@ -154,7 +154,7 @@ jobs:
         env:
           SOURCE_REGISTRY: ghcr.io/containers
           TARGET_REGISTRY: quay.io/ai-lab
-      
+
       - name: Publish Job Results to Slack
         id: slack
         if: always()
