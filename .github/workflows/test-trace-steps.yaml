@@ -1,0 +1,84 @@
+# To run locally
+# act -W .github/workflows/test-trace-steps.yaml --container-architecture linux/amd64 -b ci/logs:/logs
+
+name: Test Workflow
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+
+    - name: Install Python dependencies
+      run: |
+        pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
+
+    - name: Configure OpenTelemetry Collector
+      run: |
+        echo '
+        receivers:
+          otlp:
+            protocols:
+              grpc:
+                endpoint: "0.0.0.0:4317"
+        exporters:
+          logging:
+            loglevel: debug
+        service:
+          pipelines:
+            traces:
+              receivers: [otlp]
+              exporters: [logging]
+        ' > otel-collector-config.yaml
+
+    - name: Run OpenTelemetry Collector
+      run: |
+        curl --proto '=https' --tlsv1.2 -fOL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.102.1/otelcol_0.102.1_linux_amd64.tar.gz
+        tar -xvf otelcol_0.102.1_linux_amd64.tar.gz
+        chmod +x otelcol
+        ./otelcol --config otel-collector-config.yaml &
+
+    - name: Start build trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="build"
+        export TRACE_ACTION="start"
+        python ci/trace-steps.py
+
+    - name: Build
+      run: |
+        echo "Simulating build step..."
+        sleep 2
+
+    - name: End build trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="build"
+        export TRACE_ACTION="end"
+        python ci/trace-steps.py
+
+    - name: Start test trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="test"
+        export TRACE_ACTION="start"
+        python ci/trace-steps.py
+
+    - name: Test
+      run: |
+        echo "Simulating test step..."
+        sleep 2
+
+    - name: End test trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="test"
+        export TRACE_ACTION="end"
+        python ci/trace-steps.py
