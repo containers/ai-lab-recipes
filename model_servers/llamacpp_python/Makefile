@@ -1,6 +1,6 @@
 APP := llamacpp_python
 PORT ?= 8001
-CHAT_FORMAT ?= llama-2
+CHAT_FORMAT ?=
 
 include ../common/Makefile.common
 
