@@ -38,9 +38,15 @@ jobs:
             directory: llamacpp_python
             platforms: linux/amd64,linux/arm64
             no_gpu: 0
-          - image_name: llamacpp-python-vulkan
+          - image_name: llamacpp-python-vulkan-amd
             model: granite
-            flavor: vulkan
+            flavor: vulkan/amd64
+            directory: llamacpp_python
+            platforms: linux/amd64
+            no_gpu: 0
+          - image_name: llamacpp-python-vulkan-arm
+            model: granite
+            flavor: vulkan/arm64
             directory: llamacpp_python
             platforms: linux/arm64
             no_gpu: 0
