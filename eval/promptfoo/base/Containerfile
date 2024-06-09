@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:1-47.1716472878
+FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:1-47.1717076367
 WORKDIR /promptfoo
 RUN npm install promptfoo
 ENV PROMPTFOO_DISABLE_TELEMETRY=1
