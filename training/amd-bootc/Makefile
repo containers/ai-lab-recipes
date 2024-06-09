@@ -1,4 +1,3 @@
-
 VENDOR ?= amd
 IMAGE_NAME ?= $(VENDOR)-bootc
 
@@ -10,13 +9,14 @@ default: bootc
 bootc: prepare-files growfs
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
-		--security-opt label=disable \
-		--cap-add SYS_ADMIN \
-		--file Containerfile \
-		-v ${OUTDIR}:/run/.input:ro \
-		--tag "${BOOTC_IMAGE}" \
-		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
-		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--from=%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
+		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
+		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
+		--cap-add SYS_ADMIN \
+		--file Containerfile \
+		--security-opt label=disable \
+		--tag "${BOOTC_IMAGE}" \
+		-v ${OUTDIR}:/run/.input:ro \
 		${CONTAINER_TOOL_EXTRA_ARGS} .

@@ -15,6 +15,8 @@ UMASK=$(shell umask)
 
 AUTH_JSON ?=
 
+SOURCE_DATE_EPOCH ?= $(shell git log -1 --pretty=%ct)
+
 BOOTC_IMAGE_BUILDER ?= quay.io/centos-bootc/bootc-image-builder
 IMAGE_BUILDER_CONFIG ?=
 IMAGE_BUILDER_EXTRA_ARGS ?=
@@ -88,23 +90,23 @@ growfs: check-umask
 bootc-image-builder:
 	mkdir -p build/store
 	podman run \
-	  --rm \
-	  -ti \
-	  -v $(GRAPH_ROOT):/var/lib/containers/storage \
-	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
-	  $(IMAGE_BUILDER_CONFIG:%=-v %:/config$(suffix $(IMAGE_BUILDER_CONFIG))) \
-	  --privileged \
-	  --pull newer \
-	  -v ./build:/output \
-	  -v ./build/store:/store \
-	  ${CONTAINER_TOOL_EXTRA_ARGS} \
-	  $(BOOTC_IMAGE_BUILDER) \
 	  $(ARCH:%=--target-arch %) \
+	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
+	  $(BOOTC_IMAGE_BUILDER) \
 	  $(IMAGE_BUILDER_CONFIG:%=--config /config$(suffix $(IMAGE_BUILDER_CONFIG))) \
-	  --type $(DISK_TYPE) \
+	  $(IMAGE_BUILDER_CONFIG:%=-v %:/config$(suffix $(IMAGE_BUILDER_CONFIG))) \
+	  ${CONTAINER_TOOL_EXTRA_ARGS} \
+	  ${IMAGE_BUILDER_EXTRA_ARGS} \
 	  --chown $(DISK_UID):$(DISK_GID) \
 	  --local \
-	  ${IMAGE_BUILDER_EXTRA_ARGS} \
+	  --privileged \
+	  --pull newer \
+	  --rm \
+	  --type $(DISK_TYPE) \
+	  -ti \
+	  -v $(GRAPH_ROOT):/var/lib/containers/storage \
+	  -v ./build/store:/store \
+	  -v ./build:/output \
 	  $(BOOTC_IMAGE)
 
 .PHONY: clean
