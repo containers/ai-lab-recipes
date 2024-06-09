@@ -1,3 +1,4 @@
+CONTAINER_TOOL ?= podman
 MODEL_URL ?= https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
 MODEL_NAME ?= granite-7b-lab-Q4_K_M.gguf
 
@@ -9,7 +10,7 @@ IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/$(MODEL_NAME):latest
 
 .PHONY: build
 build:
-	podman build $(MODEL_URL:%=--build-arg MODEL_URL=%) -f Containerfile -t ${IMAGE} .
+	"${CONTAINER_TOOL}"  build $(MODEL_URL:%=--build-arg MODEL_URL=%) -f Containerfile -t ${IMAGE} .
 
 .PHONY: download-model
 download-model:

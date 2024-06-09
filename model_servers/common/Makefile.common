@@ -1,3 +1,4 @@
+CONTAINER_TOOL ?= podman
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
 COMPONENT ?= model_servers

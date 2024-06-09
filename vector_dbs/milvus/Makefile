@@ -1,3 +1,4 @@
+CONTAINER_TOOL ?= podman
 REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
 COMPONENT = vector_dbs
@@ -15,7 +16,7 @@ LIB_MILVUS_DIR_MOUNTPATH := $(shell pwd)/volumes/milvus
 
 .PHONY: build
 build:
-	podman build --platform $(PLATFORM) -f Containerfile -t ${IMAGE} .
+	"${CONTAINER_TOOL}"  build --platform $(PLATFORM) -f Containerfile -t ${IMAGE} .
 
 .PHONY: run
 run:
