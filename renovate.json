@@ -14,7 +14,7 @@
     },
     {
       "matchPackageNames": ["pymilvus"],
-      "allowedVersions": "<=2.4.2"
+      "allowedVersions": "<=2.4.1"
     }
   ]
 }
