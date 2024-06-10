@@ -17,11 +17,11 @@ all: build download-model-granite run
 
 .PHONY: build-cuda
 build-cuda:
-	"${CONTAINER_TOOL}"  build --squash --layers=false -t $(CUDA_IMAGE) . -f cuda/Containerfile
+	"${CONTAINER_TOOL}"  build --squash-all -t $(CUDA_IMAGE) . -f cuda/Containerfile
 
 .PHONY: build-vulkan
 build-vulkan:
-	"${CONTAINER_TOOL}"  build --squash --layers=false -t $(VULKAN_IMAGE) . -f vulkan/Containerfile
+	"${CONTAINER_TOOL}"  build --squash-all -t $(VULKAN_IMAGE) . -f vulkan/Containerfile
 
 .PHONY: download-model-granite # default model
 download-model-granite:
