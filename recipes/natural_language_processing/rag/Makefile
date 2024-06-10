@@ -16,7 +16,7 @@ run:
 # rag requires custom bootc because it uses an extra build-arg for CHROMADB_IMAGE (other apps use ../../common/Makefile.common target)
 .PHONY: bootc
 bootc: quadlet
-	podman build \
+	"${CONTAINER_TOOL}"  build \
 	  $(ARCH:%=--arch %) \
 	  $(FROM:%=--from %) \
 	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \

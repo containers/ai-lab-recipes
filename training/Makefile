@@ -94,7 +94,7 @@ cloud: cloud-amd cloud-intel cloud
 
 #
 # We often see users running out of space. These commands are useful for freeing wasted space.
-# Note becarful to not run this target if a podman build is in progress.
+# Note be careful to not run this target if a podman build is in progress.
 #
 .PHONY: prune
 prune:
