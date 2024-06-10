@@ -14,6 +14,7 @@ DISK_UID ?= $(shell id -u)
 DISK_GID ?= $(shell id -g)
 FROM ?=
 ARCH ?=
+BUILD_ARG_FILE ?=
 CONTAINERFILE ?= Containerfile
 GRAPH_ROOT=$(shell podman info --format '{{ .Store.GraphRoot }}')
 UMASK=$(shell umask)
@@ -76,12 +77,16 @@ install::
 
 .PHONY: build
 build:
-	podman build --squash-all $(ARCH:%=--platform linux/%) $(FROM:%=--from %) -t ${APP_IMAGE} app/
+	podman build --squash-all \
+	       $(ARCH:%=--platform linux/%) \
+	       $(BUILD_ARG_FILE:%=--build-arg-file=%) \
+	       $(FROM:%=--from %) -t ${APP_IMAGE} app/
 
 .PHONY: bootc
 bootc: quadlet growfs
 	podman build \
 	  $(ARCH:%=--arch %) \
+	  $(BUILD_ARG_FILE:%=--build-arg-file=%) \
 	  $(FROM:%=--from %) \
 	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  --security-opt label=disable \

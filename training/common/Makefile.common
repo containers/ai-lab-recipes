@@ -18,6 +18,7 @@ AUTH_JSON ?=
 SOURCE_DATE_EPOCH ?= $(shell git log -1 --pretty=%ct)
 
 BOOTC_IMAGE_BUILDER ?= quay.io/centos-bootc/bootc-image-builder
+BUILD_ARG_FILE ?=
 IMAGE_BUILDER_CONFIG ?=
 IMAGE_BUILDER_EXTRA_ARGS ?=
 DISK_TYPE ?= qcow2

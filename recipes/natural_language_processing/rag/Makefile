@@ -18,6 +18,7 @@ run:
 bootc: quadlet
 	"${CONTAINER_TOOL}"  build \
 	  $(ARCH:%=--arch %) \
+	  $(BUILD_ARG_FILE:%=--build-arg-file=%) \
 	  $(FROM:%=--from %) \
 	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  --security-opt label=disable \

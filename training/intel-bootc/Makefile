@@ -8,6 +8,7 @@ default: bootc
 bootc: growfs prepare-files
 	${CONTAINER_TOOL} build \
 		$(ARCH:%=--platform linux/%) \
+		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \

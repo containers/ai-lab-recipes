@@ -9,6 +9,7 @@ default: bootc
 bootc: prepare-files growfs
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
+		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--from=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
