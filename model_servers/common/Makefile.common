@@ -12,7 +12,7 @@ endif
 
 .PHONY: build
 build:
-	podman build --squash-all $(CHAT_FORMAT:%=--build-arg CHAT_FORMAT=%) --build-arg PORT=$(PORT) -t $(IMAGE) . -f base/Containerfile
+	podman build --squash-all --build-arg PORT=$(PORT) -t $(IMAGE) . -f base/Containerfile
 
 .PHONY: install
 install:
