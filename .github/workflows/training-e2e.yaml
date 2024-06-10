@@ -97,20 +97,13 @@ jobs:
 
       - name: Wait for 4 minutes
         run: sleep 240
-
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v3.18
-      #   timeout-minutes: 20
-      #   with:
-      #     detached: true
-      #     limit-access-to-actor: false
       
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3.18
         timeout-minutes: 60
         with:
-          detached: true
-          limit-access-to-actor: false
+          detached: false
+          limit-access-to-actor: true
 
       - name: Run tests
         run: |
