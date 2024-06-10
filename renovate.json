@@ -11,6 +11,10 @@
     {
       "matchPackageNames": ["langchain-openai"],
       "allowedVersions": "<=0.1.7"
+    },
+    {
+      "matchPackageNames": ["pymilvus"],
+      "allowedVersions": "<=2.4.2"
     }
   ]
 }
