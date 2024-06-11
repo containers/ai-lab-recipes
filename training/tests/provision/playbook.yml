@@ -62,7 +62,7 @@
     ansible.builtin.shell: |
       podman build . \
         -f /tmp/Containerfile \
-        -t quay.io/ai-lab/derived_image:latest \
+        -t quay.io/ai-lab/derived_image:testing \
         --build-arg "sshpubkey={{ ssh_public_key }}" \
         --authfile=/etc/containers/auth.json \
         --pull=never > /tmp/build.log 2>&1
@@ -91,7 +91,7 @@
         --rm \
         --security-opt label=type:unconfined_t \
         -v /:/target \
-        -v /var/lib/containers:/var/lib/containers quay.io/ai-lab/derived_image:latest \
+        -v /var/lib/containers:/var/lib/containers quay.io/ai-lab/derived_image:testing \
         bootc install to-existing-root --karg=console=ttyS0,115200n8 --karg=systemd.journald.forward_to_console=1
 
         # --retry=5 \
@@ -114,4 +114,3 @@
   - name: Reboot
     ansible.builtin.reboot:
       reboot_timeout: 300
-      reboot_msg: "Reboot initiated by Ansible"
