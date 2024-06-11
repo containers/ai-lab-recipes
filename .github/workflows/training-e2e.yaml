@@ -115,7 +115,7 @@ jobs:
 
       - name: Run tests
         run: |
-          ansible-playbook ./main/training/tests/e2e-tests/playbook.yml \
+          ansible-playbook ./main/training/tests/e2e-tests/playbook.yml -vvv \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "HF_TOKEN=${{ secrets.HF_TOKEN }}" \
