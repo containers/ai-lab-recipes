@@ -10,7 +10,7 @@ on:
     paths:
       - .github/workflows/training-e2e.yaml
       - ./training/**
-  
+
   workflow_dispatch:
 
 env:
@@ -20,6 +20,7 @@ env:
   TF_VAR_aws_volume_size: 500
   TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
   TF_VAR_aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  HF_TOKEN: ${{ secrets.HF_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}
@@ -69,7 +70,7 @@ jobs:
         env:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
-      
+
       - name: Terraform Output
         id: terraform-output
         run: |
@@ -104,7 +105,7 @@ jobs:
       #   with:
       #     detached: true
       #     limit-access-to-actor: false
-      
+
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3.18
         timeout-minutes: 60
@@ -117,6 +118,7 @@ jobs:
           ansible-playbook ./main/training/tests/e2e-tests/playbook.yml \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
+            --extra-vars "HF_TOKEN=${{ secrets.HF_TOKEN }}" \
             --extra-vars "image_name=${{ matrix.image_name }}" \
             --extra-vars "ssh_public_key='${{ steps.terraform-output.outputs.ssh_public_key }}'" \
             --extra-vars "registry_user=${{ secrets.REGISTRY_USER }}" \
@@ -141,7 +143,7 @@ jobs:
         env:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
-      
+
       - name: Publish Job Results to Slack
         id: slack
         if: always()
