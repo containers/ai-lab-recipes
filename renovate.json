@@ -6,11 +6,15 @@
   "packageRules": [
     {
       "matchPackageNames": ["langchain"],
-      "allowedVersions": "<0.2.2"
+      "allowedVersions": "<0.2.3"
     },
     {
       "matchPackageNames": ["langchain-openai"],
       "allowedVersions": "<=0.1.7"
+    },
+    {
+      "matchPackageNames": ["langchain-community"],
+      "allowedVersions": "<=0.2.4"
     },
     {
       "matchPackageNames": ["pymilvus"],
