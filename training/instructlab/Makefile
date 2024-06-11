@@ -26,14 +26,14 @@ instructlab:
 .PHONY: nvidia
 nvidia: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}"  build --layers=false --squash -t oci:../build/instructlab-$@ instructlab/containers/cuda
+	"${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ instructlab/containers/cuda
 
 .PHONY: amd
 amd: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}"  build --layers=false --squash -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab
+	"${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab
 
 .PHONY: intel
 intel: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}"  build --layers=false --squash -t oci:../build/instructlab-$@ -f instructlab/containers/hpu/Containerfile instructlab
+	"${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/hpu/Containerfile instructlab

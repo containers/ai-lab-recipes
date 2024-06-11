@@ -11,7 +11,6 @@ image:
 		$(ARCH:%=--platform linux/%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--file Containerfile \
-		--layers=false \
-		--squash \
+		--squash-all \
 		--tag oci:../build/vllm \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
