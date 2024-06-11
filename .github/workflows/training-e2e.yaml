@@ -96,9 +96,6 @@ jobs:
         env:
           ANSIBLE_CONFIG: ./main/training/tests/ansible.cfg
 
-      - name: Wait for 4 minutes
-        run: sleep 240
-
       # - name: Setup tmate session
       #   uses: mxschmitt/action-tmate@v3.18
       #   timeout-minutes: 20
