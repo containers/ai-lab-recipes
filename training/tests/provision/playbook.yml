@@ -111,6 +111,6 @@
       state: absent
     delegate_to: localhost
 
-  - name: Reboot
-    ansible.builtin.reboot:
-      reboot_timeout: 300
+  - ansible.builtin.shell: systemctl reboot
+    ignore_errors: true
+    ignore_unreachable: true
