@@ -11,9 +11,10 @@ bootc: prepare-files growfs
 		$(ARCH:%=--platform linux/%) \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--from=%) \
+		$(INSTRUCTLAB_IMAGE:%=--build-arg INSTRUCTLAB_IMAGE=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
-		--build-arg "INSTRUCTLAB_IMAGE=$(INSTRUCTLAB_IMAGE)" \
-		--build-arg "VLLM_IMAGE=$(VLLM_IMAGE)" \
+		$(VLLM_IMAGE:%=--build-arg VLLM_IMAGE=%) \
+		$(SSH_PUBKEY:%=--build-arg SSHPUBKEY=%) \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
 		--security-opt label=disable \

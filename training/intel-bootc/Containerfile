@@ -39,8 +39,19 @@ RUN depmod -a ${KERNEL_VERSION}
 # Include growfs service
 COPY build/usr /usr
 
-ARG INSTRUCTLAB_IMAGE
-ARG VLLM_IMAGE
+ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-intel:latest"
+ARG VLLM_IMAGE="quay.io/ai-lab/vllm:latest"
+
+
+ARG SSHPUBKEY
+
+# The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
+# public key into the image, allowing root access via ssh.
+RUN if [ -n "${SSHPUBKEY}" ]; then \
+    set -eu; mkdir -p /usr/ssh && \
+        echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+	    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys; \
+fi
 
 # Prepull the instructlab image
 RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) && \
