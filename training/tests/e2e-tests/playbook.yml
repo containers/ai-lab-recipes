@@ -15,6 +15,11 @@
   - name: Gather facts for first time
     ansible.builtin.setup:
 
+  - name: ilab init
+    shell: ilab init
+    environment:
+      HF_TOKEN: "{{ HF_TOKEN }}"
+
   - name: ilab pull the models for debug currently
     shell: ilab download --repository mistralai/Mixtral-8x7B-Instruct-v0.1
     environment:
