@@ -117,6 +117,7 @@ RUN if [ "${TARGET_ARCH}" == "" ]; then \
     && dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel${OS_VERSION_MAJOR}/${CUDA_REPO_ARCH}/cuda-rhel${OS_VERSION_MAJOR}.repo \
     && dnf -y module enable nvidia-driver:${DRIVER_STREAM}/default \
     && dnf install -y \
+        pciutils \
         nvidia-driver-cuda-${DRIVER_VERSION} \
         nvidia-driver-libs-${DRIVER_VERSION} \
         nvidia-driver-NVML-${DRIVER_VERSION} \
