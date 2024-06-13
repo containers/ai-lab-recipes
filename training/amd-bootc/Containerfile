@@ -8,7 +8,7 @@ COPY build/usr /usr
 
 ARG EXTRA_RPM_PACKAGES=''
 RUN dnf install -y \
-  pciuils \
+  pciutils \
   rocm-smi \
   ${EXTRA_RPM_PACKAGES} \
   && dnf clean all
