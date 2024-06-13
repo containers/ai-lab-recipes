@@ -12,7 +12,7 @@ RUN . /etc/os-release \
     && export TARGET_ARCH="${TARGET_ARCH:-$(arch)}" \
     && export KERNEL_VERSION="${KERNEL_VERSION:-$(dnf info kernel | awk '/Version/ {v=$3} /Release/ {r=$3} END {print v"-"r}')}" \
     && dnf -y install kernel-headers-${KERNEL_VERSION} make git kmod
- 
+
 # Create the repository configuration file
 RUN echo "[vault]" > /etc/yum.repos.d/vault.repo \
     && echo "name=Habana Vault" >> /etc/yum.repos.d/vault.repo \
@@ -25,16 +25,17 @@ RUN if [ -f /etc/centos-release ]; then \
        && dnf -y install epel-release \
        && crb enable \
        && dnf -y install ninja-build pandoc pciutils tmux;\
+    else \
+        dnf -y update \
+        && dnf install -y dkms ninja-build pandoc pciutils tmux;\
     fi \
-    && dnf -y update \
-    && dnf install -y dkms ninja-build pandoc pciutils tmux \
     && dnf install -y habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION} \
     habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION} \
     habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION} \
     habanalabs-firmware-tools-${DRIVER_VERSION}.${REDHAT_VERSION} \
     habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION} \
     && dnf clean all
-RUN depmod -a ${KERNEL_VERSION} 
+RUN depmod -a ${KERNEL_VERSION}
 
 # Include growfs service
 COPY build/usr /usr
