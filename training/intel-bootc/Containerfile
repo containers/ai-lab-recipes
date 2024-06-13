@@ -24,10 +24,10 @@ RUN if [ -f /etc/centos-release ]; then \
        dnf -y update \
        && dnf -y install epel-release \
        && crb enable \
-       && dnf -y install ninja-build pandoc pciutils;\
+       && dnf -y install ninja-build pandoc pciutils tmux;\
     fi \
     && dnf -y update \
-    && dnf install -y dkms ninja-build pandoc pciutils \
+    && dnf install -y dkms ninja-build pandoc pciutils tmux \
     && dnf install -y habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION} \
     habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION} \
     habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION} \
