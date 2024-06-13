@@ -119,6 +119,7 @@ RUN if [ "${TARGET_ARCH}" == "" ]; then \
     && dnf -y module enable nvidia-driver:${DRIVER_STREAM}/default \
     && dnf install -y \
         pciutils \
+        tmux \
         nvidia-driver-cuda-${DRIVER_VERSION} \
         nvidia-driver-libs-${DRIVER_VERSION} \
         nvidia-driver-NVML-${DRIVER_VERSION} \

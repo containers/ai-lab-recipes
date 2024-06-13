@@ -10,6 +10,7 @@ ARG EXTRA_RPM_PACKAGES=''
 RUN dnf install -y \
   pciutils \
   rocm-smi \
+  tmux \
   ${EXTRA_RPM_PACKAGES} \
   && dnf clean all
 
