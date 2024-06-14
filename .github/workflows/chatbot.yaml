@@ -8,6 +8,8 @@ on:
       - ./recipes/common/Makefile.common
       - ./recipes/natural_language_processing/chatbot/**
       - .github/workflows/chatbot.yaml
+      - ./recipes/natural_language_processing/chatbot/app/**
+      - ./renovate.json
   push:
     branches:
       - main
