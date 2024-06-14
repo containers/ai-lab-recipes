@@ -11,7 +11,7 @@ if [ ${MODEL_PATH} ]; then
         --port ${PORT:=8001} \
         --n_gpu_layers ${GPU_LAYERS:=0} \
         --clip_model_path ${CLIP_MODEL_PATH:=None} \
-        --chat_format ${CHAT_FORMAT:=None} \
+        --chat_format ${CHAT_FORMAT:=llama-2} \
         --interrupt_requests ${INTERRUPT_REQUESTS:=False}
     exit 0
 fi
