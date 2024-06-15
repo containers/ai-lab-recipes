@@ -6,35 +6,54 @@ ARG DRIVER_VERSION=1.15.1-15
 ARG TARGET_ARCH=''
 ARG KERNEL_VERSION=''
 ARG REDHAT_VERSION='el9'
+ARG HABANA_REPO="https://vault.habana.ai/artifactory/rhel/9/9.2"
+ARG KERNEL_DIR="/usr/lib/modules/${KERNEL_VERSION}.el9_4.x86_64/build"
+ARG KERNEL_FULL_VER="${KERNEL_VERSION}.el9_4.x86"
+
 
 RUN . /etc/os-release \
     && export OS_VERSION_MAJOR="${OS_VERSION_MAJOR:-$(echo ${VERSION} | cut -d'.' -f 1)}" \
     && export TARGET_ARCH="${TARGET_ARCH:-$(arch)}" \
-    && export KERNEL_VERSION="${KERNEL_VERSION:-$(dnf info kernel | awk '/Version/ {v=$3} /Release/ {r=$3} END {print v"-"r}')}" \
-    && dnf -y install kernel-headers-${KERNEL_VERSION} make git kmod
- 
-# Create the repository configuration file
-RUN echo "[vault]" > /etc/yum.repos.d/vault.repo \
-    && echo "name=Habana Vault" >> /etc/yum.repos.d/vault.repo \
-    && echo "baseurl=https://vault.habana.ai/artifactory/rhel/9/9.2" >> /etc/yum.repos.d/vault.repo \
-    && echo "enabled=1" >> /etc/yum.repos.d/vault.repo \
-    && echo "gpgcheck=0" >> /etc/yum.repos.d/vault.repo
-# Install habanalabs modules,firmware and libraries
-RUN if [ -f /etc/centos-release ]; then \
-       dnf -y update \
-       && dnf -y install epel-release \
-       && crb enable \
-       && dnf -y install ninja-build pandoc pciutils tmux;\
-    fi \
-    && dnf -y update \
-    && dnf install -y dkms ninja-build pandoc pciutils tmux \
-    && dnf install -y habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION} \
-    habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION} \
-    habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION} \
-    habanalabs-firmware-tools-${DRIVER_VERSION}.${REDHAT_VERSION} \
-    habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION} \
-    && dnf clean all
-RUN depmod -a ${KERNEL_VERSION} 
+    && dnf -y update && dnf -y install kernel-headers${KERNEL_VERSION:+-}${KERNEL_VERSION}.el9_4 \
+       kernel-devel${KERNEL_VERSION:+-}${KERNEL_VERSION}.el9_4 \
+       kernel-devel-matched${KERNEL_VERSION:+-}${KERNEL_VERSION}.el9_4 \
+       kernel-modules${KERNEL_VERSION:+-}${KERNEL_VERSION}.el9_4 \
+       elfutils-libelf-devel gcc make git kmod \
+       vim-filesystem rpm-build wget ninja-build pciutils tmux \
+    && rpm -ivh https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/p/pandoc-common-2.14.0.3-17.el9.noarch.rpm \
+    && rpm -ivh https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/p/pandoc-2.14.0.3-17.el9.x86_64.rpm
+
+# Download all Habanalabs rpms
+WORKDIR sources
+RUN wget ${HABANA_REPO}/habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm \
+    ${HABANA_REPO}/habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm \
+    ${HABANA_REPO}/habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm \
+    ${HABANA_REPO}/habanalabs-firmware-tools-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm \
+    ${HABANA_REPO}/habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm
+
+# Extract all files
+RUN rpm2cpio habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv \
+    && rpm2cpio habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm | cpio -idmv \
+    && rpm2cpio habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm | cpio -idmv \
+    && rpm2cpio habanalabs-firmware-tools-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv \
+    && rpm2cpio habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv 
+
+# Copy sources and files to root level
+RUN rm *.rpm \
+    && cp -r /sources/etc/* /etc/ \
+    && cp -r /sources/lib/* /lib/ \
+    && cp -r /sources/usr/* /usr/ \
+    && cp -r /sources/opt/* /opt/
+
+WORKDIR /usr/src/habanalabs-${DRIVER_VERSION}
+RUN make -f Makefile.nic && make -f Makefile && cd drivers/infiniband/hw/hlib && make
+RUN mkdir /lib/modules/${KERNEL_VERSION}.el9_4.x86_64/extra
+RUN cp drivers/accel/habanalabs/habanalabs.ko /lib/modules/${KERNEL_VERSION}.el9_4.x86_64/extra/ \
+    && cp drivers/infiniband/hw/hlib/habanalabs_ib.ko /lib/modules/${KERNEL_VERSION}.el9_4.x86_64/extra/ \
+    && cp drivers/net/ethernet/intel/hl_cn/habanalabs_cn.ko /lib/modules/${KERNEL_VERSION}.el9_4.x86_64/extra/ \
+    && cp drivers/net/ethernet/intel/hl_en/habanalabs_en.ko /lib/modules/${KERNEL_VERSION}.el9_4.x86_64/extra/
+
+RUN depmod -a ${KERNEL_VERSION}
 
 # Include growfs service
 COPY build/usr /usr
