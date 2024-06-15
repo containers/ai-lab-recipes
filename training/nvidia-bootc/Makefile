@@ -16,6 +16,7 @@ default: bootc
 dtk:
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
+		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
 		$(ENABLE_RT:%=--build-arg ENABLE_RC=%) \
 		$(FROM:%=--from=%) \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
@@ -28,6 +29,7 @@ dtk:
 bootc: dtk check-sshkey prepare-files growfs
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
+		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
 		$(CUDA_VERSION:%=--build-arg CUDA_VERSION=%) \
 		$(DRIVER_TOOLKIT_IMAGE:%=--build-arg DRIVER_TOOLKIT_IMAGE=%) \
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \
