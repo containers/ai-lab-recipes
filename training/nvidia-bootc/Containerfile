@@ -18,8 +18,8 @@ USER builder
 WORKDIR /home/builder
 COPY --chown=1001:0 x509-configuration.ini x509-configuration.ini
 
-# Include growfs service
-COPY build/usr /usr
+# Include growfs service if needed
+RUN if [ -d "build/usr" ]; then cp -r build/usr /usr; fi
 
 RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         NEWER_KERNEL_CORE=$(dnf info kernel-core | awk -F: '/^Source/{gsub(/.src.rpm/, "", $2); print $2}' | sort -n | tail -n1) \
