@@ -4,18 +4,18 @@ on:
   schedule: # schedule the job to run at 12 AM daily
    - cron: '0 0 * * *'
 
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
-  #     - training/nvidia
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/instructlab.yaml
+      - training/instructlab/Makefile
   # push:
   #   branches:
   #     - main
   #   paths:
-  #     - .github/workflows/instructlab_baseimages_build_push.yaml
-  #     - training/nvidia
+  #     - .github/workflows/instructlab.yaml
+  #     - training/instructlab/Makefile
   
   workflow_dispatch:
 
@@ -28,13 +28,18 @@ env:
   REGISTRY_ORG: containers
 
 jobs:
-  instructlab-nvidia:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+  instructlab-image-builds:
+    # if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     strategy:
       matrix:
         include:
-          - make_target: nvidia
+          # - make_target: nvidia
+          #   containerfile_path: training/instructlab/instructlab/containers/cuda/Containerfile
           - make_target: amd
+            containerfile_path: instructlab/containers/rocm/Containerfile
+          - make_target: intel
+            containerfile_path: instructlab/containers/hpu/Containerfile
     runs-on: ubuntu-latest
     # runs-on: ubuntu-22.04-2core # starting with minimal option
     steps:
@@ -44,27 +49,50 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - uses: actions/checkout@v4.1.6
-      
-      - name: Build Image
-        id: build_image
-        run: make ${{ matrix.make_target}}
-        working-directory: ./training/instructlab
+
+      - uses: docker/setup-buildx-action@v3
 
       - name: Login to Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: redhat-actions/podman-login@v1.7
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker login ${{ env.REGISTRY }} -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Push image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: redhat-actions/push-to-registry@v2.8
+      - name: Extract metadata (tags, labels) for ilab image
+        id: ilab_meta
+        uses: docker/metadata-action@v5
         with:
-          image: ${{ steps.build_image.outputs.image }}
-          tags: ${{ steps.build_image.outputs.tags }}
-          registry: ${{ env.REGISTRY }}
+          images: |
+            ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/instructlab-${{ matrix.make_target }}
+      
+      - name: Make Instructlab
+        run: make instructlab
+        working-directory: ./training/instructlab
+
+      - name: Build and push ilab images
+        uses: docker/build-push-action@v5
+        with:
+          context: ./training/instructlab/instructlab
+          platforms: linux/amd64
+          build-args: |
+            GIT_TAG=stable
+          push: false
+          tags: ${{ steps.ilab_meta.outputs.tags }}
+          labels: ${{ steps.ilab_meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          file: ./training/instructlab/${{ matrix.containerfile_path }}
+
+      # - name: Build Image
+      #   id: build_image
+      #   working-directory: ./training/instructlab
+      #   run: |
+      #     buildah --version
+      #     buildah bud --platform linux/amd64 \
+      #       -f ${{ matrix.containerfile_path }} \
+      #       --format docker \
+      #       --tls-verify=true \
+      #       -t ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/instructlab-${{ matrix.make_target}}:latest \
+      #       instructlab/
 
       - name: Publish Job Results to Slack
         id: slack
