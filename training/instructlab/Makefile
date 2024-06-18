@@ -31,7 +31,8 @@ nvidia: instructlab
 .PHONY: amd
 amd: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab
+	"${CONTAINER_TOOL}"  build --squash-all -f instructlab/containers/rocm/Containerfile instructlab
+	# "${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab
 
 .PHONY: intel
 intel: instructlab
