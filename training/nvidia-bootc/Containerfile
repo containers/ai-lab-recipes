@@ -1,5 +1,9 @@
 ARG DRIVER_TOOLKIT_IMAGE="quay.io/ai-lab/nvidia-builder:latest"
 ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
+ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
+
+# Start with the instructlab image
+FROM ${INSTRUCTLAB_IMAGE} AS ilab
 
 FROM ${DRIVER_TOOLKIT_IMAGE} as builder
 
@@ -97,7 +101,7 @@ USER root
 COPY --from=builder /home/builder/yum-packaging-precompiled-kmod/RPMS/*/*.rpm /rpms/
 COPY --from=builder --chmod=444 /home/builder/yum-packaging-precompiled-kmod/tmp/firmware/*.bin /lib/firmware/nvidia/${DRIVER_VERSION}/
 # Temporary workaround until the permanent fix for libdnf is merged
-RUN mv /etc/selinux /etc/selinux.tmp											   
+RUN mv /etc/selinux /etc/selinux.tmp
 RUN dnf install -y /rpms/kmod-nvidia-*.rpm
 
 COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-firstboot.service
@@ -150,14 +154,15 @@ RUN if [ -n "${SSHPUBKEY}" ]; then \
 	    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys; \
 fi
 
+# Copy files from the first stage
+COPY --from=ilab /opt/app-root/bin/ilab /usr/local/bin/ilab
+
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
 # Also make sure not to duplicate if a base image already has it specified.
 RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
     sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
-        /etc/containers/storage.conf && \
-	cp /run/.input/ilab* /usr/local/bin/
-
+        /etc/containers/storage.conf
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
 ARG VLLM_IMAGE="quay.io/ai-lab/vllm:latest"
@@ -183,5 +188,5 @@ RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) &
 RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
     podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}
 RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/deepspeed-trainer) && \
-    podman --root /usr/lib/containers/storage image tag ${IID} ${TRAIN_IMAGE}	
+    podman --root /usr/lib/containers/storage image tag ${IID} ${TRAIN_IMAGE}
 RUN podman system reset --force 2>/dev/null

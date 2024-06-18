@@ -8,6 +8,9 @@ help:
 	@echo "  - make amd"
 	@echo "  - make intel"
 	@echo "  - make nvidia"
+	@echo "  - make nvidia-quay"
+	@echo "  - make amd-quay"
+	@echo "  - make intel-quay"
 
 default: help
 
@@ -26,14 +29,32 @@ instructlab:
 .PHONY: nvidia
 nvidia: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ instructlab/containers/cuda
+	"${CONTAINER_TOOL}" build --squash-all -t oci:../build/instructlab-$@ instructlab/containers/cuda
 
 .PHONY: amd
 amd: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab
+	"${CONTAINER_TOOL}" build --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/rocm/Containerfile instructlab
 
 .PHONY: intel
 intel: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}"  build --squash-all -t oci:../build/instructlab-$@ -f instructlab/containers/hpu/Containerfile instructlab
+	"${CONTAINER_TOOL}" build --squash-all -t oci:../build/instructlab-$@  -f instructlab/containers/hpu/Containerfile instructlab
+
+.PHONY: nvidia-quay
+nvidia: instructlab
+	rm -rf ../build/instructlab-$@
+	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-nvidia:latest instructlab/containers/cuda
+	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-nvidia:latest
+
+.PHONY: amd-quay
+amd: instructlab
+	rm -rf ../build/instructlab-$@
+	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-amd:latest -f instructlab/containers/rocm/Containerfile instructlab
+	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-amd:latest
+
+.PHONY: intel-quay
+intel: instructlab
+	rm -rf ../build/instructlab-$@
+	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-intel:latest -f instructlab/containers/hpu/Containerfile instructlab
+	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-intel:latest

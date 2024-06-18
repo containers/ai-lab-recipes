@@ -55,6 +55,10 @@ instruct-nvidia:
 .PHONY:
 instruct: instruct-amd instruct-nvidia
 
+.PHONY:
+instuct-intel:
+	make -C instructlab intel
+
 .PHONY: deepspeed
 deepspeed:
 	make -C deepspeed/ image
