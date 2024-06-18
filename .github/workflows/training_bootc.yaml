@@ -36,7 +36,7 @@ jobs:
           - image_name: nvidia-builder
             context: training/nvidia-bootc
             arch: amd64
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
@@ -96,7 +96,7 @@ jobs:
             driver_version: "550.54.15"
             context: training/nvidia-bootc
             arch: amd64
-    runs-on: ubuntu-22.04-8-cores
+    runs-on: ubuntu-24.04-8-cores
     steps:
       - name: Remove unnecessary files
         run: |
@@ -151,7 +151,7 @@ jobs:
             context: training/amd-bootc
             arch: amd64
             pull-images: quay.io/ai-lab/vllm:latest
-    runs-on: ubuntu-22.04-8-cores
+    runs-on: ubuntu-24.04-8-cores
     continue-on-error: true
     steps:
       - name: Remove unnecessary files
