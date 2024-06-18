@@ -16,7 +16,7 @@ on:
   #   paths:
   #     - .github/workflows/training_bootc.yaml
   #     - ./training/**
-  
+
   workflow_dispatch:
 
 concurrency:
@@ -104,12 +104,12 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - uses: actions/checkout@v4.1.7
-      
+
       - name: Build Image
         id: build_image
         run: make bootc DRIVER_VERSION=${{ matrix.driver_version }} ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
-        
+
       - name: Login to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: redhat-actions/podman-login@v1.7
@@ -150,7 +150,7 @@ jobs:
           - image_name: amd-bootc
             context: training/amd-bootc
             arch: amd64
-            pull-images: quay.io/ai-lab/vllm:latest 
+            pull-images: quay.io/ai-lab/vllm:latest
     runs-on: ubuntu-22.04-8-cores
     continue-on-error: true
     steps:
@@ -172,7 +172,14 @@ jobs:
         id: pull_image
         working-directory: ${{ matrix.context }}
         run: podman pull ${{ matrix.pull-images }}
-      
+
+      - name: generate the local OCI assets
+        run: |
+          cd training
+          make -j vllm
+          make -j deepspeed
+          make -j instruct-${{ matrix.arch}}
+
       - name: Build Image
         id: build_image
         run: make bootc ARCH=${{ matrix.arch }}
