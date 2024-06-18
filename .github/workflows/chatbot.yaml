@@ -39,10 +39,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.7
 
+      - name: Set up Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.11'
+
+      - name: Install opentelemetry dependencies
+        run: |
+          pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
+
+      - name: Configure OpenTelemetry Collector
+        run: |
+          echo '
+          receivers:
+            otlp:
+              protocols:
+                grpc:
+                  endpoint: "0.0.0.0:4317"
+          exporters:
+            logging:
+              loglevel: debug
+          service:
+            pipelines:
+              traces:
+                receivers: [otlp]
+                exporters: [logging]
+          ' > otel-collector-config.yaml
+
+      - name: Run OpenTelemetry Collector
+        run: |
+          curl --proto '=https' --tlsv1.2 -fOL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.102.1/otelcol_0.102.1_linux_amd64.tar.gz
+          tar -xvf otelcol_0.102.1_linux_amd64.tar.gz
+          chmod +x otelcol
+          ./otelcol --config otel-collector-config.yaml &
+
       - name: Install qemu dependency
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
+
+      - name: Start build trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="build-image"
+          export TRACE_ACTION="start"
+          python ci/trace-steps.py
 
       - name: Build Image
         id: build_image
@@ -54,23 +95,53 @@ jobs:
           containerfiles: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app/Containerfile
           context: recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app
 
-      - name: Set up Python
-        uses: actions/setup-python@v5.1.0
-        with:
-          python-version: '3.11'
+      - name: End build trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="build-image"
+          export TRACE_ACTION="end"
+          python ci/trace-steps.py
 
       - name: Install Dependencies
         working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
         run: make install
 
+      - name: Start download model trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="download-model"
+          export TRACE_ACTION="start"
+          python ci/trace-steps.py
+
       - name: Download model
         working-directory: ./models
         run: make download-model-granite
+
+      - name: End download model trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="download-model"
+          export TRACE_ACTION="end"
+          python ci/trace-steps.py
+
+      - name: Start functional test run trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="run-functional-tests"
+          export TRACE_ACTION="start"
+          python ci/trace-steps.py
 
       - name: Run Functional Tests
         shell: bash
         run: make functional-tests
         working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
+
+      - name: End functional test run trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="run-functional-tests"
+          export TRACE_ACTION="end"
+          python ci/trace-steps.py
 
       - name: Login to Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -80,6 +151,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Start push image trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="push-image"
+          export TRACE_ACTION="start"
+          python ci/trace-steps.py
+
       - name: Push Image
         id: push_image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -88,3 +166,10 @@ jobs:
           image: ${{ steps.build_image.outputs.image }}
           tags: ${{ steps.build_image.outputs.tags }}
           registry: ${{ env.REGISTRY }}
+
+      - name: End push image trace
+        run: |
+          export WORKFLOW_NAME="chatbot-build-push"
+          export STEP_NAME="push-image"
+          export TRACE_ACTION="end"
+          python ci/trace-steps.py
