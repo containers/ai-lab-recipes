@@ -122,12 +122,12 @@ jobs:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
 
-    - name: End bootstrap trace
-      run: |
-        export WORKFLOW_NAME="testing_framework"
-        export STEP_NAME="bootstrap"
-        export TRACE_ACTION="end"
-        python ci/trace-steps.py
+      - name: End bootstrap trace
+        run: |
+          export WORKFLOW_NAME="testing_framework"
+          export STEP_NAME="bootstrap"
+          export TRACE_ACTION="end"
+          python ci/trace-steps.py
 
       - name: Terraform Output
         id: terraform-output
