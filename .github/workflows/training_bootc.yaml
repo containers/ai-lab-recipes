@@ -146,10 +146,12 @@ jobs:
           - image_name: intel-bootc
             context: training/intel-bootc
             arch: amd64
+            gpu: intel
             pull-images: quay.io/ai-lab/vllm:latest quay.io/ai-lab/deepspeed-trainer:latest
           - image_name: amd-bootc
             context: training/amd-bootc
             arch: amd64
+            gpu: amd
             pull-images: quay.io/ai-lab/vllm:latest
     runs-on: ubuntu-22.04-8-cores
     continue-on-error: true
@@ -178,7 +180,7 @@ jobs:
           cd training
           make -j vllm
           make -j deepspeed
-          make -j instruct-${{ matrix.arch}}
+          make -j instruct-${{ matrix.gpu}}
 
       - name: Build Image
         id: build_image
