@@ -37,7 +37,7 @@ jobs:
         ports:
           - 5000:5000
     steps:
-      - uses: actions/checkout@v4.1.6
+      - uses: actions/checkout@v4.1.7
 
       - name: Install qemu dependency
         run: |
