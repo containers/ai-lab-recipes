@@ -21,25 +21,20 @@ RUN . /etc/os-release \
        elfutils-libelf-devel gcc make git kmod \
        vim-filesystem rpm-build wget ninja-build pciutils tmux \
     && rpm -ivh https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/p/pandoc-common-2.14.0.3-17.el9.noarch.rpm \
-    && rpm -ivh https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/p/pandoc-2.14.0.3-17.el9.x86_64.rpm
-
-# Download all Habanalabs rpms
-WORKDIR sources
-RUN wget ${HABANA_REPO}/habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm \
+    && rpm -ivh https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/p/pandoc-2.14.0.3-17.el9.x86_64.rpm \
+    && dnf -y clean all \
+    && cd sources \
+    && wget ${HABANA_REPO}/habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm \
     ${HABANA_REPO}/habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm \
     ${HABANA_REPO}/habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm \
     ${HABANA_REPO}/habanalabs-firmware-tools-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm \
-    ${HABANA_REPO}/habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm
-
-# Extract all files
-RUN rpm2cpio habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv \
+    ${HABANA_REPO}/habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm \ 
+    && rpm2cpio habanalabs-firmware-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv \
     && rpm2cpio habanalabs-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm | cpio -idmv \
     && rpm2cpio habanalabs-rdma-core-${DRIVER_VERSION}.${REDHAT_VERSION}.noarch.rpm | cpio -idmv \
     && rpm2cpio habanalabs-firmware-tools-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv \
-    && rpm2cpio habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv 
-
-# Copy sources and files to root level
-RUN rm *.rpm \
+    && rpm2cpio habanalabs-thunk-${DRIVER_VERSION}.${REDHAT_VERSION}.${TARGET_ARCH}.rpm | cpio -idmv \ 
+    && rm *.rpm \
     && cp -r /sources/etc/* /etc/ \
     && cp -r /sources/lib/* /lib/ \
     && cp -r /sources/usr/* /usr/ \
