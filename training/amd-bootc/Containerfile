@@ -1,5 +1,15 @@
+# Define the images to be used
+ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
+
+# Start with the instructlab image
+FROM ${INSTRUCTLAB_IMAGE} AS ilab
+
+# Define the base image for the second stage
 FROM ${BASEIMAGE}
+
+# Copy files from the first stage
+COPY --from=ilab /opt/app-root/bin/ilab /usr/local/bin/ilab
 
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
@@ -17,8 +27,7 @@ RUN dnf install -y \
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
 RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
-        /etc/containers/storage.conf && \
-	cp /run/.input/ilab /usr/local/bin/ilab
+        /etc/containers/storage.conf
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 ARG VLLM_IMAGE="quay.io/ai-lab/vllm:latest"
