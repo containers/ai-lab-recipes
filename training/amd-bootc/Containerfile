@@ -3,8 +3,8 @@ FROM ${BASEIMAGE}
 
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
-# Include growfs service
-COPY build/usr /usr
+# Include growfs service if needed
+RUN if [ -d "build/usr" ]; then cp -r build/usr /usr; fi
 
 ARG EXTRA_RPM_PACKAGES=''
 RUN dnf install -y \
