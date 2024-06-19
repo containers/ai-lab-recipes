@@ -131,6 +131,7 @@ RUN if [ "${TARGET_ARCH}" == "" ]; then \
         cuda-cudart-${CUDA_DASHED_VERSION} \
         nvidia-persistenced-${DRIVER_VERSION} \
         nvidia-container-toolkit \
+	rsync \
         ${EXTRA_RPM_PACKAGES} \
     && if [ "$DRIVER_TYPE" != "vgpu" ] && [ "$TARGET_ARCH" != "arm64" ]; then \
         versionArray=(${DRIVER_VERSION//./ }); \
@@ -154,15 +155,13 @@ RUN if [ -n "${SSHPUBKEY}" ]; then \
 	    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys; \
 fi
 
-# Copy files from the first stage
-COPY --from=ilab /opt/app-root/bin/ilab /usr/local/bin/ilab
-
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
 # Also make sure not to duplicate if a base image already has it specified.
 RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
     sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
-        /etc/containers/storage.conf
+	/etc/containers/storage.conf && \
+	cp /run/.input/ilab /usr/local/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
 ARG VLLM_IMAGE="quay.io/ai-lab/vllm:latest"

@@ -7,7 +7,7 @@ DRIVER_TOOLKIT_IMAGE = ${REGISTRY}/${REGISTRY_ORG}/${DTK_IMAGE_NAME}:${DTK_IMAGE
 CUDA_VERSION ?=
 OS_VERSION_MAJOR ?=
 ENABLE_RT ?=
-
+MODELS_CONTAINERFILE = $(OUTDIR)/Containerfile.models
 include ../common/Makefile.common
 
 default: bootc
