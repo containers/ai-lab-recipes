@@ -89,22 +89,22 @@ bootc-image-builder:
 	podman run \
 	  $(ARCH:%=--target-arch %) \
 	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
-	  $(BOOTC_IMAGE_BUILDER) \
-	  $(IMAGE_BUILDER_CONFIG:%=--config /config$(suffix $(IMAGE_BUILDER_CONFIG))) \
-	  $(IMAGE_BUILDER_CONFIG:%=-v %:/config$(suffix $(IMAGE_BUILDER_CONFIG))) \
-	  ${CONTAINER_TOOL_EXTRA_ARGS} \
-	  ${IMAGE_BUILDER_EXTRA_ARGS} \
-	  --chown $(DISK_UID):$(DISK_GID) \
-	  --local \
+	  --rm \
+	  -ti \
 	  --privileged \
 	  --pull newer \
-	  --rm \
-	  --type $(DISK_TYPE) \
-	  -ti \
 	  -v $(GRAPH_ROOT):/var/lib/containers/storage \
 	  -v ./build/store:/store \
 	  -v ./build:/output \
-	  $(BOOTC_IMAGE)
+	  $(IMAGE_BUILDER_CONFIG:%=-v %:/config$(suffix $(IMAGE_BUILDER_CONFIG))) \
+	  ${CONTAINER_TOOL_EXTRA_ARGS} \
+	  $(BOOTC_IMAGE_BUILDER) \
+	    $(IMAGE_BUILDER_CONFIG:%=--config /config$(suffix $(IMAGE_BUILDER_CONFIG))) \
+	    ${IMAGE_BUILDER_EXTRA_ARGS} \
+	    --chown $(DISK_UID):$(DISK_GID) \
+	    --local \
+	    --type $(DISK_TYPE) \
+	    $(BOOTC_IMAGE)
 
 .PHONY: generate-model-cfile
 generate-model-cfile:
