@@ -42,19 +42,19 @@ intel: instructlab
 	"${CONTAINER_TOOL}" build --squash-all -t oci:../build/instructlab-$@  -f instructlab/containers/hpu/Containerfile instructlab
 
 .PHONY: nvidia-quay
-nvidia: instructlab
+nvidia-quay: instructlab
 	rm -rf ../build/instructlab-$@
 	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-nvidia:latest instructlab/containers/cuda
 	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-nvidia:latest
 
 .PHONY: amd-quay
-amd: instructlab
+amd-quay: instructlab
 	rm -rf ../build/instructlab-$@
 	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-amd:latest -f instructlab/containers/rocm/Containerfile instructlab
 	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-amd:latest
 
 .PHONY: intel-quay
-intel: instructlab
+intel-quay: instructlab
 	rm -rf ../build/instructlab-$@
 	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-intel:latest -f instructlab/containers/hpu/Containerfile instructlab
 	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-intel:latest

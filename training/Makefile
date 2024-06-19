@@ -1,9 +1,9 @@
 MAKEFLAGS += -j2
 
-.PHONY: all
-all: deepspeed vllm
-
 default: help
+
+.PHONY: all
+all: deepspeed vllm models
 
 help:
 	@echo "To build a bootable container image you first need to create instructlab container images for a particular vendor "
@@ -72,11 +72,11 @@ vllm:
 #
 .PHONY: amd nvidia intel vllm
 amd:
-	make -C amd-bootc/ bootc
+	make -C amd-bootc/ bootc bootc-models
 intel:
-	make -C intel-bootc/ bootc
+	make -C intel-bootc/ bootc bootc-models
 nvidia:
-	make -C nvidia-bootc/ dtk bootc
+	make -C nvidia-bootc/ dtk bootc bootc-models
 
 #
 # Make Bootc container images preinstalled with cloud-init
@@ -116,6 +116,10 @@ disk-intel:
 .PHONY: disk-nvidia
 disk-nvidia:
 	make -C nvidia-bootc/ bootc-image-builder
+
+.PHONY: models
+models:
+	make -C model
 
 .PHONY: clean
 clean:

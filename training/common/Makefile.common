@@ -6,6 +6,7 @@ REGISTRY_ORG ?= ai-lab
 IMAGE_NAME ?= $(VENDOR)-bootc
 IMAGE_TAG ?= latest
 BOOTC_IMAGE ?= ${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}
+BOOTC_MODELS_IMAGE ?= ${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}-models:${IMAGE_TAG}
 
 CONTAINER_TOOL ?= podman
 CONTAINER_TOOL_EXTRA_ARGS ?=
@@ -33,16 +34,27 @@ KERNEL_VERSION ?=
 INSTRUCTLAB_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/instructlab-$(VENDOR):$(IMAGE_TAG)
 VLLM_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/vllm:$(IMAGE_TAG)
 TRAIN_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/deepspeed-trainer:$(IMAGE_TAG)
+WRAPPER = $(CURDIR)/../ilab-wrapper/ilab
+QLORA_WRAPPER = $(CURDIR)/../ilab-wrapper/ilab-qlora
+TRAIN_WRAPPER =  $(CURDIR)/../ilab-wrapper/ilab-training-launcher
 OUTDIR = $(CURDIR)/../build
+MODELS_CONTAINERFILE = $(OUTDIR)/Containerfile.models
 
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub 2> /dev/null)
 
-.PHONY: prepare-files
-prepare-files: $(OUTDIR)
+ .PHONY: prepare-files
+prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(QLORA_WRAPPER) $(OUTDIR)/$(TRAIN_WRAPPER) $(OUTDIR)
 
 .PHONY: $(OUTDIR)
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
+
+$(OUTDIR)/$(WRAPPER): $(OUTDIR)
+	cp -pf $(WRAPPER) $(OUTDIR)
+$(OUTDIR)/$(QLORA_WRAPPER): $(OUTDIR)
+	cp -pf $(QLORA_WRAPPER) $(OUTDIR)
+$(OUTDIR)/$(TRAIN_WRAPPER): $(OUTDIR)
+	cp -pf $(TRAIN_WRAPPER) $(OUTDIR)
 
 .PHONY: check-sshkey
 check-sshkey:
@@ -87,6 +99,22 @@ bootc-image-builder:
 	  -v ./build/store:/store \
 	  -v ./build:/output \
 	  $(BOOTC_IMAGE)
+
+.PHONY: generate-model-cfile
+generate-model-cfile:
+	echo "FROM ${BOOTC_IMAGE}" > ${MODELS_CONTAINERFILE}
+	echo "RUN rsync -ah --progress --exclude '.hug*' --exclude '*.safetensors' /run/.input/models /usr/share" >> ${MODELS_CONTAINERFILE}
+	"${CONTAINER_TOOL}" run -v ../common:/work:z -v ${OUTDIR}:/run/.input:ro model-downloader:latest python3 /work/generate-model-cfile.py /run/.input/models >> ${MODELS_CONTAINERFILE}
+
+.PHONY: bootc-models
+bootc-models: generate-model-cfile
+	"${CONTAINER_TOOL}" build \
+		$(ARCH:%=--platform linux/%) \
+		--file ${MODELS_CONTAINERFILE} \
+		--security-opt label=disable \
+		--tag "${BOOTC_MODELS_IMAGE}" \
+		-v ${OUTDIR}:/run/.input:ro \
+		${CONTAINER_TOOL_EXTRA_ARGS} .
 
 .PHONY: clean
 clean:

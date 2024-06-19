@@ -1,23 +1,23 @@
-FROM ?= 
-
-REGISTRY ?= quay.io
-REGISTRY_ORG ?= ai-lab
-IMAGE_NAME ?= granite-7b-lab
-IMAGE_TAG ?= latest
-
 CONTAINER_TOOL ?= podman
 CONTAINER_TOOL_EXTRA_ARGS ?=
 
-MODEL_REPO ?= ibm/granite-7b-base
-MODEL_PATH ?= /usr/share/ai-model
+GRANITE_MODEL_REPO ?= ibm/granite-7b-base
+MIXTRAL_MODEL_REPO ?= mistralai/Mixtral-8x7B-Instruct-v0.1
+
+default: download
 
 .PHONY: image
 image:
 	"${CONTAINER_TOOL}" build \
-		$(FROM:%=--build-arg BASEIMAGE=%) \
-		$(MODEL_PATH:%=--build-arg MODEL_PATH=%) \
-		$(MODEL_REPO:%=--build-arg MODEL_REPO=%) \
-		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		--file Containerfile \
-		--tag "${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}" \
+		--tag model-downloader:latest \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
+.PHONY: download
+download: image
+	$(MAKE) MODEL_REPO=$(GRANITE_MODEL_REPO) download-model
+	$(MAKE) MODEL_REPO=$(MIXTRAL_MODEL_REPO) download-model
+
+.PHONY: download-model
+download-model:
+	mkdir -p ../build/models
+	podman run -e HF_TOKEN -v ../build/models:/download:z -t model-downloader huggingface-cli download --exclude "*.pt" --local-dir "/download/$(MODEL_REPO)" "$(MODEL_REPO)"

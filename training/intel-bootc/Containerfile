@@ -18,7 +18,7 @@ RUN . /etc/os-release \
        kernel-devel${KERNEL_VERSION:+-}${KERNEL_VERSION}.el9_4 \
        kernel-devel-matched${KERNEL_VERSION:+-}${KERNEL_VERSION}.el9_4 \
        kernel-modules${KERNEL_VERSION:+-}${KERNEL_VERSION}.el9_4 \
-       elfutils-libelf-devel gcc make git kmod \
+       elfutils-libelf-devel gcc make git kmod rsync \
        vim-filesystem rpm-build wget ninja-build pciutils tmux \
     && rpm -ivh https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/p/pandoc-common-2.14.0.3-17.el9.noarch.rpm \
     && rpm -ivh https://dl.fedoraproject.org/pub/epel/9/Everything/x86_64/Packages/p/pandoc-2.14.0.3-17.el9.x86_64.rpm \
