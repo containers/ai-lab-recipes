@@ -130,7 +130,7 @@ driver-toolkit:
 		$(FROM:%=--from=%) \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
-		--file ../common/bootc-image-builder/Containerfile \
+		--file ../common/driver-toolkit/Containerfile \
 		--tag "${DRIVER_TOOLKIT_IMAGE}" \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
 
