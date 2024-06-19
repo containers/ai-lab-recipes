@@ -13,7 +13,6 @@ bootc: growfs prepare-files
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(INSTRUCTLAB_IMAGE:%=--build-arg INSTRUCTLAB_IMAGE=%) \
-		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		$(VLLM_IMAGE:%=--build-arg VLLM_IMAGE=%) \
 		$(SSH_PUBKEY:%=--build-arg SSHPUBKEY=%) \
