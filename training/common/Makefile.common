@@ -78,11 +78,6 @@ check-umask:
 		(echo; echo -n "Error: umask $(UMASK) will cause unexpected behaviour: use umask 022! "; \
 		 echo "Verify the `ai-lab-recipes` git repository was cloned with umask 0022"; exit 1)
 
-.PHONY: growfs
-growfs: check-umask
-	# Add growfs service
-	mkdir -p build; cp -pR ../common/usr build
-
 .PHONY: bootc-image-builder
 bootc-image-builder:
 	mkdir -p build/store
