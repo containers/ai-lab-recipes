@@ -46,11 +46,11 @@ instruct-nvidia:
 	make -C instructlab nvidia
 
 .PHONY:
-instruct: instruct-amd instruct-nvidia
+instruct-intel:
+	make -C instructlab intel
 
 .PHONY:
-instuct-intel:
-	make -C instructlab intel
+instruct: instruct-amd instruct-nvidia instruct-intel
 
 .PHONY: deepspeed
 deepspeed:
