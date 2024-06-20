@@ -20,6 +20,14 @@ all: nvidia intel amd
 INSTRUCTLAB_GIT_REPO ?= https://github.com/instructlab/instructlab.git
 INSTRUCTLAB_GIT_BRANCH ?= main
 
+REGISTRY ?= quay.io
+REGISTRY_ORG ?= ai-lab
+IMAGE_TAG ?= latest
+INSTRUCTLAB_IMAGE_AMD ?= ${REGISTRY}/${REGISTRY_ORG}/instructlab-amd:${IMAGE_TAG}
+INSTRUCTLAB_IMAGE_INTEL ?= ${REGISTRY}/${REGISTRY_ORG}/instructlab-intel:${IMAGE_TAG}
+INSTRUCTLAB_IMAGE_NVIDIA ?= ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia:${IMAGE_TAG}
+
+
 .PHONY: instructlab
 instructlab:
 	@mkdir -p ../build
@@ -44,17 +52,17 @@ intel: instructlab
 .PHONY: nvidia-quay
 nvidia-quay: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-nvidia:latest instructlab/containers/cuda
-	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-nvidia:latest
+	"${CONTAINER_TOOL}" build --squash-all -t ${INSTRUCTLAB_IMAGE_NVIDIA} instructlab/containers/cuda
+	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_NVIDIA}
 
 .PHONY: amd-quay
 amd-quay: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-amd:latest -f instructlab/containers/rocm/Containerfile instructlab
-	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-amd:latest
+	"${CONTAINER_TOOL}" build --squash-all -t ${INSTRUCTLAB_IMAGE_AMD} -f instructlab/containers/rocm/Containerfile instructlab
+	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_AMD}
 
 .PHONY: intel-quay
 intel-quay: instructlab
 	rm -rf ../build/instructlab-$@
-	"${CONTAINER_TOOL}" build --squash-all -t quay.io/ai-lab/instructlab-intel:latest -f instructlab/containers/hpu/Containerfile instructlab
-	"${CONTAINER_TOOL}" push quay.io/ai-lab/instructlab-intel:latest
+	"${CONTAINER_TOOL}" build --squash-all -t ${INSTRUCTLAB_IMAGE_INTEL} -f instructlab/containers/hpu/Containerfile instructlab
+	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_INTEL}
