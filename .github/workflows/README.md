@@ -17,7 +17,7 @@ For a full list of the images we build check out or [quay organization](https://
 
 ## Testing frameworks
 
-Our testing frameworks are a bit different from our standard workflows. In terms of compute, some of these jobs run either AWS machines provisioned via terraform using secrets in the github repository, or customized github hosted action runners, as well as the standard ubuntu-22.04 github runners for jobs not requiring additional resources.
+Our testing frameworks are a bit different from our standard workflows. In terms of compute, some of these jobs run either AWS machines provisioned via terraform using secrets in the github repository, or customized github hosted action runners, as well as the standard ubuntu-24.04 github runners for jobs not requiring additional resources.
 
 These workflows start by checking out the [terraform-test-environment-module](https://github.com/containers/terraform-test-environment-module) repo, as well as the code in `containers/ai-lab-recipes` at the `main` branch. Then it will provision the terraform instance, install the correct ansible playbook requirements, and runs a coressponding playbook. Aditional actions may also be taken depending on the testing framework in question.
 

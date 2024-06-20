@@ -62,7 +62,7 @@ jobs:
             directory: object_detection_python
             platforms: linux/amd64,linux/arm64
             no_gpu: 1
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
