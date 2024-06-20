@@ -14,7 +14,6 @@ bootc: prepare-files growfs
 		$(FROM:%=--from=%) \
 		$(INSTRUCTLAB_IMAGE:%=--build-arg INSTRUCTLAB_IMAGE=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
-		$(VLLM_IMAGE:%=--build-arg VLLM_IMAGE=%) \
 		$(SSH_PUBKEY:%=--build-arg SSHPUBKEY=%) \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \

@@ -53,7 +53,7 @@ Once you have these container images built it is time to build vllm.
 
 * make vllm
 
-# On nvidia systems, you need to build the deepspeed container
+# How to build the deepspeed deepspeed container
 
 * make deepspeed
 
