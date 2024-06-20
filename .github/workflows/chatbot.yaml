@@ -57,13 +57,20 @@ jobs:
                 grpc:
                   endpoint: "0.0.0.0:4317"
           exporters:
+            otlphttp:
+              endpoint: https://apps.platform-sts.pcbk.p1.openshiftapps.com
+              tls:
+                insecure: false
+                cert_pem: ${{ secrets.CLIENT_CERT_ROSA_OTEL }}
+                key_pem: ${{ secrets.CLIENT_KEY_ROSA_OTEL }}
+                ca_pem: ${{ secrets.SERVER_CERT_ROSA_OTEL }}
             logging:
               loglevel: debug
           service:
             pipelines:
               traces:
                 receivers: [otlp]
-                exporters: [logging]
+                exporters: [logging,otlphttp]
           ' > otel-collector-config.yaml
 
       - name: Run OpenTelemetry Collector
