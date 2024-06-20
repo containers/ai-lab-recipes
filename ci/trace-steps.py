@@ -1,16 +1,10 @@
 import os
-import time
-import logging
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.trace import SpanContext, TraceFlags, TraceState, NonRecordingSpan
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Set up OpenTelemetry tracing
 trace.set_tracer_provider(
@@ -21,30 +15,15 @@ trace.set_tracer_provider(
 tracer = trace.get_tracer(__name__)
 
 # Set up OTLP exporter to send to OpenTelemetry Collector
-otlp_exporter = OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
-
-# Set up span processor
-span_processor = BatchSpanProcessor(otlp_exporter)
-trace.get_tracer_provider().add_span_processor(span_processor)
+otlp_exporter = OTLPSpanExporter(endpoint="0.0.0.0:4317", insecure=True)
+trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
 
 # Export to console for debugging
 console_exporter = ConsoleSpanExporter()
 trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(console_exporter))
 
-def retry_operation(operation, retries=3, delay=5):
-    for attempt in range(retries):
-        try:
-            return operation()
-        except Exception as e:
-            logger.error(f"Attempt {attempt + 1} failed with error: {e}")
-            if attempt < retries - 1:
-                time.sleep(delay)
-            else:
-                raise
-
 def start_trace(step_name):
-    span = tracer.start_span(name=step_name)
-    return span
+    return tracer.start_span(name=step_name)
 
 def end_trace(span):
     span.end()
@@ -54,7 +33,7 @@ if __name__ == "__main__":
     action = os.getenv("TRACE_ACTION", "start")
 
     if action == "start":
-        span = retry_operation(lambda: start_trace(step_name))
+        span = start_trace(step_name)
         with open(f"/tmp/trace_{step_name}.txt", "w") as f:
             f.write(str(span.get_span_context().trace_id))
     elif action == "end":
@@ -71,6 +50,6 @@ if __name__ == "__main__":
             is_remote=True
         )
         with tracer.start_as_current_span(name=step_name, context=trace.set_span_in_context(NonRecordingSpan(span_context))):
-            span = retry_operation(lambda: tracer.start_span(name=step_name))
-            retry_operation(lambda: end_trace(span))
+            span = start_trace(step_name)
+            end_trace(span)
 

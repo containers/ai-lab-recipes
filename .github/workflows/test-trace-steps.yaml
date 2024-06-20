@@ -36,6 +36,8 @@ jobs:
             protocols:
               grpc:
                 endpoint: "0.0.0.0:4317"
+              http:
+                endpoint: "0.0.0.0:4318"
         exporters:
           otlphttp:
             endpoint: https://apps.platform-sts.pcbk.p1.openshiftapps.com
@@ -45,7 +47,7 @@ jobs:
               key_pem: ${{ secrets.CLIENT_KEY_ROSA_OTEL }}
               ca_pem: ${{ secrets.SERVER_CERT_ROSA_OTEL }}
           logging:
-            loglevel: debug
+            verbosity: detailed
         service:
           pipelines:
             traces:
