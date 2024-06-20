@@ -48,9 +48,6 @@ RUN . /etc/os-release \
 RUN dnf install -y rsync ${EXTRA_RPM_PACKAGES} \
     && dnf clean all
 
-# Include growfs service
-COPY build/usr /usr
-
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-intel:latest"
 ARG VLLM_IMAGE="quay.io/ai-lab/vllm:latest"
 

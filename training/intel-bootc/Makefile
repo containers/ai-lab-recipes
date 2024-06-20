@@ -5,7 +5,7 @@ include ../common/Makefile.common
 default: bootc
 
 .PHONY: bootc
-bootc: growfs prepare-files
+bootc: prepare-files
 	${CONTAINER_TOOL} build \
 		$(ARCH:%=--platform linux/%) \
 		$(BUILD_ARG_FILE:%=--build-arg-file=%) \

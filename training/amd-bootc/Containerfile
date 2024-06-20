@@ -10,9 +10,6 @@ FROM ${BASEIMAGE}
 
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
-# Include growfs service
-COPY build/usr /usr
-
 ARG EXTRA_RPM_PACKAGES=''
 RUN dnf install -y \
   pciutils \
