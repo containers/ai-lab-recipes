@@ -1,5 +1,4 @@
-CONTAINER_TOOL ?= podman
-CONTAINER_TOOL_EXTRA_ARGS ?=
+include ../common/Makefile.common
 
 GRANITE_MODEL_REPO ?= ibm/granite-7b-base
 MIXTRAL_MODEL_REPO ?= mistralai/Mixtral-8x7B-Instruct-v0.1
@@ -10,8 +9,9 @@ default: download
 image:
 	"${CONTAINER_TOOL}" build \
 		--file Containerfile \
-		--tag model-downloader:latest \
+		--tag $(REGISTRY)/$(REGISTRY_ORG)/model-downloader:latest \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
+
 .PHONY: download
 download: image
 	$(MAKE) MODEL_REPO=$(GRANITE_MODEL_REPO) download-model
@@ -20,4 +20,29 @@ download: image
 .PHONY: download-model
 download-model:
 	mkdir -p ../build/models
-	podman run -e HF_TOKEN -v ../build/models:/download:z -t model-downloader huggingface-cli download --exclude "*.pt" --local-dir "/download/$(MODEL_REPO)" "$(MODEL_REPO)"
+	podman run \
+		-e HF_TOKEN \
+		-v ../build/models:/download:z \
+		--pull=never \
+		-t $(REGISTRY)/$(REGISTRY_ORG)/model-downloader:latest \
+		huggingface-cli download --exclude "*.pt" --local-dir "/download/$(MODEL_REPO)" "$(MODEL_REPO)"
+
+.PHONY: generate-model-cfile
+generate-model-cfile: download
+	echo "FROM ${BOOTC_IMAGE}" > ${MODELS_CONTAINERFILE}
+	echo "RUN rsync -ah --progress --exclude '.hug*' --exclude '*.safetensors' /run/.input/models /usr/share" >> ${MODELS_CONTAINERFILE}
+	"${CONTAINER_TOOL}" run \
+		-v ../common:/work:z \
+		-v ${OUTDIR}:/run/.input:ro \
+		--pull=never \
+		$(REGISTRY)/$(REGISTRY_ORG)/model-downloader:latest \
+		python3 /work/generate-model-cfile.py /run/.input/models >> ${MODELS_CONTAINERFILE}
+
+.PHONY: bootc-models
+bootc-models: generate-model-cfile
+	"${CONTAINER_TOOL}" build \
+		$(ARCH:%=--platform linux/%) \
+		--file ${MODELS_CONTAINERFILE} \
+		--security-opt label=disable \
+		--tag "${BOOTC_MODELS_IMAGE}" \
+		-v ${OUTDIR}:/run/.input:ro

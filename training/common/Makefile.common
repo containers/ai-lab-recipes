@@ -99,20 +99,6 @@ bootc-image-builder:
 	    --type $(DISK_TYPE) \
 	    $(BOOTC_IMAGE)
 
-.PHONY: generate-model-cfile
-generate-model-cfile:
-	echo "FROM ${BOOTC_IMAGE}" > ${MODELS_CONTAINERFILE}
-	echo "RUN rsync -ah --progress --exclude '.hug*' --exclude '*.safetensors' /run/.input/models /usr/share" >> ${MODELS_CONTAINERFILE}
-	"${CONTAINER_TOOL}" run -v ../common:/work:z -v ${OUTDIR}:/run/.input:ro model-downloader:latest python3 /work/generate-model-cfile.py /run/.input/models >> ${MODELS_CONTAINERFILE}
-
-.PHONY: bootc-models
-bootc-models: generate-model-cfile
-	"${CONTAINER_TOOL}" build \
-		$(ARCH:%=--platform linux/%) \
-		--file ${MODELS_CONTAINERFILE} \
-		--security-opt label=disable \
-		--tag "${BOOTC_MODELS_IMAGE}" \
-		-v ${OUTDIR}:/run/.input:ro
 
 .PHONY: driver-toolkit
 driver-toolkit:
