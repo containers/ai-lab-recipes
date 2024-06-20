@@ -2,6 +2,8 @@ include ../common/Makefile.common
 
 GRANITE_MODEL_REPO ?= ibm/granite-7b-base
 MIXTRAL_MODEL_REPO ?= mistralai/Mixtral-8x7B-Instruct-v0.1
+HF_TOKEN ?= $$HF_TOKEN
+
 
 default: download
 
@@ -21,7 +23,7 @@ download: image
 download-model:
 	mkdir -p ../build/models
 	podman run \
-		-e HF_TOKEN \
+		-e HF_TOKEN=$(HF_TOKEN) \
 		-v ../build/models:/download:z \
 		--pull=never \
 		-t $(REGISTRY)/$(REGISTRY_ORG)/model-downloader:latest \

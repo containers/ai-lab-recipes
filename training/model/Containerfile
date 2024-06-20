@@ -1,3 +1,4 @@
 FROM registry.access.redhat.com/ubi9/ubi
+RUN if [ -z $HF_TOKEN ]; then; echo "Error. Please set your \$HF_TOKEN in env. Required to pull mixtral."; exit 1; fi;
 RUN dnf install -y python3-pip && python3 -m pip install huggingface_hub[cli]
 WORKDIR /download
