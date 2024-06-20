@@ -67,7 +67,7 @@ vllm:
 driver-tookit:
 	make -C common/ -f Makefile.common driver-toolkit
 amd:
-	make -C amd-bootc/ bootc bootc-models
+	make -C amd-bootc/ bootc download bootc-models
 intel:
 	make -C intel-bootc/ bootc bootc-models
 nvidia:

@@ -46,6 +46,8 @@ ENABLE_RT ?=
 
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub 2> /dev/null)
 
+include ../model/Makefile
+
  .PHONY: prepare-files
 prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(QLORA_WRAPPER) $(OUTDIR)/$(TRAIN_WRAPPER) $(OUTDIR)
 
@@ -103,7 +105,11 @@ bootc-image-builder:
 generate-model-cfile:
 	echo "FROM ${BOOTC_IMAGE}" > ${MODELS_CONTAINERFILE}
 	echo "RUN rsync -ah --progress --exclude '.hug*' --exclude '*.safetensors' /run/.input/models /usr/share" >> ${MODELS_CONTAINERFILE}
-	"${CONTAINER_TOOL}" run -v ../common:/work:z -v ${OUTDIR}:/run/.input:ro model-downloader:latest python3 /work/generate-model-cfile.py /run/.input/models >> ${MODELS_CONTAINERFILE}
+	"${CONTAINER_TOOL}" run \
+		-v ../common:/work:z \
+		-v ${OUTDIR}:/run/.input:ro \
+		--pull=never \
+		quay.io/ai-lab/model-downloader:local python3 /work/generate-model-cfile.py /run/.input/models >> ${MODELS_CONTAINERFILE}
 
 .PHONY: bootc-models
 bootc-models: generate-model-cfile

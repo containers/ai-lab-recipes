@@ -10,8 +10,9 @@ default: download
 image:
 	"${CONTAINER_TOOL}" build \
 		--file Containerfile \
-		--tag model-downloader:latest \
+		--tag quay.io/ai-lab/model-downloader:local \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
+		
 .PHONY: download
 download: image
 	$(MAKE) MODEL_REPO=$(GRANITE_MODEL_REPO) download-model
@@ -20,4 +21,8 @@ download: image
 .PHONY: download-model
 download-model:
 	mkdir -p ../build/models
-	podman run -e HF_TOKEN -v ../build/models:/download:z -t model-downloader huggingface-cli download --exclude "*.pt" --local-dir "/download/$(MODEL_REPO)" "$(MODEL_REPO)"
+	podman run -e HF_TOKEN \
+		-v ../build/models:/download:z \
+		-t quay.io/ai-lab/model-downloader:local \
+		--pull=never \
+		huggingface-cli download --exclude "*.pt" --local-dir "/download/$(MODEL_REPO)" "$(MODEL_REPO)"
