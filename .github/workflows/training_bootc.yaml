@@ -55,7 +55,7 @@ jobs:
 
       - name: Build Image
         id: build_image
-        run: make dtk ARCH=${{ matrix.arch }}
+        run: make driver-toolkit ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
 
       - name: Login to Container Registry

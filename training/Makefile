@@ -70,13 +70,15 @@ vllm:
 #
 # Create bootc container images prepared for AI
 #
-.PHONY: amd nvidia intel vllm
+.PHONY: driver-tookit amd nvidia intel vllm
+driver-tookit:
+	make -C common/ -f Makefile.common driver-toolkit
 amd:
 	make -C amd-bootc/ bootc bootc-models
 intel:
 	make -C intel-bootc/ bootc bootc-models
 nvidia:
-	make -C nvidia-bootc/ dtk bootc bootc-models
+	make -C nvidia-bootc/ driver-toolkit bootc bootc-models
 
 #
 # Make Bootc container images preinstalled with cloud-init

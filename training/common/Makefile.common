@@ -40,6 +40,12 @@ TRAIN_WRAPPER =  $(CURDIR)/../ilab-wrapper/ilab-training-launcher
 OUTDIR = $(CURDIR)/../build
 MODELS_CONTAINERFILE = $(OUTDIR)/Containerfile.models
 
+DRIVER_TOOLKIT_IMAGE_NAME ?= driver-toolkit
+DRIVER_TOOLKIT_IMAGE_TAG ?= latest
+DRIVER_TOOLKIT_IMAGE = ${REGISTRY}/${REGISTRY_ORG}/${DRIVER_TOOLKIT_IMAGE_NAME}:${DRIVER_TOOLKIT_IMAGE_TAG}
+
+ENABLE_RT ?=
+
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub 2> /dev/null)
 
  .PHONY: prepare-files
@@ -113,7 +119,19 @@ bootc-models: generate-model-cfile
 		--file ${MODELS_CONTAINERFILE} \
 		--security-opt label=disable \
 		--tag "${BOOTC_MODELS_IMAGE}" \
-		-v ${OUTDIR}:/run/.input:ro \
+		-v ${OUTDIR}:/run/.input:ro
+
+.PHONY: driver-toolkit
+driver-toolkit:
+	"${CONTAINER_TOOL}" build \
+		$(ARCH:%=--platform linux/%) \
+		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
+		$(ENABLE_RT:%=--build-arg ENABLE_RC=%) \
+		$(FROM:%=--from=%) \
+		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
+		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
+		--file ../common/driver-toolkit/Containerfile \
+		--tag "${DRIVER_TOOLKIT_IMAGE}" \
 		${CONTAINER_TOOL_EXTRA_ARGS} .
 
 .PHONY: clean

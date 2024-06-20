@@ -1,32 +1,14 @@
 VENDOR ?= nvidia
 IMAGE_NAME ?= $(VENDOR)-bootc
-DTK_IMAGE_NAME ?= $(VENDOR)-builder
-DTK_IMAGE_TAG ?= latest
-DRIVER_TOOLKIT_IMAGE = ${REGISTRY}/${REGISTRY_ORG}/${DTK_IMAGE_NAME}:${DTK_IMAGE_TAG}
 
 CUDA_VERSION ?=
 OS_VERSION_MAJOR ?=
-ENABLE_RT ?=
-MODELS_CONTAINERFILE = $(OUTDIR)/Containerfile.models
 include ../common/Makefile.common
 
 default: bootc
 
-.PHONY: dtk
-dtk:
-	"${CONTAINER_TOOL}" build \
-		$(ARCH:%=--platform linux/%) \
-		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
-		$(ENABLE_RT:%=--build-arg ENABLE_RC=%) \
-		$(FROM:%=--from=%) \
-		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
-		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
-		--file Containerfile.builder \
-		--tag "${DRIVER_TOOLKIT_IMAGE}" \
-		${CONTAINER_TOOL_EXTRA_ARGS} .
-
 .PHONY: bootc
-bootc: dtk check-sshkey prepare-files growfs
+bootc: driver-toolkit check-sshkey prepare-files growfs
 	"${CONTAINER_TOOL}" build \
 		$(ARCH:%=--platform linux/%) \
 		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
