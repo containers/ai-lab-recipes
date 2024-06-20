@@ -25,7 +25,7 @@ env:
 jobs:
   codegen-build-and-push:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write

@@ -46,7 +46,7 @@ jobs:
           - image_name: whisper-small
             url: https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
             platforms: linux/amd64,linux/arm64
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
