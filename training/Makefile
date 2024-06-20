@@ -3,7 +3,7 @@ MAKEFLAGS += -j2
 default: help
 
 .PHONY: all
-all: deepspeed vllm models
+all: models
 
 help:
 	@echo "To build a bootable container image you first need to create instructlab container images for a particular vendor "
@@ -11,12 +11,6 @@ help:
 	@echo "  - make instruct-amd"
 	@echo "  - make instruct-intel"
 	@echo "  - make instruct-nvidia"
-	@echo "  - make instruct-vllm"
-	@echo
-	@echo "Once instruct images created, create advanced training containers, deepspeed only for nvidia"
-	@echo
-	@echo "  - make deepspeed"
-	@echo "  - make vllm"
 	@echo
 	@echo "Once instruct images are created, create bootc container images"
 	@echo
@@ -29,7 +23,6 @@ help:
 	@echo "  - make cloud-amd"
 	@echo "  - make cloud-intel"
 	@echo "  - make cloud-nvidia"
-	@echo "  - make cloud-vllm"
 	@echo
 	@echo "Make prune. This command will remove all buildah containers if left behind from podman build and then prune all unused container images. Useful if you are running out of space."
 	@echo
@@ -70,7 +63,7 @@ vllm:
 #
 # Create bootc container images prepared for AI
 #
-.PHONY: driver-tookit amd nvidia intel vllm
+.PHONY: driver-tookit amd nvidia intel
 driver-tookit:
 	make -C common/ -f Makefile.common driver-toolkit
 amd:

@@ -22,8 +22,6 @@ bootc: driver-toolkit check-sshkey prepare-files
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
-		$(TRAIN_IMAGE:%=--build-arg TRAIN_IMAGE=%) \
-		$(VLLM_IMAGE:%=--build-arg VLLM_IMAGE=%) \
 		$(SSH_PUBKEY:%=--build-arg SSHPUBKEY=%) \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \

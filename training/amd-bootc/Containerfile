@@ -26,7 +26,6 @@ RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 	cp /run/.input/ilab /usr/local/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
-ARG VLLM_IMAGE="quay.io/ai-lab/vllm:latest"
 
 ARG SSHPUBKEY
 
@@ -46,7 +45,5 @@ RUN sed -i "s%__REPLACE_CONTAINER_NAME__%${INSTRUCTLAB_IMAGE}%" /usr/local/bin/i
 VOLUME /var/lib/containers
 
 # Prepull the instructlab image
-RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/vllm) && \
-    podman --root /usr/lib/containers/storage image tag ${IID} ${VLLM_IMAGE}
 RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-amd) && \
     podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}
