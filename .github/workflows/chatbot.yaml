@@ -51,36 +51,40 @@ jobs:
       - name: Configure OpenTelemetry Collector
         run: |
           echo '
+          extensions:
+            basicauth/client:
+              client_auth:
+                username: "${{ secrets.OTEL_USERNAME }}"
+                password: "${{ secrets.OTEL_PASSWORD }}"
           receivers:
             otlp:
               protocols:
                 grpc:
-                  endpoint: "0.0.0.0:4317"
                 http:
-                  endpoint: "0.0.0.0:4318"
           exporters:
             otlphttp:
-              endpoint: https://apps.platform-sts.pcbk.p1.openshiftapps.com
+              endpoint: https://otc.apps.platform-sts.pcbk.p1.openshiftapps.com
+              auth:
+                authenticator: basicauth/client
               tls:
                 insecure: false
-                cert_pem: ${{ secrets.CLIENT_CERT_ROSA_OTEL }}
-                key_pem: ${{ secrets.CLIENT_KEY_ROSA_OTEL }}
-                ca_pem: ${{ secrets.SERVER_CERT_ROSA_OTEL }}
-            logging:
+                ca_pem: "${{ secrets.ROSA_ROOT_CERT }}"
+            debug:
               verbosity: detailed
           service:
+            extensions: [basicauth/client]
             pipelines:
               traces:
                 receivers: [otlp]
-                exporters: [logging,otlphttp]
+                exporters: [debug, otlphttp]
           ' > otel-collector-config.yaml
 
       - name: Run OpenTelemetry Collector
         run: |
-          curl --proto '=https' --tlsv1.2 -fOL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.102.1/otelcol_0.102.1_linux_amd64.tar.gz
-          tar -xvf otelcol_0.102.1_linux_amd64.tar.gz
-          chmod +x otelcol
-          ./otelcol --config otel-collector-config.yaml &
+          wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.103.0/otelcol-contrib_0.103.0_linux_amd64.tar.gz
+          tar -xvf otelcol-contrib_0.103.0_linux_amd64.tar.gz
+          chmod +x otelcol-contrib
+          ./otelcol-contrib --config otel-collector-config.yaml &
 
       - name: Install qemu dependency
         run: |

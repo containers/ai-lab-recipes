@@ -13,12 +13,10 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
+    runs-on: ubuntu-22.04
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
+    - uses: actions/checkout@v4.1.7
     - name: Set up Python
       uses: actions/setup-python@v5.1.0
       with:
@@ -28,39 +26,51 @@ jobs:
       run: |
         pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
 
+    - name: Download OpenTelemetry Collector Contrib
+      run: |
+        wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.103.0/otelcol-contrib_0.103.0_linux_amd64.tar.gz
+        tar -xvf otelcol-contrib_0.103.0_linux_amd64.tar.gz
+
+    - name: CA secret to 1-line 
+      env:
+        ROSA_OTEL_CABUNDLE: ${{ secrets.ROSA_OTEL_CABUNDLE }}
+      run: |
+        echo "$ROSA_OTEL_CABUNDLE" > /tmp/ca.crt
+
     - name: Configure OpenTelemetry Collector
       run: |
         echo '
+        extensions:
+          basicauth/client:
+            client_auth:
+              username: "${{ secrets.OTEL_USERNAME }}"
+              password: "${{ secrets.OTEL_PASSWORD }}"
         receivers:
           otlp:
             protocols:
               grpc:
-                endpoint: "0.0.0.0:4317"
               http:
-                endpoint: "0.0.0.0:4318"
         exporters:
           otlphttp:
-            endpoint: https://apps.platform-sts.pcbk.p1.openshiftapps.com
+            endpoint: https://otc.apps.platform-sts.pcbk.p1.openshiftapps.com
+            auth:
+              authenticator: basicauth/client
             tls:
               insecure: false
-              cert_pem: ${{ secrets.CLIENT_CERT_ROSA_OTEL }}
-              key_pem: ${{ secrets.CLIENT_KEY_ROSA_OTEL }}
-              ca_pem: ${{ secrets.SERVER_CERT_ROSA_OTEL }}
-          logging:
+              ca_file: /tmp/ca.crt
+          debug:
             verbosity: detailed
         service:
+          extensions: [basicauth/client]
           pipelines:
             traces:
               receivers: [otlp]
-              exporters: [logging,otlphttp]
-          ' > otel-collector-config.yaml
+              exporters: [debug, otlphttp]
+        ' > otel-collector-config.yaml
 
     - name: Run OpenTelemetry Collector
       run: |
-        curl --proto '=https' --tlsv1.2 -fOL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.102.1/otelcol_0.102.1_linux_amd64.tar.gz
-        tar -xvf otelcol_0.102.1_linux_amd64.tar.gz
-        chmod +x otelcol
-        ./otelcol --config otel-collector-config.yaml &
+        ./otelcol-contrib --config otel-collector-config.yaml &
 
     - name: Start build trace
       run: |
