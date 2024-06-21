@@ -2,8 +2,13 @@ include ../common/Makefile.common
 
 GRANITE_MODEL_REPO ?= ibm/granite-7b-base
 MIXTRAL_MODEL_REPO ?= mistralai/Mixtral-8x7B-Instruct-v0.1
-HF_TOKEN ?= $$HF_TOKEN
 
+HF_TOKEN ?= $(shell echo $$HF_TOKEN)
+
+BUILD_MODELS_PATH := $(shell realpath ../build/models)
+COMMON_PATH := $(shell realpath ../common)
+
+MODEL_REPO ?=
 
 default: download
 
@@ -24,17 +29,18 @@ download-model:
 	mkdir -p ../build/models
 	podman run \
 		-e HF_TOKEN=$(HF_TOKEN) \
-		-v ../build/models:/download:z \
+		-v $(BUILD_MODELS_PATH):/download:z \
 		--pull=never \
+		-e MODEL_REPO=$(MODEL_REPO) \
 		-t $(REGISTRY)/$(REGISTRY_ORG)/model-downloader:latest \
-		huggingface-cli download --exclude "*.pt" --local-dir "/download/$(MODEL_REPO)" "$(MODEL_REPO)"
+		
 
 .PHONY: generate-model-cfile
 generate-model-cfile: download
 	echo "FROM ${BOOTC_IMAGE}" > ${MODELS_CONTAINERFILE}
 	echo "RUN rsync -ah --progress --exclude '.hug*' --exclude '*.safetensors' /run/.input/models /usr/share" >> ${MODELS_CONTAINERFILE}
 	"${CONTAINER_TOOL}" run \
-		-v ../common:/work:z \
+		-v $(COMMON_PATH):/work:z \
 		-v ${OUTDIR}:/run/.input:ro \
 		--pull=never \
 		$(REGISTRY)/$(REGISTRY_ORG)/model-downloader:latest \
