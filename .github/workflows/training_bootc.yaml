@@ -28,6 +28,59 @@ env:
   REGISTRY_ORG: ai-lab
 
 jobs:
+  build-podman-v5:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    env:
+      CGO_ENABLED: 1 # CGO is required for podman
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Cache podman bin
+        id: cache-podman-bin
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./bin
+          key: ${{ runner.os }}-podman-${{ env.PODMAN_VER }}
+          restore-keys: |
+            ${{ runner.os }}-podman
+      - uses: actions/checkout@v3
+        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
+        with:
+          repository: containers/podman
+          ref: v5.1.1
+
+      - uses: actions/setup-go@v2
+        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
+        with:
+          go-version: ${{ env.GOVER }}
+
+      - name: Cache go modules
+        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
+        uses: actions/cache@v2
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-podman-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-podman
+      - name: Add build packages
+        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
+        run: sudo apt install -y libsystemd-dev libseccomp-dev pkg-config golang-github-proglottis-gpgme-dev
+
+      - name: Build podman v4
+        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
+        run: make binaries
+
+      # store podman binary as artifact
+      - uses: actions/upload-artifact@v3
+        with:
+          name: podman-bins
+          path: bin
+
   nvidia-bootc-builder-image:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
@@ -37,6 +90,7 @@ jobs:
             context: training/nvidia-bootc
             arch: amd64
     runs-on: ubuntu-24.04
+    needs: build-podman-v5
     permissions:
       contents: read
       packages: write
@@ -52,6 +106,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
+
+      - name: pull in podman
+        uses: actions/download-artifact@v1
+        with:
+          name: podman-bins
+          path: bin
+
+      - name: replace
+        run: |
+          chmod +x bin/podman
+          sudo mv bin/podman /usr/bin/podman
 
       - name: Build Image
         id: build_image
@@ -87,8 +152,8 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   nvidia-bootc-image:
-    if: "success() && !contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     needs: nvidia-bootc-builder-image
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
         include:
@@ -154,6 +219,7 @@ jobs:
             gpu: amd
             pull-images: quay.io/ai-lab/vllm:latest
     runs-on: ubuntu-22.04-8-cores
+    needs: build-podman-v5
     continue-on-error: true
     steps:
       - name: Remove unnecessary files
@@ -162,6 +228,17 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - uses: actions/checkout@v4.1.7
+
+      - name: pull in podman
+        uses: actions/download-artifact@v1
+        with:
+          name: podman-bins
+          path: bin
+
+      - name: replace
+        run: |
+          chmod +x bin/podman
+          sudo mv bin/podman /usr/bin/podman
 
       - name: Login to Container Registry
         uses: redhat-actions/podman-login@v1.7
