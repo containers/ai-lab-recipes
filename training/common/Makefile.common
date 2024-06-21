@@ -23,8 +23,6 @@ BUILD_ARG_FILE ?=
 IMAGE_BUILDER_CONFIG ?=
 IMAGE_BUILDER_EXTRA_ARGS ?=
 DISK_TYPE ?= qcow2
-DISK_UID ?= $(shell id -u)
-DISK_GID ?= $(shell id -g)
 
 ARCH ?=
 
@@ -94,7 +92,6 @@ bootc-image-builder:
 	  $(BOOTC_IMAGE_BUILDER) \
 	    $(IMAGE_BUILDER_CONFIG:%=--config /config$(suffix $(IMAGE_BUILDER_CONFIG))) \
 	    ${IMAGE_BUILDER_EXTRA_ARGS} \
-	    --chown $(DISK_UID):$(DISK_GID) \
 	    --local \
 	    --type $(DISK_TYPE) \
 	    $(BOOTC_IMAGE)
