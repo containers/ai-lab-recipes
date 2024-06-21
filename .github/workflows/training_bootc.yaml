@@ -118,6 +118,10 @@ jobs:
           chmod +x bin/podman
           sudo mv bin/podman /usr/bin/podman
 
+      - name: generate a ssh key - USER SHOULD INJECT THEIR OWN AND REBUILD IF THEY USE THIS IMAGE
+        run: |
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+
       - name: Build Image
         id: build_image
         run: make driver-toolkit ARCH=${{ matrix.arch }}
