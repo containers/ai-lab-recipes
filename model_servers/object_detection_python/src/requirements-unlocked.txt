@@ -5,3 +5,4 @@ requests
 transformers
 torch
 uvicorn
+timm

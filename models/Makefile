@@ -40,7 +40,7 @@ download-model-mistral-code:
 
 .PHONY: download-model-facebook-detr-resnet-101
 download-model-facebook-detr-resnet-101:
-	pip install -r ../convert_models/requirements.txt
+	python3 -m pip install -r ../convert_models/requirements.txt
 	cd ../convert_models/ && \
 	python3 download_huggingface.py -m facebook/detr-resnet-101
 	cp -r ../convert_models/converted_models/facebook ./

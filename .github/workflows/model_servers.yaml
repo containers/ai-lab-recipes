@@ -6,12 +6,14 @@ on:
       - main
     paths:
       - 'model_servers/**'
+      - 'models/Makefile'
       - .github/workflows/model_servers.yaml
   push:
     branches:
       - main
     paths:
       - 'model_servers/**'
+      - 'models/Makefile'
       - .github/workflows/model_servers.yaml
 
   workflow_dispatch:
@@ -83,6 +85,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: '3.11'
       
       - name: Build Image
         id: build_image
@@ -97,11 +104,6 @@ jobs:
       - name: Download model
         working-directory: ./models
         run: make download-model-${{ matrix.model }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v5.1.0
-        with:
-          python-version: '3.11'
 
       - name: Install python dependencies
         working-directory: ./model_servers/${{ matrix.directory }}/
