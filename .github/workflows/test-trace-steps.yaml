@@ -31,11 +31,9 @@ jobs:
         wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.103.0/otelcol-contrib_0.103.0_linux_amd64.tar.gz
         tar -xvf otelcol-contrib_0.103.0_linux_amd64.tar.gz
 
-    - name: CA secret to 1-line 
-      env:
-        ROSA_OTEL_CABUNDLE: ${{ secrets.ROSA_OTEL_CABUNDLE }}
+    - name: Write secrets to files
       run: |
-        echo "$ROSA_OTEL_CABUNDLE" > /tmp/ca.crt
+        echo "${{ secrets.ROSA_OTEL_TLS_CERT }}" > /tmp/tls.crt
 
     - name: Configure OpenTelemetry Collector
       run: |
@@ -52,12 +50,12 @@ jobs:
               http:
         exporters:
           otlphttp:
-            endpoint: https://otc.apps.platform-sts.pcbk.p1.openshiftapps.com
+            endpoint: https://otc.apps.platform-sts.pcbk.p1.openshiftapps.com:4318
             auth:
               authenticator: basicauth/client
             tls:
               insecure: false
-              ca_file: /tmp/ca.crt
+              ca_file: /tmp/tls.crt
           debug:
             verbosity: detailed
         service:
@@ -70,7 +68,7 @@ jobs:
 
     - name: Run OpenTelemetry Collector
       run: |
-        ./otelcol-contrib --config otel-collector-config.yaml &
+        ./otelcol-contrib --config otel-collector-config.yaml > otel-collector.log 2>&1 &
 
     - name: Start build trace
       run: |
@@ -109,3 +107,6 @@ jobs:
         export STEP_NAME="test"
         export TRACE_ACTION="end"
         python ci/trace-steps.py
+
+    - name: Display OpenTelemetry Collector Logs
+      run: cat otel-collector.log
