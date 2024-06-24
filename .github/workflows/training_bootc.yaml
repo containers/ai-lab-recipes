@@ -76,13 +76,24 @@ jobs:
         run: make driver-toolkit ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
 
+      - name: tag image as nvidia-builder
+        run: podman tag ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/driver-toolkit:latest ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}/${{ matrix.image_name}}:latest
+
       - name: Push image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: redhat-actions/push-to-registry@v2.8
         with:
-          image: ${{ steps.build_image.outputs.image }}
-          tags: ${{ steps.build_image.outputs.tags }}
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}
+          image: driver-toolkit
+          tags: latest
+
+      - name: push the nvidia-builder image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: redhat-actions/push-to-registry@v2.8
+        with:
+          image: ${{ matrix.image_name}}
+          tags: latest
+          registry: ${{ env.REGISTRY }}/${{ env.REGISTRY_ORG }}
 
       - name: Publish Job Results to Slack
         id: slack
@@ -217,7 +228,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
       - name: Stop EC2 runner
         uses: machulav/ec2-github-runner@v2
         with:
