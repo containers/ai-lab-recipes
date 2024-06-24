@@ -1,3 +1,3 @@
-llama-cpp-python[server]==0.2.78
+llama-cpp-python[server]==0.2.79
 transformers==4.41.2
 pip==24.0
