@@ -157,7 +157,11 @@ fi
 RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
     sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 	/etc/containers/storage.conf && \
-	cp /run/.input/ilab /usr/local/bin/ilab
+	if [ -f "/run/.input/ilab" ]; then \
+	  cp /run/.input/ilab /usr/local/bin/ilab \
+        else \
+	  curl -o /usr/local/bin/ilab "https://raw.githubusercontent.com/containers/ai-lab-recipes/main/training/ilab-wrapper/ilab" \
+        fi
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
 ARG GPU_COUNT_COMMAND="nvidia-ctk --quiet cdi list | grep -P nvidia.com/gpu='\\\\d+' | wc -l"
