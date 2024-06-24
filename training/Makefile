@@ -66,13 +66,14 @@ vllm:
 .PHONY: driver-tookit amd nvidia intel bootc-models
 driver-tookit:
 	make -C common/ -f Makefile.common driver-toolkit
-bootc-models:
-	make -C model/ bootc-models
-amd:  bootc-models
+amd:
+	make VENDOR=amd -C model/ bootc-models
 	make -C amd-bootc/ bootc
 intel: bootc-models
+	make VENDOR=intel -C model/ bootc-models
 	make -C intel-bootc/ bootc
 nvidia: bootc-models
+	make VENDOR=nvidia -C model/ bootc-models
 	make -C nvidia-bootc/ driver-toolkit bootc
 
 #
