@@ -3,6 +3,24 @@ name: Training Bootc image builds
 on:
   workflow_dispatch:
 
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/training_bootc.yaml
+      - 'training/common/**'
+      - 'training/amd-bootc/**'
+      - 'training/intel-bootc/**'
+      - 'training/nvidia-bootc/**'
+      - 'training/intel-bootc/**'
+      - 'training/instructlab/**'
+      - 'training/vllm/**'
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - .github/workflows/model_image_build_push.yaml
+
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
