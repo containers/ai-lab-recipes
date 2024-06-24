@@ -6,7 +6,7 @@ REGISTRY ?= quay.io
 REGISTRY_ORG ?= ai-lab
 COMPONENT = models
 
-IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/$(MODEL_NAME):latest
+IMAGE ?= $(shell tr '[:upper:]' '[:lower:]' <<< $(REGISTRY)/$(REGISTRY_ORG)/$(MODEL_NAME):latest)
 
 .PHONY: build
 build:
