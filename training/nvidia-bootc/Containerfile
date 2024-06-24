@@ -157,7 +157,7 @@ fi
 RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
     sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 	/etc/containers/storage.conf && \
-	if [ -f /run/.input/ilab" ]; then \
+	if [ -f "/run/.input/ilab" ]; then \
 	  cp /run/.input/ilab /usr/local/bin/ilab \
         else \
 	  curl -o /usr/local/bin/ilab "https://raw.githubusercontent.com/containers/ai-lab-recipes-upstream/main/training/ilab-wrapper/ilab" \
