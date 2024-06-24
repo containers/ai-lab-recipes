@@ -3,24 +3,6 @@ name: Training Bootc image builds
 on:
   workflow_dispatch:
 
-  pull_request:
-    branches:
-      - main
-    paths:
-      - .github/workflows/training_bootc.yaml
-      - 'training/common/**'
-      - 'training/amd-bootc/**'
-      - 'training/intel-bootc/**'
-      - 'training/nvidia-bootc/**'
-      - 'training/intel-bootc/**'
-      - 'training/instructlab/**'
-      - 'training/vllm/**'
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - .github/workflows/model_image_build_push.yaml
-
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
@@ -52,7 +34,7 @@ jobs:
           mode: start
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           ec2-image-id: ami-04cec38d48a5be576
-          ec2-instance-type: m7i.8xlarge
+          ec2-instance-type: m7i.12xlarge
           subnet-id: subnet-0b1e1d94240813658
           security-group-id: sg-055105753f5e8bd83
 
@@ -118,13 +100,17 @@ jobs:
             arch: amd64
     runs-on: ${{ needs.start-runner.outputs.label }}
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
-    needs: nvidia-bootc-builder-image
+    needs: [ nvidia-bootc-builder-image, start-runner ]
     steps:
       - uses: actions/checkout@v4.1.7
 
       - name: mkdir root/.docker directory
         run: |
           mkdir -p ~/.docker
+
+      - name: generate a ssh key - USER SHOULD INJECT THEIR OWN AND REBUILD IF THEY USE THIS IMAGE and overwrite the existing one
+        run: |
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" <<<y
 
       - name: Login to Container Registry
         run: podman login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
@@ -162,15 +148,13 @@ jobs:
             context: training/intel-bootc
             arch: amd64
             gpu: intel
-            pull-images: quay.io/ai-lab/vllm:latest quay.io/ai-lab/deepspeed-trainer:latest
           - image_name: amd-bootc
             context: training/amd-bootc
             arch: amd64
             gpu: amd
-            pull-images: quay.io/ai-lab/vllm:latest
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ${{ needs.start-runner.outputs.label }}
-    needs: nvidia-bootc-builder-image
+    needs: [ start-runner, nvidia-bootc-builder-image ]
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4.1.7
@@ -181,11 +165,6 @@ jobs:
 
       - name: Login to Container Registry
         run: podman login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
-
-      - name: pull images
-        id: pull_image
-        working-directory: ${{ matrix.context }}
-        run: podman pull ${{ matrix.pull-images }}
 
       - name: generate the local OCI assets
         run: |
@@ -232,7 +211,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.REGION }}
+          aws-region: ${{ env.AWS_REGION }}
       - name: Stop EC2 runner
         uses: machulav/ec2-github-runner@v2
         with:
