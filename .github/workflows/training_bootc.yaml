@@ -1,22 +1,6 @@
 name: Training Bootc image builds
 
 on:
-  schedule: # schedule the job to run at 12 AM daily
-   - cron: '0 12 * * *'
-
-  # pull_request:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - .github/workflows/training_bootc.yaml
-  #     - ./training/**
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - .github/workflows/training_bootc.yaml
-  #     - ./training/**
-
   workflow_dispatch:
 
 concurrency:
@@ -26,60 +10,33 @@ concurrency:
 env:
   REGISTRY: quay.io
   REGISTRY_ORG: ai-lab
+  REGION: us-east-1
 
 jobs:
-  build-podman-v5:
+  start-runner:
+    name: Start self-hosted EC2 runner
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
-    env:
-      CGO_ENABLED: 1 # CGO is required for podman
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
-      - name: Cache podman bin
-        id: cache-podman-bin
-        uses: actions/cache@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          path: |
-            ./bin
-          key: ${{ runner.os }}-podman-${{ env.PODMAN_VER }}
-          restore-keys: |
-            ${{ runner.os }}-podman
-      - uses: actions/checkout@v3
-        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
         with:
-          repository: containers/podman
-          ref: v5.1.1
-
-      - uses: actions/setup-go@v2
-        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
-        with:
-          go-version: ${{ env.GOVER }}
-
-      - name: Cache go modules
-        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
-        uses: actions/cache@v2
-        with:
-          # In order:
-          # * Module download cache
-          # * Build cache (Linux)
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-podman-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-podman
-      - name: Add build packages
-        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
-        run: sudo apt install -y libsystemd-dev libseccomp-dev pkg-config golang-github-proglottis-gpgme-dev
-
-      - name: Build podman v4
-        if: steps.cache-podman-bin.outputs.cache-hit != 'true'
-        run: make binaries
-
-      # store podman binary as artifact
-      - uses: actions/upload-artifact@v3
-        with:
-          name: podman-bins
-          path: bin
+          mode: start
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ec2-image-id: ami-04cec38d48a5be576
+          ec2-instance-type: m7i.8xlarge
+          subnet-id: subnet-0b1e1d94240813658
+          security-group-id: sg-055105753f5e8bd83
 
   nvidia-bootc-builder-image:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
@@ -89,35 +46,20 @@ jobs:
           - image_name: nvidia-builder
             context: training/nvidia-bootc
             arch: amd64
-    runs-on: ubuntu-24.04
-    needs: build-podman-v5
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    needs: start-runner
     permissions:
       contents: read
       packages: write
     steps:
-      - name: Remove unnecessary files
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
       - uses: actions/checkout@v4.1.7
 
-      - name: Install qemu dependency
+      - name: mkdir root/.docker directory
         run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static
-          sudo apt-get install -y netavark containernetworking-plugins
+          mkdir -p ~/.docker
 
-      - name: pull in podman
-        uses: actions/download-artifact@v1
-        with:
-          name: podman-bins
-          path: bin
-
-      - name: replace
-        run: |
-          chmod +x bin/podman
-          sudo mv bin/podman /usr/bin/podman
+      - name: Login to Container Registry
+        run: podman login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
       - name: generate a ssh key - USER SHOULD INJECT THEIR OWN AND REBUILD IF THEY USE THIS IMAGE
         run: |
@@ -127,14 +69,6 @@ jobs:
         id: build_image
         run: make driver-toolkit ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
-
-      - name: Login to Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: redhat-actions/podman-login@v1.7
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -157,8 +91,6 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   nvidia-bootc-image:
-    needs: nvidia-bootc-builder-image
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
         include:
@@ -166,42 +98,23 @@ jobs:
             driver_version: "550.54.15"
             context: training/nvidia-bootc
             arch: amd64
-    runs-on: ubuntu-22.04-8-cores
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    needs: nvidia-bootc-builder-image
     steps:
-      - name: Remove unnecessary files
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
       - uses: actions/checkout@v4.1.7
 
-      - name: pull in podman
-        uses: actions/download-artifact@v1
-        with:
-          name: podman-bins
-          path: bin
-
-      - name: replace
+      - name: mkdir root/.docker directory
         run: |
-          chmod +x bin/podman
-          sudo mv bin/podman /usr/bin/podman
+          mkdir -p ~/.docker
 
-      - name: install packages
-        run: |
-          sudo apt-get install -y netavark containernetworking-plugins
+      - name: Login to Container Registry
+        run: podman login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
       - name: Build Image
         id: build_image
         run: make bootc DRIVER_VERSION=${{ matrix.driver_version }} ARCH=${{ matrix.arch }}
         working-directory: ${{ matrix.context }}
-
-      - name: Login to Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: redhat-actions/podman-login@v1.7
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -224,7 +137,6 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   bootc-images:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
     strategy:
       matrix:
         include:
@@ -238,38 +150,19 @@ jobs:
             arch: amd64
             gpu: amd
             pull-images: quay.io/ai-lab/vllm:latest
-    runs-on: ubuntu-22.04-8-cores
-    needs: build-podman-v5
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    runs-on: ${{ needs.start-runner.outputs.label }}
+    needs: start-runner
     continue-on-error: true
     steps:
-      - name: Remove unnecessary files
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
       - uses: actions/checkout@v4.1.7
 
-      - name: pull in podman
-        uses: actions/download-artifact@v1
-        with:
-          name: podman-bins
-          path: bin
-
-      - name: replace
+      - name: mkdir root/.docker directory
         run: |
-          chmod +x bin/podman
-          sudo mv bin/podman /usr/bin/podman
-
-      - name: install packages
-        run: |
-          sudo apt-get install -y netavark containernetworking-plugins
+          mkdir -p ~/.docker
 
       - name: Login to Container Registry
-        uses: redhat-actions/podman-login@v1.7
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+        run: podman login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
       - name: pull images
         id: pull_image
@@ -307,3 +200,25 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  stop-runner:
+    name: Stop self-hosted EC2 runner
+    needs:
+      - start-runner # required to get output from the start-runner job
+      - bootc-images # required to wait when the main job is done
+    runs-on: ubuntu-latest
+    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          label: ${{ needs.start-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
