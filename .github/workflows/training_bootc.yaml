@@ -132,6 +132,14 @@ jobs:
       - name: Login to Container Registry
         run: podman login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }} ${{ env.REGISTRY }}
 
+
+      - name: generate the local OCI assets
+        run: |
+          cd training
+          make -j vllm
+          make -j deepspeed
+          make -j instruct-nvidia
+
       - name: Build Image
         id: build_image
         run: make bootc DRIVER_VERSION=${{ matrix.driver_version }} ARCH=${{ matrix.arch }} SSH_PUBKEY=~/.ssh/id_rsa.pub
