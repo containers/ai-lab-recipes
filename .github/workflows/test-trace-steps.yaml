@@ -1,0 +1,112 @@
+# To run locally
+# act -W .github/workflows/test-trace-steps.yaml --container-architecture linux/amd64 -b ci/logs:/logs
+
+name: Test Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/test-trace-steps.yaml
+  workflow_dispatch:
+
+jobs:
+  test:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4.1.7
+    - name: Set up Python
+      uses: actions/setup-python@v5.1.0
+      with:
+        python-version: '3.11'
+
+    - name: Install Python dependencies
+      run: |
+        pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
+
+    - name: Download OpenTelemetry Collector Contrib
+      run: |
+        wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.103.0/otelcol-contrib_0.103.0_linux_amd64.tar.gz
+        tar -xvf otelcol-contrib_0.103.0_linux_amd64.tar.gz
+
+    - name: Write secrets to files
+      run: |
+        echo "${{ secrets.ROSA_OTEL_TLS_CERT }}" > /tmp/tls.crt
+
+    - name: Configure OpenTelemetry Collector
+      run: |
+        echo '
+        extensions:
+          basicauth/client:
+            client_auth:
+              username: "${{ secrets.OTEL_USERNAME }}"
+              password: "${{ secrets.OTEL_PASSWORD }}"
+        receivers:
+          otlp:
+            protocols:
+              grpc:
+              http:
+        exporters:
+          otlphttp:
+            endpoint: https://otc.apps.platform-sts.pcbk.p1.openshiftapps.com:4318
+            auth:
+              authenticator: basicauth/client
+            tls:
+              insecure: false
+              ca_file: /tmp/tls.crt
+          debug:
+            verbosity: detailed
+        service:
+          extensions: [basicauth/client]
+          pipelines:
+            traces:
+              receivers: [otlp]
+              exporters: [debug, otlphttp]
+        ' > otel-collector-config.yaml
+
+    - name: Run OpenTelemetry Collector
+      run: |
+        ./otelcol-contrib --config otel-collector-config.yaml > otel-collector.log 2>&1 &
+
+    - name: Start build trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="build"
+        export TRACE_ACTION="start"
+        python ci/trace-steps.py
+
+    - name: Build
+      run: |
+        echo "Simulating build step..."
+        sleep 2
+
+    - name: End build trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="build"
+        export TRACE_ACTION="end"
+        python ci/trace-steps.py
+
+    - name: Start test trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="test"
+        export TRACE_ACTION="start"
+        python ci/trace-steps.py
+
+    - name: Test
+      run: |
+        echo "Simulating test step..."
+        sleep 2
+
+    - name: End test trace
+      run: |
+        export WORKFLOW_NAME="test-workflow"
+        export STEP_NAME="test"
+        export TRACE_ACTION="end"
+        python ci/trace-steps.py
+
+    - name: Display OpenTelemetry Collector Logs
+      run: cat otel-collector.log
