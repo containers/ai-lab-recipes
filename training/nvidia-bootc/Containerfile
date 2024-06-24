@@ -99,7 +99,6 @@ COPY --from=builder /home/builder/yum-packaging-precompiled-kmod/RPMS/*/*.rpm /r
 COPY --from=builder --chmod=444 /home/builder/yum-packaging-precompiled-kmod/tmp/firmware/*.bin /lib/firmware/nvidia/${DRIVER_VERSION}/
 # Temporary workaround until the permanent fix for libdnf is merged
 COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-firstboot.service
-COPY add_ilab_wrapper.sh add_ilab_wrapper.sh
 
 RUN mv /etc/selinux /etc/selinux.tmp \
     && dnf install -y /rpms/kmod-nvidia-*.rpm \
@@ -158,7 +157,11 @@ fi
 RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
     sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
 	/etc/containers/storage.conf && \
-	./add_ilab_wrapper.sh
+	if [ -f /run/.input/ilab" ]; then \
+	  cp /run/.input/ilab /usr/local/bin/ilab \
+        else \
+	  curl -o /usr/local/bin/ilab "https://raw.githubusercontent.com/containers/ai-lab-recipes-upstream/main/training/ilab-wrapper/ilab" \
+        fi
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
 ARG GPU_COUNT_COMMAND="nvidia-ctk --quiet cdi list | grep -P nvidia.com/gpu='\\\\d+' | wc -l"
