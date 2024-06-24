@@ -33,7 +33,7 @@ env:
 jobs:
   start-runner:
     name: Start self-hosted EC2 runner
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ubuntu-latest
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
@@ -57,7 +57,7 @@ jobs:
           security-group-id: sg-055105753f5e8bd83
 
   nvidia-bootc-builder-image:
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     strategy:
       matrix:
         include:
@@ -117,7 +117,7 @@ jobs:
             context: training/nvidia-bootc
             arch: amd64
     runs-on: ${{ needs.start-runner.outputs.label }}
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     needs: nvidia-bootc-builder-image
     steps:
       - uses: actions/checkout@v4.1.7
@@ -168,9 +168,9 @@ jobs:
             arch: amd64
             gpu: amd
             pull-images: quay.io/ai-lab/vllm:latest
-    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests') && github.repository == 'containers-mirror/ai-lab-recipes'"
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ${{ needs.start-runner.outputs.label }}
-    needs: start-runner
+    needs: nvidia-bootc-builder-image
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4.1.7
