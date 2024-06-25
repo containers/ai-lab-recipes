@@ -1,5 +1,5 @@
 FROM registry.access.redhat.com/ubi9/ubi
 RUN dnf install -y python3-pip && python3 -m pip install huggingface_hub[cli]
-COPY entrypoint.sh /download
+COPY entrypoint.sh /entrypoint.sh
 WORKDIR /download
-ENTRYPOINT ["bash" "/download/entrypoint.sh"]
+ENTRYPOINT ["bash", "/entrypoint.sh"]
