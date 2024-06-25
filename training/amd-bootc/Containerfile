@@ -11,7 +11,8 @@ FROM ${BASEIMAGE}
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
 ARG EXTRA_RPM_PACKAGES=''
-RUN dnf install -y \
+RUN mv /etc/selinux /etc/selinux.tmp && \ 
+  dnf install -y \
   cloud-init \
   pciutils \
   rocm-smi \
@@ -19,6 +20,7 @@ RUN dnf install -y \
   rsync \
   ${EXTRA_RPM_PACKAGES} \
   && dnf clean all \
+  && mv /etc/selinux /etc/selinux.tmp \
   && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants # Enable cloud-init
 
 # Setup /usr/lib/containers/storage as an additional store for images.
