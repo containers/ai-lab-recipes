@@ -21,9 +21,14 @@ RUN dnf install -y \
 
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
-RUN sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
-	/etc/containers/storage.conf && \
-	cp /run/.input/ilab /usr/local/bin/ilab
+RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
+    sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
+        /etc/containers/storage.conf && \
+    if [ -f "/run/.input/ilab" ]; then \
+          cp /run/.input/ilab /usr/local/bin/ilab; \
+     else \
+          curl -o /usr/local/bin/ilab "https://raw.githubusercontent.com/containers/ai-lab-recipes/main/training/ilab-wrapper/ilab"; \
+    fi
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 
@@ -45,5 +50,9 @@ RUN sed -i "s%__REPLACE_CONTAINER_NAME__%${INSTRUCTLAB_IMAGE}%" /usr/local/bin/i
 VOLUME /var/lib/containers
 
 # Prepull the instructlab image
-RUN IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-amd) && \
-    podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}
+RUN if [ -f "/run/.input/instructlab-amd" ]; then \
+         IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-amd) && \
+         podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
+    else \
+         IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
+    fi
