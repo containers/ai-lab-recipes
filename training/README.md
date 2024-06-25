@@ -101,6 +101,8 @@ make cloud-intel
 bootc-image-builder produces disk images using a bootable container as input. Disk images can be used to directly provision a host
 The process will write the disk image in <platform>-bootc/build
 
+IMPORTANT: `osbuild-selinux` package needs to be installed for bootc-image-builder to work in a SELinux enabled host
+
 To invoke bootc-image-builder, execute make disk-<platform>
 ```
 make disk-nvidia
