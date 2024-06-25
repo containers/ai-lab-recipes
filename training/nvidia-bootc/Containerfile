@@ -118,6 +118,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
     && dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel${OS_VERSION_MAJOR}/${CUDA_REPO_ARCH}/cuda-rhel${OS_VERSION_MAJOR}.repo \
     && dnf -y module enable nvidia-driver:${DRIVER_STREAM}/default \
     && dnf install -y \
+        cloud-init \
         pciutils \
         tmux \
         nvidia-driver-cuda-${DRIVER_VERSION} \
@@ -127,7 +128,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         cuda-cudart-${CUDA_DASHED_VERSION} \
         nvidia-persistenced-${DRIVER_VERSION} \
         nvidia-container-toolkit \
-	rsync \
+        rsync \
         ${EXTRA_RPM_PACKAGES} \
     && if [ "$DRIVER_TYPE" != "vgpu" ] && [ "$TARGET_ARCH" != "arm64" ]; then \
         versionArray=(${DRIVER_VERSION//./ }); \
@@ -136,6 +137,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         dnf install -y nvidia-fabric-manager-${DRIVER_VERSION} libnvidia-nscq-${DRIVER_BRANCH}-${DRIVER_VERSION} ; \
     fi \
     && dnf clean all \
+    && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants # Enable cloud-init
     && mv /etc/selinux.tmp /etc/selinux \
     && ln -s /usr/lib/systemd/system/nvidia-toolkit-firstboot.service /usr/lib/systemd/system/basic.target.wants/nvidia-toolkit-firstboot.service \
     && echo "blacklist nouveau" > /etc/modprobe.d/blacklist_nouveau.conf
