@@ -12,12 +12,14 @@ ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
 ARG EXTRA_RPM_PACKAGES=''
 RUN dnf install -y \
+  cloud-init \
   pciutils \
   rocm-smi \
   tmux \
   rsync \
   ${EXTRA_RPM_PACKAGES} \
-  && dnf clean all
+  && dnf clean all \
+  && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants # Enable cloud-init
 
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.

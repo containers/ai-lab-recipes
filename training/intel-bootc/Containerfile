@@ -45,8 +45,11 @@ RUN . /etc/os-release \
     && mv /tmp/firmware/habanalabs /lib/firmware \
     && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH}
 
-RUN dnf install -y rsync ${EXTRA_RPM_PACKAGES} \
-    && dnf clean all
+RUN dnf install -y ${EXTRA_RPM_PACKAGES} \
+    cloud-init \
+    rsync \
+    && dnf clean all \
+    && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants # Enable cloud-init
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-intel:latest"
 

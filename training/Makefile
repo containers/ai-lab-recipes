@@ -18,12 +18,6 @@ help:
 	@echo "  - make intel"
 	@echo "  - make nvidia"
 	@echo
-	@echo "If these images are going to be used on a cloud, you might want to add cloud-init."
-	@echo
-	@echo "  - make cloud-amd"
-	@echo "  - make cloud-intel"
-	@echo "  - make cloud-nvidia"
-	@echo
 	@echo "Make prune. This command will remove all buildah containers if left behind from podman build and then prune all unused container images. Useful if you are running out of space."
 	@echo
 	@echo "  - make prune"
@@ -87,24 +81,6 @@ nvidia-boot-model:
 	make bootc-models nvidia
 intel-boot-model:
 	make bootc-models intel
-
-#
-# Make Bootc container images preinstalled with cloud-init
-#
-.PHONY:
-cloud-amd:
-	make VENDOR=amd -C cloud
-
-.PHONY:
-cloud-intel:
-	make VENDOR=intel -C cloud
-
-.PHONY:
-cloud-nvidia:
-	make VENDOR=nvidia -C cloud
-
-.PHONY:
-cloud: cloud-amd cloud-intel cloud
 
 #
 # We often see users running out of space. These commands are useful for freeing wasted space.
