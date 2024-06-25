@@ -64,7 +64,7 @@ RUN if [ -n "${SSHPUBKEY}" ]; then \
 fi
 
 # Prepull the instructlab image
-RUN if [ -f "/run/.input/instructlab-intel" ]; then \
+RUN if [ -f "/run/.input/instructlab-intel/oci-layout" ]; then \
          IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-intel) && \
          podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
     else \
