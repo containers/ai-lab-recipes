@@ -178,7 +178,7 @@ RUN for i in /usr/local/bin/ilab*; do \
 # Added for running as an OCI Container to prevent Overlay on Overlay issues.
 VOLUME /var/lib/containers
 
-RUN if [ -f "/run/.input/ilab" ]; then \
+RUN if [ -f "/run/.input" ]; then \
          IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
          podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
     else \
