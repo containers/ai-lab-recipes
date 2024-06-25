@@ -14,7 +14,7 @@ on:
 jobs:
   test:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4.1.7
     - name: Set up Python
@@ -33,16 +33,13 @@ jobs:
 
     - name: Write secrets to files
       run: |
-        echo "${{ secrets.ROSA_OTEL_TLS_CERT }}" > /tmp/tls.crt
+        echo "${{ secrets.ROSA_OTEL_CACERT }}" > /tmp/ca.crt
+        echo "${{ secrets.ROSA_OTEL_SERVER_CRT }}" > /tmp/server.crt
+        echo "${{ secrets.ROSA_OTEL_SERVER_KEY }}" > /tmp/server.key
 
     - name: Configure OpenTelemetry Collector
       run: |
         echo '
-        extensions:
-          basicauth/client:
-            client_auth:
-              username: "${{ secrets.OTEL_USERNAME }}"
-              password: "${{ secrets.OTEL_PASSWORD }}"
         receivers:
           otlp:
             protocols:
@@ -50,16 +47,15 @@ jobs:
               http:
         exporters:
           otlphttp:
-            endpoint: https://otc.apps.platform-sts.pcbk.p1.openshiftapps.com:4318
-            auth:
-              authenticator: basicauth/client
+            endpoint: "${{ secrets.ROSA_OTEL_ENDPOINT }}"
             tls:
               insecure: false
-              ca_file: /tmp/tls.crt
+              cert_file: /tmp/server.crt
+              key_file: /tmp/server.key
+              ca_file: /tmp/ca.crt
           debug:
             verbosity: detailed
         service:
-          extensions: [basicauth/client]
           pipelines:
             traces:
               receivers: [otlp]
