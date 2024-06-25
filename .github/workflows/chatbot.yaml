@@ -93,10 +93,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
-      - name: Start build trace
+      - name: Start job trace
         run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="build-image"
+          export WORKFLOW_NAME="chatbot"
+          export JOB_NAME="chatbot-build-and-push"
           export TRACE_ACTION="start"
           python ci/trace-steps.py
 
@@ -110,53 +110,18 @@ jobs:
           containerfiles: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app/Containerfile
           context: recipes/natural_language_processing/${{ env.IMAGE_NAME }}/app
 
-      - name: End build trace
-        run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="build-image"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
-
       - name: Install Dependencies
         working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
         run: make install
-
-      - name: Start download model trace
-        run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="download-model"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
 
       - name: Download model
         working-directory: ./models
         run: make download-model-granite
 
-      - name: End download model trace
-        run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="download-model"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
-
-      - name: Start functional test run trace
-        run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="run-functional-tests"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
-
       - name: Run Functional Tests
         shell: bash
         run: make functional-tests
         working-directory: ./recipes/natural_language_processing/${{ env.IMAGE_NAME }}
-
-      - name: End functional test run trace
-        run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="run-functional-tests"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
 
       - name: Login to Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -165,13 +130,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Start push image trace
-        run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="push-image"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
 
       - name: Push Image
         id: push_image
@@ -182,9 +140,10 @@ jobs:
           tags: ${{ steps.build_image.outputs.tags }}
           registry: ${{ env.REGISTRY }}
 
-      - name: End push image trace
+      - name: End job trace
         run: |
-          export WORKFLOW_NAME="chatbot-build-push"
-          export STEP_NAME="push-image"
+          export WORKFLOW_NAME="chatbot"
+          export JOB_NAME="chatbot-build-and-push"
           export TRACE_ACTION="end"
           python ci/trace-steps.py
+

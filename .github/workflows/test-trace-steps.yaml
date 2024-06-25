@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  test-build:
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ubuntu-24.04
     steps:
@@ -66,10 +66,10 @@ jobs:
       run: |
         ./otelcol-contrib --config otel-collector-config.yaml > otel-collector.log 2>&1 &
 
-    - name: Start build trace
+    - name: Start job trace
       run: |
-        export WORKFLOW_NAME="test-workflow"
-        export STEP_NAME="build"
+        export WORKFLOW_NAME="test-trace"
+        export JOB_NAME="test-build"
         export TRACE_ACTION="start"
         python ci/trace-steps.py
 
@@ -78,29 +78,15 @@ jobs:
         echo "Simulating build step..."
         sleep 2
 
-    - name: End build trace
-      run: |
-        export WORKFLOW_NAME="test-workflow"
-        export STEP_NAME="build"
-        export TRACE_ACTION="end"
-        python ci/trace-steps.py
-
-    - name: Start test trace
-      run: |
-        export WORKFLOW_NAME="test-workflow"
-        export STEP_NAME="test"
-        export TRACE_ACTION="start"
-        python ci/trace-steps.py
-
     - name: Test
       run: |
         echo "Simulating test step..."
         sleep 2
 
-    - name: End test trace
+    - name: End job trace
       run: |
-        export WORKFLOW_NAME="test-workflow"
-        export STEP_NAME="test"
+        export WORKFLOW_NAME="test-trace"
+        export JOB_NAME="test-build"
         export TRACE_ACTION="end"
         python ci/trace-steps.py
 
