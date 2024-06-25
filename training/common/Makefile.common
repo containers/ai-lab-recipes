@@ -52,7 +52,7 @@ ENABLE_RT ?=
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub 2> /dev/null)
 
 .PHONY: prepare-files
-prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(QLORA_WRAPPER) $(OUTDIR)/$(TRAIN_WRAPPER) $(OUTDIR)
+prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(QLORA_WRAPPER) $(OUTDIR)/$(TRAIN_WRAPPER) $(OUTDIR) common-services
 
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
@@ -62,6 +62,11 @@ $(OUTDIR)/$(QLORA_WRAPPER): $(OUTDIR)
 	cp -pf $(QLORA_WRAPPER) $(OUTDIR)
 $(OUTDIR)/$(TRAIN_WRAPPER): $(OUTDIR)
 	cp -pf $(TRAIN_WRAPPER) $(OUTDIR)
+
+.PHONY: common-services
+common-services:
+	mkdir -p build; cp -pR ../common/usr build
+
 
 .PHONY: check-sshkey
 check-sshkey:

@@ -101,6 +101,8 @@ COPY --from=builder /home/builder/yum-packaging-precompiled-kmod/RPMS/*/*.rpm /r
 COPY --from=builder --chmod=444 /home/builder/yum-packaging-precompiled-kmod/tmp/firmware/*.bin /lib/firmware/nvidia/${DRIVER_VERSION}/
 # Temporary workaround until the permanent fix for libdnf is merged
 COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-firstboot.service
+# Enable common services
+COPY build/usr /usr
 
 ARG IMAGE_VERSION_ID
 
@@ -148,12 +150,20 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         dnf module enable -y nvidia-driver:${DRIVER_BRANCH} && \
         dnf install -y nvidia-fabric-manager-${DRIVER_VERSION} libnvidia-nscq-${DRIVER_BRANCH}-${DRIVER_VERSION} ; \
     fi \
-    # Install rhc connect for insights telemetry gathering
     && . /etc/os-release && if [ "${ID}" == "rhel" ]; then \
+        # Install rhc connect for insights telemetry gathering
         dnf install -y rhc rhc-worker-playbook; \
+        # Adding rhel ai identity to os-release file for insights usage
         sed -i -e "/^VARIANT=/ {s/^VARIANT=.*/VARIANT=\"RHEL AI\"/; t}" -e "\$aVARIANT=\"RHEL AI\"" /usr/lib/os-release; \
         sed -i -e "/^VARIANT_ID=/ {s/^VARIANT_ID=.*/VARIANT_ID=rhel_ai/; t}" -e "\$aVARIANT_ID=rhel_ai" /usr/lib/os-release; \
         sed -i -e "/^RHEL_AI_VERSION_ID=/ {s/^RHEL_AI_VERSION_ID=.*/RHEL_AI_VERSION_ID='${IMAGE_VERSION_ID}'/; t}" -e "\$aRHEL_AI_VERSION_ID='${IMAGE_VERSION_ID}'" /usr/lib/os-release; \
+
+        # enable upgrade informer timer
+        ln -s /usr/lib/systemd/system/upgrade-informer.timer /usr/lib/systemd/system/timers.target.wants/upgrade-informer.timer; \
+        # enable upgrade informer service, added as we need it to start on boot
+        ln -s /usr/lib/systemd/system/upgrade-informer.service /usr/lib/systemd/system/basic.target.wants/upgrade-informer.service; \
+        # disable auto upgrade service
+        rm -f /usr/lib/systemd/system/default.target.wants/bootc-fetch-apply-updates.timer; \
         fi \
     && dnf clean all \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants \
@@ -163,6 +173,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
     && sed '/\[Unit\]/a ConditionPathExists = /dev/nvidia-nvswitchctl' /usr/lib/systemd/system/nvidia-fabricmanager.service \
     && ln -s /usr/lib/systemd/system/nvidia-fabricmanager.service /etc/systemd/system/multi-user.target.wants/nvidia-fabricmanager.service \
     && ln -s /usr/lib/systemd/system/nvidia-persistenced.service /etc/systemd/system/multi-user.target.wants/nvidia-persistenced.service
+
 
 ARG SSHPUBKEY
 
