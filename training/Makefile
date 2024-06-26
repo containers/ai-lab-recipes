@@ -88,23 +88,6 @@ intel-models: intel
 .PHONY: bootc-models
 bootc-models:
 	$(MAKE) FROM_BOOTC_IMAGE=$(BOOTC_CLOUD_IMAGE) TARGET_MODELS_IMAGE=$(BOOTC_CLOUD_MODELS_IMAGE) -C model bootc-models
-#
-# Make Bootc container images preinstalled with cloud-init
-#
-.PHONY:
-cloud-amd: amd
-	$(MAKE) VENDOR=amd -C cloud
-
-.PHONY:
-cloud-intel: intel
-	$(MAKE) VENDOR=intel -C cloud
-
-.PHONY:
-cloud-nvidia: nvidia
-	$(MAKE) VENDOR=nvidia -C cloud
-
-.PHONY:
-cloud: cloud-amd cloud-intel cloud
 
 #
 # We often see users running out of space. These commands are useful for freeing wasted space.
