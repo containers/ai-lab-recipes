@@ -54,7 +54,7 @@ RUN sed -i "s%__REPLACE_CONTAINER_NAME__%${INSTRUCTLAB_IMAGE}%" /usr/local/bin/i
 VOLUME /var/lib/containers
 
 # Prepull the instructlab image
-RUN if [ -f "/run/.input/instructlab-amd" ]; then \
+RUN if [ -f "/run/.input/instructlab-amd/oci-layout" ]; then \
          IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-amd) && \
          podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
     else \

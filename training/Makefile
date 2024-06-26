@@ -1,26 +1,32 @@
 MAKEFLAGS += -j2
-
+include common/Makefile.common
 default: help
 
 .PHONY: all
 all: models
 
 help:
-	@echo "To build a bootable container image you first need to create instructlab container images for a particular vendor "
-	@echo
-	@echo "  - make instruct-amd"
-	@echo "  - make instruct-intel"
-	@echo "  - make instruct-nvidia"
-	@echo
-	@echo "Once instruct images are created, create bootc container images"
+	@echo "To build a bootable container image, run the target for your intended GPU arch"
 	@echo
 	@echo "  - make amd"
 	@echo "  - make intel"
 	@echo "  - make nvidia"
 	@echo
+	@echo "To include models in the image, run the targets with a '-models' suffix."
+	@echo
+	@echo "  - make amd-models"
+	@echo "  - make intel-models"
+	@echo "  - make nvidia-models"
+	@echo
 	@echo "Make prune. This command will remove all buildah containers if left behind from podman build and then prune all unused container images. Useful if you are running out of space."
 	@echo
+	@echo "Note: this will not remove the embedded instructlab images which are stored in the build directory."
+	@echo
 	@echo "  - make prune"
+	@echo
+	@echo "To cleanup build state (downloaded models and embedded images)"
+	@echo
+	@echo " - make clean"
 	@echo
 	@echo "To create a disk image"
 	@echo
@@ -33,54 +39,72 @@ help:
 #
 .PHONY:
 instruct-amd:
-	make -C instructlab amd
+	$(MAKE) -C instructlab amd
 
 .PHONY:
 instruct-nvidia:
-	make -C instructlab nvidia
+	$(MAKE) -C instructlab nvidia
 
 .PHONY:
 instruct-intel:
-	make -C instructlab intel
+	$(MAKE) -C instructlab intel
 
 .PHONY:
 instruct: instruct-amd instruct-nvidia instruct-intel
 
 .PHONY: deepspeed
 deepspeed:
-	make -C deepspeed/ image
+	$(MAKE) -C deepspeed/ image
 
 .PHONY: vllm
 vllm:
-	make -C vllm/ image
+	$(MAKE) -C vllm/ image
 
 #
 # Create bootc container images prepared for AI
 #
 .PHONY: driver-tookit amd nvidia intel bootc-models
 driver-tookit:
-	make -C common/ -f Makefile.common driver-toolkit
-amd:
-	make VENDOR=amd -C model/ bootc-models
-	make -C amd-bootc/ bootc
-intel: bootc-models
-	make VENDOR=intel -C model/ bootc-models
-	make -C intel-bootc/ bootc
-nvidia: bootc-models
-	make VENDOR=nvidia -C model/ bootc-models
-	make -C nvidia-bootc/ driver-toolkit bootc
+	$(MAKE) -C common/ -f Makefile.common driver-toolkit
+amd: instruct-amd
+	$(MAKE) -C amd-bootc/ bootc
+intel: instruct-intel
+	$(MAKE) -C intel-bootc/ bootc
+nvidia: instruct-nvidia
+	$(MAKE) -C nvidia-bootc/ driver-toolkit bootc
 
 #
 # Create bootc container images prepared with AI models pre-loaded
 #
 
-.PHONY: amd-bootc-model nvidia-bootc-model intel-bootc-model 
-amd-boot-model:
-	make bootc-models amd
-nvidia-boot-model:
-	make bootc-models nvidia
-intel-boot-model:
-	make bootc-models intel
+.PHONY: amd-bootc-models nvidia-bootc-models intel-bootc-models 
+amd-models: amd
+	$(MAKE) VENDOR=amd -C model bootc-models
+nvidia-models: nvidia
+	$(MAKE) VENDOR=nvidia -C model bootc-models
+intel-models: intel
+	$(MAKE) VENDOR=intel -C model bootc-models
+
+.PHONY: bootc-models
+bootc-models:
+	$(MAKE) FROM_BOOTC_IMAGE=$(BOOTC_CLOUD_IMAGE) TARGET_MODELS_IMAGE=$(BOOTC_CLOUD_MODELS_IMAGE) -C model bootc-models
+#
+# Make Bootc container images preinstalled with cloud-init
+#
+.PHONY:
+cloud-amd: amd
+	$(MAKE) VENDOR=amd -C cloud
+
+.PHONY:
+cloud-intel: intel
+	$(MAKE) VENDOR=intel -C cloud
+
+.PHONY:
+cloud-nvidia: nvidia
+	$(MAKE) VENDOR=nvidia -C cloud
+
+.PHONY:
+cloud: cloud-amd cloud-intel cloud
 
 #
 # We often see users running out of space. These commands are useful for freeing wasted space.
@@ -95,17 +119,17 @@ prune:
 #
 .PHONY: disk-amd
 disk-amd:
-	make -C amd-bootc/ bootc-image-builder
+	$(MAKE) -C amd-bootc/ bootc-image-builder
 .PHONY: disk-intel
 disk-intel:
-	make -C intel-bootc/ bootc-image-builder
+	$(MAKE) -C intel-bootc/ bootc-image-builder
 .PHONY: disk-nvidia
 disk-nvidia:
-	make -C nvidia-bootc/ bootc-image-builder
+	$(MAKE) -C nvidia-bootc/ bootc-image-builder
 
 .PHONY: models
 models:
-	make -C model
+	$(MAKE) -C model
 
 .PHONY: clean
 clean:
