@@ -43,8 +43,9 @@ generate-model-cfile: download
 		-v $(COMMON_PATH):/work:z \
 		-v ${OUTDIR}:/run/.input:ro \
 		--pull=never \
+		--entrypoint python3 \
 		$(REGISTRY)/$(REGISTRY_ORG)/model-downloader:latest \
-		python3 /work/generate-model-cfile.py /run/.input/models >> ${MODELS_CONTAINERFILE}
+		/work/generate-model-cfile.py /run/.input/models >> ${MODELS_CONTAINERFILE}
 
 .PHONY: bootc-models
 bootc-models: generate-model-cfile
