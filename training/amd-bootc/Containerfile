@@ -20,7 +20,7 @@ RUN mv /etc/selinux /etc/selinux.tmp && \
   rsync \
   ${EXTRA_RPM_PACKAGES} \
   && dnf clean all \
-  && mv /etc/selinux /etc/selinux.tmp \
+  && mv /etc/selinux.tmp /etc/selinux \
   && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants # Enable cloud-init
 
 # Setup /usr/lib/containers/storage as an additional store for images.
