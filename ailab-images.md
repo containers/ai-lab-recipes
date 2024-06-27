@@ -16,11 +16,6 @@
 
 Images used in the `Bootc` aspect of this repo or tooling images
 
-- quay.io/ai-lab/nvidia-builder:latest
-- quay.io/ai-lab/instructlab-nvidia:latest
-- quay.io/ai-lab/nvidia-bootc:latest
-- quay.io/ai-lab/intel-bootc:latest
-- quay.io/ai-lab/amd-bootc:latest
 - quay.io/ai-lab/chromadb:latest
 - quay.io/ai-lab/model-converter:latest
 
