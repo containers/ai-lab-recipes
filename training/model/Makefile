@@ -3,9 +3,7 @@ include ../common/Makefile.common
 TARGET_MODELS_IMAGE ?= $(BOOTC_MODELS_IMAGE)
 FROM_BOOTC_IMAGE ?= $(BOOTC_IMAGE)
 
-GRANITE_MODEL_REPO ?= ibm/granite-7b-base
-MIXTRAL_MODEL_REPO ?= mistralai/Mixtral-8x7B-Instruct-v0.1
-PROMETHEUS_MODEL_REPO ?= prometheus-eval/prometheus-8x7b-v2.0
+GRANITE_MODEL_REPO ?= instructlab/granite-7b-lab
 
 HF_TOKEN ?= $(shell echo $$HF_TOKEN)
 
@@ -26,10 +24,8 @@ image:
 .PHONY: download-all
 download-all: image
 	$(MAKE) MODEL_REPO=$(GRANITE_MODEL_REPO) download-model
-	$(MAKE) MODEL_REPO=$(MIXTRAL_MODEL_REPO) download-model
-	$(MAKE) MODEL_REPO=$(PROMETHEUS_MODEL_REPO) download-model
 
-.PHONY: download-model 
+.PHONY: download-model
 download-model:
 	mkdir -p $(BUILD_MODELS_PATH)
 	podman run \
