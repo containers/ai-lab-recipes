@@ -21,7 +21,7 @@ RUN mv /etc/selinux /etc/selinux.tmp && \
   ${EXTRA_RPM_PACKAGES} \
   && dnf clean all \
   && mv /etc/selinux.tmp /etc/selinux \
-  && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants # Enable cloud-init
+  && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
 
 # Setup /usr/lib/containers/storage as an additional store for images.
 # Remove once the base images have this set by default.
