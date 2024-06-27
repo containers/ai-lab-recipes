@@ -1,6 +1,6 @@
 MAKEFLAGS += -j2
 include common/Makefile.common
-default: help
+.DEFAULT_GOAL := help
 
 .PHONY: all
 all: models
