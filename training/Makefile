@@ -1,5 +1,4 @@
 MAKEFLAGS += -j2
-include common/Makefile.common
 default: help
 
 .PHONY: all
@@ -77,7 +76,7 @@ nvidia: instruct-nvidia
 # Create bootc container images prepared with AI models pre-loaded
 #
 
-.PHONY: amd-bootc-models nvidia-bootc-models intel-bootc-models 
+.PHONY: amd-bootc-models nvidia-bootc-models intel-bootc-models
 amd-models: amd
 	$(MAKE) VENDOR=amd -C model bootc-models
 nvidia-models: nvidia
@@ -116,4 +115,4 @@ models:
 
 .PHONY: clean
 clean:
-	rm -rf build
+	rm -rf build */build

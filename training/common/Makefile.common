@@ -49,13 +49,11 @@ ENABLE_RT ?=
 
 SSH_PUBKEY ?= $(shell cat ${HOME}/.ssh/id_rsa.pub 2> /dev/null)
 
- .PHONY: prepare-files
+.PHONY: prepare-files
 prepare-files: $(OUTDIR)/$(WRAPPER) $(OUTDIR)/$(QLORA_WRAPPER) $(OUTDIR)/$(TRAIN_WRAPPER) $(OUTDIR)
 
-.PHONY: $(OUTDIR)
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
-
 $(OUTDIR)/$(WRAPPER): $(OUTDIR)
 	cp -pf $(WRAPPER) $(OUTDIR)
 $(OUTDIR)/$(QLORA_WRAPPER): $(OUTDIR)
