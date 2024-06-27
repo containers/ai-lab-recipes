@@ -7,7 +7,7 @@ ARG ENABLE_RT=''
 
 USER root
 
-RUN dnf -y update \
+RUN dnf -y update --exclude kernel* \
     && dnf info --installed kernel > /dev/null || dnf install -y kernel-core \
     && if [ "${KERNEL_VERSION}" == "" ]; then \
         RELEASE=$(dnf info --installed kernel-core | awk -F: '/^Release/{print $2}' | tr -d '[:blank:]') \
