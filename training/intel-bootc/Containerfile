@@ -49,7 +49,7 @@ RUN dnf install -y ${EXTRA_RPM_PACKAGES} \
     cloud-init \
     rsync \
     && dnf clean all \
-    && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants # Enable cloud-init
+    && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-intel:latest"
 
