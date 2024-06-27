@@ -19,9 +19,11 @@ all: build download-model-granite run
 build-cuda:
 	"${CONTAINER_TOOL}"  build --squash-all -t $(CUDA_IMAGE) . -f cuda/Containerfile
 
-.PHONY: build-vulkan
-build-vulkan:
-	"${CONTAINER_TOOL}"  build --squash-all -t $(VULKAN_IMAGE) . -f vulkan/Containerfile
+.PHONY: build-vulkan-amd64 build-vulkan-arm64
+build-vulkan-amd64:
+	"${CONTAINER_TOOL}"  build --squash-all -t $(VULKAN_IMAGE) . -f vulkan/amd64/Containerfile
+build-vulkan-arm64:
+	"${CONTAINER_TOOL}"  build --squash-all -t $(VULKAN_IMAGE) . -f vulkan/arm64/Containerfile
 
 .PHONY: download-model-granite # default model
 download-model-granite:

@@ -61,9 +61,11 @@ The [Vulkan image](../llamacpp_python/vulkan/Containerfile) is experimental, but
 
 To build the Vulkan model service variant image:
 
-```bash
-make -f Makefile build-vulkan
-```
+| System Architecture | Command |
+|---|---|
+| amd64 | make -f Makefile build-vulkan-amd64 |
+| arm64 | make -f Makefile build-vulkan-arm64 |
+
 To pull the base model service image:
 
 ```bash
