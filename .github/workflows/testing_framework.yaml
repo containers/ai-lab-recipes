@@ -46,7 +46,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
         with:
-          path: main
+          ref: 'main'
 
       - name: Set up Python
         uses: actions/setup-python@v5.1.0
