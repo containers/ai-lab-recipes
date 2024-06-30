@@ -7,6 +7,8 @@ ARG ENABLE_RT=''
 
 USER root
 
+# TODO: rework this monstrosity into a build.sh (or even not shell script)
+# The need for the `cp /etc/dnf/dnf.conf` is a workaround for https://github.com/containers/bootc/issues/637
 RUN dnf -y update --exclude kernel* \
     && dnf info --installed kernel > /dev/null || dnf install -y kernel-core \
     && if [ "${KERNEL_VERSION}" == "" ]; then \
@@ -16,6 +18,7 @@ RUN dnf -y update --exclude kernel* \
         fi \
     && echo "${KERNEL_VERSION}" \
     && dnf -y install dnf-plugin-config-manager \
+    && cp -a /etc/dnf/dnf.conf{,.tmp} && mv /etc/dnf/dnf.conf{.tmp,} \
     && dnf config-manager --best --nodocs --setopt=install_weak_deps=False --save \
     && dnf -y install \
         kernel-devel-${KERNEL_VERSION} \

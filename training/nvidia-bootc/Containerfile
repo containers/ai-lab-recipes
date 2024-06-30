@@ -99,6 +99,8 @@ COPY --from=builder --chmod=444 /home/builder/yum-packaging-precompiled-kmod/tmp
 # Temporary workaround until the permanent fix for libdnf is merged
 COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-firstboot.service
 
+# TODO: rework this monstrosity into a build.sh (or even not shell script)
+# The need for the `cp /etc/dnf/dnf.conf` is a workaround for https://github.com/containers/bootc/issues/637
 RUN mv /etc/selinux /etc/selinux.tmp \
     && dnf install -y /rpms/kmod-nvidia-*.rpm \
     && if [ "${TARGET_ARCH}" == "" ]; then \
@@ -113,6 +115,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         CUDA_DASHED_VERSION=${CUDA_VERSION_ARRAY[0]}-${CUDA_VERSION_ARRAY[1]} \
         CUDA_REPO_ARCH=${TARGET_ARCH} \
     && if [ "${TARGET_ARCH}" == "aarch64" ]; then CUDA_REPO_ARCH="sbsa"; fi \
+    && cp -a /etc/dnf/dnf.conf{,.tmp} && mv /etc/dnf/dnf.conf{.tmp,} \
     && dnf config-manager --best --nodocs --setopt=install_weak_deps=False --save \
     && dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel${OS_VERSION_MAJOR}/${CUDA_REPO_ARCH}/cuda-rhel${OS_VERSION_MAJOR}.repo \
     && dnf -y module enable nvidia-driver:${DRIVER_STREAM}/default \
