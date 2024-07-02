@@ -182,9 +182,12 @@ RUN for i in /usr/local/bin/ilab*; do \
 # Added for running as an OCI Container to prevent Overlay on Overlay issues.
 VOLUME /var/lib/containers
 
-RUN if [ -f "/run/.input/instructlab-nvidia/oci-layout" ]; then \
+RUN --mount=type=secret,id=instructlab-nvidia-pull/.dockerconfigjson \
+    if [ -f "/run/.input/instructlab-nvidia/oci-layout" ]; then \
          IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
          podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
+    elif [ -f "/run/secrets/instructlab-nvidia-pull/.dockerconfigjson" ]; then \
+         IID=$(sudo podman --root /usr/lib/containers/storage pull --authfile /run/secrets/instructlab-nvidia-pull/.dockerconfigjson ${INSTRUCTLAB_IMAGE}); \
     else \
          IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
     fi
