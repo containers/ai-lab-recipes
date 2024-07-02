@@ -1,5 +1,7 @@
 # AI Lab Recipes
 
+![](/assets/ai_lab_recipes_logo.png) 
+
 This repo contains recipes for building and running containerized AI and LLM
 Applications with Podman.
 
