@@ -46,7 +46,7 @@ jobs:
 
       - name: Install opentelemetry dependencies
         run: |
-          pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
+          pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp
 
       - name: Download OpenTelemetry Collector Contrib
         run: |
@@ -79,7 +79,7 @@ jobs:
                 verbosity: detailed
             service:
               pipelines:
-                traces:
+                metrics:
                   receivers: [otlp]
                   exporters: [debug, otlphttp]
           ' > otel-collector-config.yaml
@@ -93,12 +93,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
 
-      - name: Start job trace
+      - name: Start Metric
         run: |
           export WORKFLOW_NAME="chatbot"
           export JOB_NAME="chatbot-build-and-push"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
+          export METRIC_ACTION="start"
+          python ci/metrics-generate.py
 
       - name: Build Image
         id: build_image
@@ -140,10 +140,10 @@ jobs:
           tags: ${{ steps.build_image.outputs.tags }}
           registry: ${{ env.REGISTRY }}
 
-      - name: End job trace
+      - name: End Metric
         run: |
           export WORKFLOW_NAME="chatbot"
           export JOB_NAME="chatbot-build-and-push"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
+          export METRIC_ACTION="end"
+          python ci/metrics-generate.py
 
