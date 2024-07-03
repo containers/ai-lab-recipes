@@ -53,9 +53,20 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Python dependencies for otel trace generation
+      - name: Install opentelemetry dependencies
         run: |
           pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
+
+      - name: Download OpenTelemetry Collector Contrib
+        run: |
+          wget https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.103.0/otelcol-contrib_0.103.0_linux_amd64.tar.gz
+          tar -xvf otelcol-contrib_0.103.0_linux_amd64.tar.gz
+
+      - name: Write secrets to files
+        run: |
+          echo "${{ secrets.ROSA_OTEL_CACERT }}" > /tmp/ca.crt
+          echo "${{ secrets.ROSA_OTEL_SERVER_CRT }}" > /tmp/server.crt
+          echo "${{ secrets.ROSA_OTEL_SERVER_KEY }}" > /tmp/server.key
 
       - name: Configure OpenTelemetry Collector
         run: |
@@ -64,37 +75,32 @@ jobs:
             otlp:
               protocols:
                 grpc:
-                  endpoint: "0.0.0.0:4317"
                 http:
-                  endpoint: "0.0.0.0:4318"
           exporters:
             otlphttp:
-              endpoint: https://apps.platform-sts.pcbk.p1.openshiftapps.com
+              endpoint: "${{ secrets.ROSA_OTEL_ENDPOINT }}"
               tls:
                 insecure: false
-                cert_pem: ${{ secrets.CLIENT_CERT_ROSA_OTEL }}
-                key_pem: ${{ secrets.CLIENT_KEY_ROSA_OTEL }}
-                ca_pem: ${{ secrets.SERVER_CERT_ROSA_OTEL }}
-            logging:
+                cert_file: /tmp/server.crt
+                key_file: /tmp/server.key
+                ca_file: /tmp/ca.crt
+            debug:
               verbosity: detailed
           service:
             pipelines:
               traces:
                 receivers: [otlp]
-                exporters: [logging,otlphttp]
+                exporters: [debug, otlphttp]
           ' > otel-collector-config.yaml
 
       - name: Run OpenTelemetry Collector
         run: |
-          curl --proto '=https' --tlsv1.2 -fOL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.102.1/otelcol_0.102.1_linux_amd64.tar.gz
-          tar -xvf otelcol_0.102.1_linux_amd64.tar.gz
-          chmod +x otelcol
-          ./otelcol --config otel-collector-config.yaml &
+          ./otelcol-contrib --config otel-collector-config.yaml > otel-collector.log 2>&1 &
 
-      - name: Start integration-tests trace
+      - name: Start integration-tests job trace
         run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="integration-tests"
+          export WORKFLOW_NAME="testing-framework"
+          export JOB_NAME="integration-tests"
           export TRACE_ACTION="start"
           python ci/trace-steps.py
 
@@ -116,13 +122,6 @@ jobs:
         run: terraform init
         working-directory: terraform-test-environment-module
 
-      - name: Start bootstrap trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="bootstrap"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
-
       - name: Bootstrap
         id: up
         run: terraform apply -auto-approve -lock=false
@@ -130,13 +129,6 @@ jobs:
         env:
           TF_VAR_aws_instance_type: ${{ matrix.aws_image_type }}
           TF_VAR_aws_ami_architecture: ${{ matrix.aws_ami_architecture }}
-
-      - name: End bootstrap trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="bootstrap"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
 
       - name: Terraform Output
         id: terraform-output
@@ -150,13 +142,6 @@ jobs:
         run: ansible-galaxy install -r ./provision/requirements.yml
         working-directory: ./main/recipes/natural_language_processing/chatbot
 
-      - name: Start ansible provision trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="ansible-provision"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
-
       - name: Provision
         run: |
           ansible-playbook ./main/recipes/natural_language_processing/chatbot/provision/playbook.yml \
@@ -165,36 +150,15 @@ jobs:
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
 
-      - name: End ansible provision trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="ansible-provision"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
-
       - name: Install Dependencies
         working-directory: ./main/recipes/natural_language_processing/chatbot
         run: make install
-
-      - name: Start integration test trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="run-integration-tests"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
 
       - name: Run Integration Tests
         working-directory: ./main/recipes/natural_language_processing/chatbot
         run: make integration-tests
         env:
           URL: ${{ steps.terraform-output.outputs.url }}
-
-      - name: End integration test trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="run-integration-tests"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
 
       - name: Destroy Test Environment
         id: down
@@ -217,10 +181,10 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Stop testing_framework trace
+      - name: End integration-tests job trace
         run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="integration-tests"
+          export WORKFLOW_NAME="testing-framework"
+          export JOB_NAME="integration-tests"
           export TRACE_ACTION="end"
           python ci/trace-steps.py
 
@@ -272,52 +236,9 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Python dependencies for otel trace generation
-        run: |
-          pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp opentelemetry-instrumentation
-
-      - name: Configure OpenTelemetry Collector
-        run: |
-          echo '
-          receivers:
-            otlp:
-              protocols:
-                grpc:
-                  endpoint: "0.0.0.0:4317"
-          exporters:
-            logging:
-              loglevel: debug
-          service:
-            pipelines:
-              traces:
-                receivers: [otlp]
-                exporters: [logging]
-          ' > otel-collector-config.yaml
-
-      - name: Run OpenTelemetry Collector
-        run: |
-          curl --proto '=https' --tlsv1.2 -fOL https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.102.1/otelcol_0.102.1_linux_amd64.tar.gz
-          tar -xvf otelcol_0.102.1_linux_amd64.tar.gz
-          chmod +x otelcol
-          ./otelcol --config otel-collector-config.yaml &
-
-      - name: Start chatbot make bootc trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="test-make-targets"
-          export TRACE_ACTION="start"
-          python ci/trace-steps.py
-
       - name: chatbot
         working-directory: ./recipes/natural_language_processing/chatbot
         run: make bootc
-
-      - name: End chatbot make bootc trace
-        run: |
-          export WORKFLOW_NAME="testing_framework"
-          export STEP_NAME="test-make-targets"
-          export TRACE_ACTION="end"
-          python ci/trace-steps.py
 
       - name: Publish Job Results to Slack
         id: slack
