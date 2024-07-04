@@ -138,12 +138,15 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         dnf module enable -y nvidia-driver:${DRIVER_BRANCH} && \
         dnf install -y nvidia-fabric-manager-${DRIVER_VERSION} libnvidia-nscq-${DRIVER_BRANCH}-${DRIVER_VERSION} ; \
     fi \
+    # Install rhc connect for insights telemetry gathering
+    && . /etc/os-release && if [ "${ID}" == "rhel" ]; then \
+        dnf install -y rhc rhc-worker-playbook; \
+        fi \
     && dnf clean all \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants \
     && mv /etc/selinux.tmp /etc/selinux \
     && ln -s /usr/lib/systemd/system/nvidia-toolkit-firstboot.service /usr/lib/systemd/system/basic.target.wants/nvidia-toolkit-firstboot.service \
     && echo "blacklist nouveau" > /etc/modprobe.d/blacklist_nouveau.conf
-
 
 ARG SSHPUBKEY
 
