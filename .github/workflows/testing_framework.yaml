@@ -6,9 +6,9 @@ on:
 
   #workflow_dispatch:
 
-  # pull_request: ## temporary for debugging development purposes
-  #   branches:
-  #     - main
+  pull_request: ## temporary for debugging development purposes
+    branches:
+      - main
 
 env:
   TF_VAR_aws_region: "eu-west-2"
@@ -52,6 +52,9 @@ jobs:
         uses: actions/setup-python@v5.1.0
         with:
           python-version: '3.11'
+
+      - name: Debug - List directory contents
+        run: ls -al ./recipes/natural_language_processing/chatbot
 
       - name: Install opentelemetry dependencies
         run: |
@@ -98,11 +101,12 @@ jobs:
           ./otelcol-contrib --config otel-collector-config.yaml > otel-collector.log 2>&1 &
 
       - name: Start integration-tests job metric
+        working-directory: ./ci
         run: |
           export WORKFLOW_NAME="testing-framework"
           export JOB_NAME="integration-tests"
           export TRACE_ACTION="start"
-          python ci/metrics-generate.py
+          python metrics-generate.py
 
       - name: Checkout terraform module
         id: checkout-module
@@ -140,22 +144,22 @@ jobs:
 
       - name: Ansible Collections
         run: ansible-galaxy install -r ./provision/requirements.yml
-        working-directory: ./main/recipes/natural_language_processing/chatbot
+        working-directory: ./recipes/natural_language_processing/chatbot
 
       - name: Provision
         run: |
-          ansible-playbook ./main/recipes/natural_language_processing/chatbot/provision/playbook.yml \
+          ansible-playbook ./recipes/natural_language_processing/chatbot/provision/playbook.yml \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }}
         env:
           ANSIBLE_HOST_KEY_CHECKING: false
 
       - name: Install Dependencies
-        working-directory: ./main/recipes/natural_language_processing/chatbot
+        working-directory: ./recipes/natural_language_processing/chatbot
         run: make install
 
       - name: Run Integration Tests
-        working-directory: ./main/recipes/natural_language_processing/chatbot
+        working-directory: ./recipes/natural_language_processing/chatbot
         run: make integration-tests
         env:
           URL: ${{ steps.terraform-output.outputs.url }}
@@ -182,11 +186,12 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: End integration-tests job metric
+        working-directory: ./ci
         run: |
           export WORKFLOW_NAME="testing-framework"
           export JOB_NAME="integration-tests"
           export TRACE_ACTION="end"
-          python ci/metrics-generate.py
+          python metrics-generate.py
 
   release-images:
     runs-on: ubuntu-24.04
