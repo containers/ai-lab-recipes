@@ -146,7 +146,10 @@ RUN mv /etc/selinux /etc/selinux.tmp \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants \
     && mv /etc/selinux.tmp /etc/selinux \
     && ln -s /usr/lib/systemd/system/nvidia-toolkit-firstboot.service /usr/lib/systemd/system/basic.target.wants/nvidia-toolkit-firstboot.service \
-    && echo "blacklist nouveau" > /etc/modprobe.d/blacklist_nouveau.conf
+    && echo "blacklist nouveau" > /etc/modprobe.d/blacklist_nouveau.conf \
+    && sed '/\[Unit\]/a ConditionPathExists = /dev/nvidia-nvswitchctl' /usr/lib/systemd/system/nvidia-fabricmanager.service \
+    && ln -s /usr/lib/systemd/system/nvidia-fabricmanager.service /etc/systemd/system/multi-user.target.wants/nvidia-fabricmanager.service \
+    && ln -s /usr/lib/systemd/system/nvidia-persistenced.service /etc/systemd/system/multi-user.target.wants/nvidia-persistenced.service
 
 ARG SSHPUBKEY
 
