@@ -56,7 +56,7 @@ The local Model Service relies on a volume mount to the localhost to access the 
 make run
 ```
 
-As stated above, by default the model service will use [`facebook/detr-resnet-101`](https://huggingface.co/facebook/detr-resnet-101). However you can use other compatabale models. Simply pass the new `MODEL_NAME` and `MODEL_PATH` to the make command. Make sure the model is downloaded and exists in the [models directory](../../../models/):
+As stated above, by default the model service will use [`facebook/detr-resnet-101`](https://huggingface.co/facebook/detr-resnet-101). However you can use other compatible models. Simply pass the new `MODEL_NAME` and `MODEL_PATH` to the make command. Make sure the model is downloaded and exists in the [models directory](../../../models/):
 
 ```bash
 # from path model_servers/object_detection_python from repo containers/ai-lab-recipes
