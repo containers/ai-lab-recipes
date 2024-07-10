@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: chatbot-nodejs
+  name: chatbot-nodejs
+spec:
+  initContainers:
+  - name: model-file
+    image: MODEL_IMAGE
+    command: ['/usr/bin/install', "/model/model.file", "/shared/"]
+    volumeMounts:
+    - name: model-file
+      mountPath: /shared
+  containers:
+  - env:
+    - name: MODEL_ENDPOINT
+      value: http://0.0.0.0:8001
+    image: APP_IMAGE
+    name: chatbot-nodejs-inference
+    ports:
+    - containerPort: 8501
+      hostPort: 8501
+    securityContext:
+      runAsNonRoot: true
+  - env:
+    - name: HOST
+      value: 0.0.0.0
+    - name: PORT
+      value: 8001
+    - name: MODEL_PATH
+      value: /model/model.file
+    image: SERVER_IMAGE
+    name: chatbot-model-service
+    ports:
+    - containerPort: 8001
+      hostPort: 8001
+    securityContext:
+      runAsNonRoot: true
+    volumeMounts:
+    - name: model-file
+      mountPath: /model
+  volumes:
+  - name: model-file
+    emptyDir: {}
