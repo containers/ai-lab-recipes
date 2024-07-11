@@ -14,7 +14,7 @@ bootc: prepare-files
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(INSTRUCTLAB_IMAGE:%=--build-arg INSTRUCTLAB_IMAGE=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
-		$(SSH_PUBKEY:%=--build-arg SSHPUBKEY=%) \
+		$(if $(SSH_PUBKEY),--build-arg SSHPUBKEY='$(SSH_PUBKEY)') \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
 		--security-opt label=disable \
