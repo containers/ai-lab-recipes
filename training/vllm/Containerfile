@@ -1,5 +1,9 @@
 FROM quay.io/wxpe/tgis-vllm:release.4e3ff78
 
+ARG VENDOR=''
+LABEL vendor=${VENDOR}
+LABEL org.opencontainers.image.vendor=${VENDOR}
+
 USER root
 RUN ln -s /usr/lib64/libcuda.so.1 /usr/lib64/libcuda.so
 COPY mixtral.jinja .

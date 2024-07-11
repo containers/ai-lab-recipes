@@ -1,4 +1,9 @@
 FROM registry.access.redhat.com/ubi9/ubi
+
+ARG VENDOR=''
+LABEL vendor=${VENDOR}
+LABEL org.opencontainers.image.vendor=${VENDOR}
+
 RUN dnf install -y python3-pip && python3 -m pip install huggingface_hub[cli]
 COPY entrypoint.sh /entrypoint.sh
 WORKDIR /download
