@@ -22,7 +22,7 @@ bootc: driver-toolkit check-sshkey prepare-files
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
-		$(SSH_PUBKEY:%=--build-arg SSHPUBKEY=%) \
+		$(if $(SSH_PUBKEY),--build-arg SSHPUBKEY='$(SSH_PUBKEY)') \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \
 		--security-opt label=disable \
