@@ -9,7 +9,8 @@ USER root
 
 # TODO: rework this monstrosity into a build.sh (or even not shell script)
 # The need for the `cp /etc/dnf/dnf.conf` is a workaround for https://github.com/containers/bootc/issues/637
-RUN dnf -y update --exclude kernel* \
+RUN mv /etc/selinux /etc/selinux.tmp \
+    && dnf -y update --exclude kernel* \
     && dnf info --installed kernel > /dev/null || dnf install -y kernel-core \
     && if [ "${KERNEL_VERSION}" == "" ]; then \
         RELEASE=$(dnf info --installed kernel-core | awk -F: '/^Release/{print $2}' | tr -d '[:blank:]') \
@@ -49,6 +50,7 @@ RUN dnf -y update --exclude kernel* \
         rpm-build \
         xz \
     && dnf clean all \
+    && mv /etc/selinux.tmp /etc/selinux \
     && useradd -u 1001 -m -s /bin/bash builder
 
 # Last layer for metadata for mapping the driver-toolkit to a specific kernel version
