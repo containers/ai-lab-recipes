@@ -8,6 +8,10 @@ FROM ${INSTRUCTLAB_IMAGE} AS ilab
 # Define the base image for the second stage
 FROM ${BASEIMAGE}
 
+ARG VENDOR=''
+LABEL vendor=${VENDOR}
+LABEL org.opencontainers.image.vendor=${VENDOR}
+
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
 ARG EXTRA_RPM_PACKAGES=''

@@ -1,5 +1,5 @@
-VENDOR ?= amd
-IMAGE_NAME ?= $(VENDOR)-bootc
+PROVIDER ?= amd
+IMAGE_NAME ?= $(PROVIDER)-bootc
 
 include ../common/Makefile.common
 
@@ -14,6 +14,7 @@ bootc: prepare-files
 		$(FROM:%=--from=%) \
 		$(INSTRUCTLAB_IMAGE:%=--build-arg INSTRUCTLAB_IMAGE=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		$(if $(SSH_PUBKEY),--build-arg SSHPUBKEY='$(SSH_PUBKEY)') \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \

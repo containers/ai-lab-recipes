@@ -1,6 +1,10 @@
 # Containerfile for running deepspeed training 
 FROM nvcr.io/nvidia/cuda:12.1.1-cudnn8-devel-ubi9
 
+ARG VENDOR=''
+LABEL vendor=${VENDOR}
+LABEL org.opencontainers.image.vendor=${VENDOR}
+
 RUN dnf install -y python python-devel git
 RUN python -m ensurepip --upgrade
 RUN pip3 install torch==2.1.2 --index-url https://download.pytorch.org/whl/cu121

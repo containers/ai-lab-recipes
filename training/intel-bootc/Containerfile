@@ -31,6 +31,10 @@ FROM ${BASEIMAGE}
 ARG DRIVER_VERSION=1.16.1-7
 ARG EXTRA_RPM_PACKAGES=''
 
+ARG VENDOR=''
+LABEL vendor=${VENDOR}
+LABEL org.opencontainers.image.vendor=${VENDOR}
+
 COPY --from=builder /home/builder/usr/src/habanalabs-${DRIVER_VERSION}/drivers/accel/habanalabs/habanalabs.ko /tmp/extra/habanalabs.ko
 COPY --from=builder /home/builder/usr/src/habanalabs-${DRIVER_VERSION}/drivers/infiniband/hw/hbl/habanalabs_ib.ko /tmp/extra/habanalabs_ib.ko
 COPY --from=builder /home/builder/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hbl_cn/habanalabs_cn.ko /tmp/extra/habanalabs_cn.ko

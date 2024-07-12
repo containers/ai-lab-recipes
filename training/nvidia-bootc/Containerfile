@@ -75,6 +75,9 @@ ARG BASE_URL='https://us.download.nvidia.com/tesla'
 ARG OS_VERSION_MAJOR=''
 ARG KERNEL_VERSION=''
 
+ARG VENDOR=''
+LABEL vendor=${VENDOR}
+LABEL org.opencontainers.image.vendor=${VENDOR}
 
 ARG DRIVER_TYPE=passthrough
 ENV NVIDIA_DRIVER_TYPE=${DRIVER_TYPE}

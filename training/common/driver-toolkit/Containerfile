@@ -2,6 +2,10 @@ ARG BASEIMAGE="quay.io/centos/centos:stream9"
 
 FROM ${BASEIMAGE}
 
+ARG VENDOR=''
+LABEL vendor=${VENDOR}
+LABEL org.opencontainers.image.vendor=${VENDOR}
+
 ARG KERNEL_VERSION=''
 ARG ENABLE_RT=''
 

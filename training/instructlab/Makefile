@@ -36,36 +36,64 @@ INSTRUCTLAB_IMAGE_NVIDIA ?= ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia:${IMA
 
 ../build/instructlab-nvidia/oci-layout: ./instructlab
 	rm -rf ../build/instructlab-nvidia/
-	"${CONTAINER_TOOL}" build --squash-all -t oci:../build/instructlab-nvidia instructlab/containers/cuda
+	"${CONTAINER_TOOL}" build \
+		--squash-all \
+		-t oci:../build/instructlab-nvidia \
+		$(VENDOR:%=--build-arg VENDOR=%) \
+		instructlab/containers/cuda
 
 .PHONY: nvidia
 nvidia: ../build/instructlab-nvidia/oci-layout
 
 ../build/instructlab-amd/oci-layout: ./instructlab
 	rm -rf ../build/instructlab-amd/
-	"${CONTAINER_TOOL}" build --squash-all -t oci:../build/instructlab-amd -f instructlab/containers/rocm/Containerfile instructlab
+	"${CONTAINER_TOOL}" build \
+		--squash-all \
+		-t oci:../build/instructlab-amd \
+		-f instructlab/containers/rocm/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
+		instructlab
 
 .PHONY: amd
 amd: ../build/instructlab-amd/oci-layout
 
 ../build/instructlab-intel/oci-layout: ./instructlab
 	rm -rf ../build/instructlab-intel/
-	"${CONTAINER_TOOL}" build --squash-all -t oci:../build/instructlab-intel  -f instructlab/containers/hpu/Containerfile instructlab
+	"${CONTAINER_TOOL}" build \
+		--squash-all \
+		-t oci:../build/instructlab-intel \
+		-f instructlab/containers/hpu/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
+		instructlab
 
 .PHONY: intel
 intel: ../build/instructlab-intel/oci-layout
 
 .PHONY: nvidia-quay
 nvidia-quay: instructlab
-	"${CONTAINER_TOOL}" build --squash-all -t ${INSTRUCTLAB_IMAGE_NVIDIA} instructlab/containers/cuda
+	"${CONTAINER_TOOL}" build \
+		--squash-all \
+		-t ${INSTRUCTLAB_IMAGE_NVIDIA} \
+		$(VENDOR:%=--build-arg VENDOR=%) \
+		instructlab/containers/cuda
 	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_NVIDIA}
 
 .PHONY: amd-quay
 amd-quay: instructlab
-	"${CONTAINER_TOOL}" build --squash-all -t ${INSTRUCTLAB_IMAGE_AMD} -f instructlab/containers/rocm/Containerfile instructlab
+	"${CONTAINER_TOOL}" build \
+		--squash-all \
+		-t ${INSTRUCTLAB_IMAGE_AMD} \
+		-f instructlab/containers/rocm/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
+		instructlab
 	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_AMD}
 
 .PHONY: intel-quay
 intel-quay: instructlab
-	"${CONTAINER_TOOL}" build --squash-all -t ${INSTRUCTLAB_IMAGE_INTEL} -f instructlab/containers/hpu/Containerfile instructlab
+	"${CONTAINER_TOOL}" build \
+		--squash-all \
+		-t ${INSTRUCTLAB_IMAGE_INTEL} \
+		-f instructlab/containers/hpu/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
+		instructlab
 	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_INTEL}
