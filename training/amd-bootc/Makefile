@@ -1,5 +1,5 @@
-PROVIDER ?= amd
-IMAGE_NAME ?= $(PROVIDER)-bootc
+HARDWARE ?= amd
+IMAGE_NAME ?= $(HARDWARE)-bootc
 
 include ../common/Makefile.common
 
