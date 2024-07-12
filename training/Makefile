@@ -78,11 +78,11 @@ nvidia: instruct-nvidia
 
 .PHONY: amd-bootc-models nvidia-bootc-models intel-bootc-models
 amd-models: amd
-	$(MAKE) PROVIDER=amd -C model bootc-models
+	$(MAKE) HARDWARE=amd -C model bootc-models
 nvidia-models: nvidia
-	$(MAKE) PROVIDER=nvidia -C model bootc-models
+	$(MAKE) HARDWARE=nvidia -C model bootc-models
 intel-models: intel
-	$(MAKE) PROVIDER=intel -C model bootc-models
+	$(MAKE) HARDWARE=intel -C model bootc-models
 
 .PHONY: bootc-models
 bootc-models:

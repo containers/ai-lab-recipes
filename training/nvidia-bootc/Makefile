@@ -1,5 +1,5 @@
-PROVIDER ?= nvidia
-IMAGE_NAME ?= $(PROVIDER)-bootc
+HARDWARE ?= nvidia
+IMAGE_NAME ?= $(HARDWARE)-bootc
 
 CUDA_VERSION ?=
 OS_VERSION_MAJOR ?=
