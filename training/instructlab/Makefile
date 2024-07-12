@@ -39,6 +39,7 @@ INSTRUCTLAB_IMAGE_NVIDIA ?= ${REGISTRY}/${REGISTRY_ORG}/instructlab-nvidia:${IMA
 	"${CONTAINER_TOOL}" build \
 		--squash-all \
 		-t oci:../build/instructlab-nvidia \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		instructlab/containers/cuda
 
 .PHONY: nvidia
@@ -50,6 +51,7 @@ nvidia: ../build/instructlab-nvidia/oci-layout
 		--squash-all \
 		-t oci:../build/instructlab-amd \
 		-f instructlab/containers/rocm/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		instructlab
 
 .PHONY: amd
@@ -61,6 +63,7 @@ amd: ../build/instructlab-amd/oci-layout
 		--squash-all \
 		-t oci:../build/instructlab-intel \
 		-f instructlab/containers/hpu/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		instructlab
 
 .PHONY: intel
@@ -71,6 +74,7 @@ nvidia-quay: instructlab
 	"${CONTAINER_TOOL}" build \
 		--squash-all \
 		-t ${INSTRUCTLAB_IMAGE_NVIDIA} \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		instructlab/containers/cuda
 	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_NVIDIA}
 
@@ -80,6 +84,7 @@ amd-quay: instructlab
 		--squash-all \
 		-t ${INSTRUCTLAB_IMAGE_AMD} \
 		-f instructlab/containers/rocm/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		instructlab
 	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_AMD}
 
@@ -89,5 +94,6 @@ intel-quay: instructlab
 		--squash-all \
 		-t ${INSTRUCTLAB_IMAGE_INTEL} \
 		-f instructlab/containers/hpu/Containerfile \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		instructlab
 	"${CONTAINER_TOOL}" push ${INSTRUCTLAB_IMAGE_INTEL}

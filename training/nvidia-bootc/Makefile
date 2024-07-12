@@ -1,5 +1,5 @@
-VENDOR ?= nvidia
-IMAGE_NAME ?= $(VENDOR)-bootc
+PROVIDER ?= nvidia
+IMAGE_NAME ?= $(PROVIDER)-bootc
 
 CUDA_VERSION ?=
 OS_VERSION_MAJOR ?=
@@ -22,6 +22,7 @@ bootc: driver-toolkit check-sshkey prepare-files
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(OS_VERSION_MAJOR:%=--build-arg OS_VERSION_MAJOR=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		$(if $(SSH_PUBKEY),--build-arg SSHPUBKEY='$(SSH_PUBKEY)') \
 		--cap-add SYS_ADMIN \
 		--file Containerfile \

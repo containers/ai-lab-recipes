@@ -33,6 +33,7 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 | IMAGE_TAG                 | Container image tag                             | `latest`                                    |
 | CONTAINER_TOOL            | Container tool used for build                   | `podman`                                    |
 | CONTAINER_TOOL_EXTRA_ARGS | Container tool extra arguments                  | ` `                                         |
+| VENDOR                    | Container image vendor label                    | ` `                                         |
 
 
 Note: AI content is huge and requires a lot of disk space >200GB free to build.

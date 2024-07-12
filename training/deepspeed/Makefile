@@ -13,6 +13,7 @@ image:
 		$(ARCH:%=--platform linux/%) \
 		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
+		$(VENDOR:%=--build-arg VENDOR=%) \
 		--file Containerfile \
 		--squash-all \
 		--tag oci:../build/deepspeed-trainer
