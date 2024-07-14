@@ -16,6 +16,8 @@ bootc: driver-toolkit check-sshkey prepare-files
 		$(DRIVER_TOOLKIT_IMAGE:%=--build-arg DRIVER_TOOLKIT_IMAGE=%) \
 		$(DRIVER_VERSION:%=--build-arg DRIVER_VERSION=%) \
 		$(DRIVER_VERSION:%=--label driver-version=%) \
+		$(IMAGE_VERSION:%=--label image_version=%) \
+		$(IMAGE_VERSION:%=--build-arg IMAGE_VERSION=%) \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
 		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(INSTRUCTLAB_IMAGE:%=--build-arg INSTRUCTLAB_IMAGE=%) \

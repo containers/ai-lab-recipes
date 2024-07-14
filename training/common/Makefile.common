@@ -17,6 +17,7 @@ CONTAINER_TOOL_EXTRA_ARGS ?=
 EXTRA_RPM_PACKAGES ?=
 GRAPH_ROOT=$(shell podman info --format '{{ .Store.GraphRoot }}')
 UMASK=$(shell umask)
+IMAGE_VERSION := $(or ${IMAGE_VERSION},$(shell git rev-parse --short HEAD))
 
 AUTH_JSON ?=
 
