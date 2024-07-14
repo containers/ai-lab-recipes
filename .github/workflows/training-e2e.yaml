@@ -1,9 +1,6 @@
 name: traning E2E
 
 on:
-  schedule: # schedule the job to run every day at midnight
-    - cron: '0 12 * * *'
-
   pull_request:
     branches:
       - main
