@@ -151,9 +151,9 @@ RUN mv /etc/selinux /etc/selinux.tmp \
     # Install rhc connect for insights telemetry gathering
     && . /etc/os-release && if [ "${ID}" == "rhel" ]; then \
         dnf install -y rhc rhc-worker-playbook; \
-        sed -i -e "/^VARIANT=/ {s/^VARIANT=.*/VARIANT=\"RHEL AI\"/; t}" -e "\$aVARIANT=\"RHEL AI\"\"" /etc/os-release;
-        sed -i -e "/^VARIANT_ID=/ {s/^VARIANT_ID=.*/VARIANT_ID=rhel_ai/; t}" -e "\$aVARIANT_ID=rhel_ai" /etc/os-release;
-        sed -i -e "/^BUILD_ID=/ {s/^BUILD_ID=.*/BUILD_ID='${IMAGE_VERSION}'/; t}" -e "\$aBUILD_ID='${IMAGE_VERSION}'" /etc/os-release;
+        sed -i -e "/^VARIANT=/ {s/^VARIANT=.*/VARIANT=\"RHEL AI\"/; t}" -e "\$aVARIANT=\"RHEL AI\"\"" /etc/os-release; \
+        sed -i -e "/^VARIANT_ID=/ {s/^VARIANT_ID=.*/VARIANT_ID=rhel_ai/; t}" -e "\$aVARIANT_ID=rhel_ai" /etc/os-release; \
+        sed -i -e "/^BUILD_ID=/ {s/^BUILD_ID=.*/BUILD_ID='${IMAGE_VERSION}'/; t}" -e "\$aBUILD_ID='${IMAGE_VERSION}'" /etc/os-release; \
         fi \
     && dnf clean all \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants \
