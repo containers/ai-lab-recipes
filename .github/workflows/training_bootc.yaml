@@ -1,11 +1,19 @@
 name: Training Bootc image builds
 
 on:
-  push:
-    branches: [ main ]
+  pull_request:
+    branches:
+      - main
     paths:
       - 'training/**'
-      - '.github/workflows/training_bootc.yaml'
+      - .github/workflows/training_bootc.yaml
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'training/**'
+      - .github/workflows/training_bootc.yaml
 
   workflow_dispatch:
 
