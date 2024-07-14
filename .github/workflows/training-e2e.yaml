@@ -9,7 +9,7 @@ on:
       - main
     paths:
       # - .github/workflows/training-e2e.yaml
-      - "training/**"
+      - training/
 
   workflow_dispatch:
 
