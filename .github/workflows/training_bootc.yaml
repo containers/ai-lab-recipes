@@ -1,6 +1,7 @@
 name: Training Bootc image builds
 
 on:
+  pull_request:
   push:
     branches: [ main ]
     paths:
