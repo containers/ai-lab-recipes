@@ -19,8 +19,47 @@ env:
   REGION: us-east-1
 
 jobs:
+  block-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from forked repo
+        id: check_forked
+        run: |
+          if [[ ${{ github.event.pull_request.head.repo.full_name }} != ${{ github.event.pull_request.base.repo.full_name }} ]]; then
+            echo "This pull request was pushed from a forked repository, which is not allowed. Please push changes from a branch in the upstream repository"
+            exit 1
+          else
+            echo "This PR is from upstream repo."
+          fi
+
+  check-membership:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if user is a member of the organization
+        id: check_membership
+        run: |
+          ORG="your-organization"
+          USER=${{ github.actor }}
+          RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/containers/members/$USER")
+          if [[ "$RESPONSE" == *"Not Found"* ]]; then
+            echo "is_member=false" >> $GITHUB_ENV
+          else
+            echo "is_member=true" >> $GITHUB_ENV
+          fi
+
+      - name: Run main job if user is a member
+        if: env.is_member == 'true'
+        run: |
+          echo "User is a member of the organization. Running the job..."
+          # Add the steps of your main job here
+
+      - name: Skip job if user is not a member
+        if: env.is_member == 'false'
+        run: echo "User is not a member of the organization. Skipping the job."
+
   start-runner:
     name: Start self-hosted EC2 runner
+    needs: [ block-pr, check-membership ]
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ubuntu-latest
     outputs:

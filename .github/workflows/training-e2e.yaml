@@ -27,6 +27,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  block-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from forked repo
+        id: check_forked
+        run: |
+          if [[ ${{ github.event.pull_request.head.repo.full_name }} != ${{ github.event.pull_request.base.repo.full_name }} ]]; then
+            echo "This pull request was pushed from a forked repository, which is not allowed. Please push changes from a branch in the upstream repository"
+            exit 1
+          else
+            echo "This PR is from upstream repo."
+          fi
+
   check-membership:
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +68,7 @@ jobs:
   e2e:
     if: github.repository == 'containers/ai-lab-recipes' && !contains(github.event.pull_request.labels.*.name, 'hold-tests')
     runs-on: ubuntu-24.04
-    needs: check-membership
+    needs: [check-membership, block-pr]
     strategy:
       fail-fast: false
       max-parallel: 1
