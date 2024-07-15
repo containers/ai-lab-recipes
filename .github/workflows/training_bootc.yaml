@@ -8,6 +8,11 @@ on:
       - '.github/workflows/training_bootc.yaml'
 
   pull_request_target:
+    branches: [ main ]
+    paths:
+      - 'training/**'
+      - '.github/workflows/training_bootc.yaml'
+    types: [ opened, synchronize, labeled, unlabeled, closed ]
 
   workflow_dispatch:
 
