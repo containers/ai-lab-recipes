@@ -7,6 +7,12 @@ on:
       - 'training/**'
       - '.github/workflows/training_bootc.yaml'
 
+  pull_request_target:
+    branches: [ main ]
+    paths:
+      - 'training/**'
+      - '.github/workflows/training_bootc.yaml'
+
   workflow_dispatch:
 
 concurrency:
@@ -19,19 +25,6 @@ env:
   REGION: us-east-1
 
 jobs:
-  block-pr:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if PR is from forked repo
-        id: check_forked
-        run: |
-          if [[ ${{ github.event.pull_request.head.repo.full_name }} != ${{ github.event.pull_request.base.repo.full_name }} ]]; then
-            echo "This pull request was pushed from a forked repository, which is not allowed. Please push changes from a branch in the upstream repository"
-            exit 1
-          else
-            echo "This PR is from upstream repo."
-          fi
-
   check-membership:
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +52,7 @@ jobs:
 
   start-runner:
     name: Start self-hosted EC2 runner
-    needs: [ block-pr, check-membership ]
+    needs: [ check-membership ]
     if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
     runs-on: ubuntu-latest
     outputs:
@@ -98,6 +91,8 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: mkdir root/.docker directory
         run: |
@@ -159,6 +154,8 @@ jobs:
     needs: [ nvidia-bootc-builder-image, start-runner ]
     steps:
       - uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: mkdir root/.docker directory
         run: |
@@ -222,6 +219,8 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: mkdir root/.docker directory
         run: |

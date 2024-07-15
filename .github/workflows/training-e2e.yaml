@@ -1,17 +1,25 @@
 name: traning E2E
 
 on:
-  schedule: # schedule the job to run every day at midnight
-    - cron: '0 12 * * *'
-
-  pull_request:
-    branches:
-      - main
+  push:
+    branches: [ main ]
     paths:
-      - .github/workflows/training-e2e.yaml
-      - ./training/**
+      - 'training/**'
+      - '.github/workflows/training-e2e.yaml'
+
+  pull_request_target:
+    branches: [ main ]
+    paths:
+      - 'training/**'
+      - '.github/workflows/training_bootc.yaml'
 
   workflow_dispatch:
+
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: read
 
 env:
   TF_VAR_aws_region: "eu-west-2"
@@ -27,19 +35,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  block-pr:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if PR is from forked repo
-        id: check_forked
-        run: |
-          if [[ ${{ github.event.pull_request.head.repo.full_name }} != ${{ github.event.pull_request.base.repo.full_name }} ]]; then
-            echo "This pull request was pushed from a forked repository, which is not allowed. Please push changes from a branch in the upstream repository"
-            exit 1
-          else
-            echo "This PR is from upstream repo."
-          fi
-
   check-membership:
     runs-on: ubuntu-latest
     steps:
@@ -68,7 +63,7 @@ jobs:
   e2e:
     if: github.repository == 'containers/ai-lab-recipes' && !contains(github.event.pull_request.labels.*.name, 'hold-tests')
     runs-on: ubuntu-24.04
-    needs: [check-membership, block-pr]
+    needs: [check-membership]
     strategy:
       fail-fast: false
       max-parallel: 1
@@ -82,7 +77,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.7
         with:
-          path: main
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Checkout terraform module
         id: checkout-module
