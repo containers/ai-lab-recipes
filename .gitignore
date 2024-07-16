@@ -13,3 +13,5 @@ recipes/common/bin/*
 training/cloud/examples
 training/instructlab/instructlab
 vector_dbs/milvus/volumes/milvus/*
+training/iso-builder/ISOs/*
+!training/iso-builder/ISOs/.gitkeep
