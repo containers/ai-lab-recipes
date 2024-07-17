@@ -154,6 +154,8 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         sed -i -e "/^VARIANT=/ {s/^VARIANT=.*/VARIANT=\"RHEL AI\"/; t}" -e "\$aVARIANT=\"RHEL AI\"" /usr/lib/os-release; \
         sed -i -e "/^VARIANT_ID=/ {s/^VARIANT_ID=.*/VARIANT_ID=rhel_ai/; t}" -e "\$aVARIANT_ID=rhel_ai" /usr/lib/os-release; \
         sed -i -e "/^RHEL_AI_VERSION_ID=/ {s/^RHEL_AI_VERSION_ID=.*/RHEL_AI_VERSION_ID='${IMAGE_VERSION_ID}'/; t}" -e "\$aRHEL_AI_VERSION_ID='${IMAGE_VERSION_ID}'" /usr/lib/os-release; \
+        # disable auto upgrade service
+        rm -f /usr/lib/systemd/system/default.target.wants/bootc-fetch-apply-updates.timer; \
         fi \
     && dnf clean all \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants \
