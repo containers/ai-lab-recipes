@@ -20,5 +20,9 @@ COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /bin/
 COPY --from=mwader/static-ffmpeg:6.1.1 /ffprobe /bin/
 
 COPY src /app/
+
+RUN chgrp -R 0 /app && chmod -R g=u /app
+USER 1001
+
 ENV AUDIO_FILE=/app/jfk.wav
 ENTRYPOINT ["sh", "run.sh"]
