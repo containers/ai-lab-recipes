@@ -102,7 +102,7 @@ COPY --from=builder --chmod=444 /home/builder/yum-packaging-precompiled-kmod/tmp
 # Temporary workaround until the permanent fix for libdnf is merged
 COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-firstboot.service
 
-ARG IMAGE_VERSION
+ARG IMAGE_VERSION_ID
 
 # TODO: rework this monstrosity into a build.sh (or even not shell script)
 # The need for the `cp /etc/dnf/dnf.conf` is a workaround for https://github.com/containers/bootc/issues/637
@@ -153,7 +153,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         dnf install -y rhc rhc-worker-playbook; \
         sed -i -e "/^VARIANT=/ {s/^VARIANT=.*/VARIANT=\"RHEL AI\"/; t}" -e "\$aVARIANT=\"RHEL AI\"" /usr/lib/os-release; \
         sed -i -e "/^VARIANT_ID=/ {s/^VARIANT_ID=.*/VARIANT_ID=rhel_ai/; t}" -e "\$aVARIANT_ID=rhel_ai" /usr/lib/os-release; \
-        sed -i -e "/^BUILD_ID=/ {s/^BUILD_ID=.*/BUILD_ID='${IMAGE_VERSION}'/; t}" -e "\$aBUILD_ID='${IMAGE_VERSION}'" /usr/lib/os-release; \
+        sed -i -e "/^RHEL_AI_VERSION_ID=/ {s/^RHEL_AI_VERSION_ID=.*/RHEL_AI_VERSION_ID='${IMAGE_VERSION_ID}'/; t}" -e "\$aRHEL_AI_VERSION_ID='${IMAGE_VERSION_ID}'" /usr/lib/os-release; \
         fi \
     && dnf clean all \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants \
@@ -212,3 +212,5 @@ RUN --mount=type=secret,id=instructlab-nvidia-pull/.dockerconfigjson \
          IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
     fi
 RUN podman system reset --force 2>/dev/null
+
+LABEL image_version_id="${IMAGE_VERSION_ID}"
