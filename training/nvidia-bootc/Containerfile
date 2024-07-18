@@ -188,15 +188,11 @@ RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
     && chmod +x /usr/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
-ARG GPU_COUNT_COMMAND="nvidia-ctk --quiet cdi list | grep -P nvidia.com/gpu='\\\\d+' | wc -l"
 
 RUN for i in /usr/bin/ilab*; do \
 	sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' $i;  \
 	sed -i 's/__REPLACE_CONTAINER_DEVICE__/nvidia.com\/gpu=all/' $i; \
 	sed -i "s%__REPLACE_IMAGE_NAME__%${INSTRUCTLAB_IMAGE}%" $i; \
-	sed -i 's%__REPLACE_ENDPOINT_URL__%http://0.0.0.0:8080/v1%' $i; \
-	sed -i "s%__REPLACE_GPU_COUNT_COMMAND__%${GPU_COUNT_COMMAND}%" $i; \
-	sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' $i; \
     done
 
 # Added for running as an OCI Container to prevent Overlay on Overlay issues.
