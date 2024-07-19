@@ -22,6 +22,7 @@ RUN mv /etc/selinux /etc/selinux.tmp && \
   rocm-smi \
   tmux \
   rsync \
+  skopeo \
   ${EXTRA_RPM_PACKAGES} \
   && dnf clean all \
   && mv /etc/selinux.tmp /etc/selinux \

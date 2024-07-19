@@ -51,6 +51,7 @@ RUN . /etc/os-release \
 
 RUN dnf install -y ${EXTRA_RPM_PACKAGES} \
     cloud-init \
+    skopeo \
     rsync \
     && dnf clean all \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
