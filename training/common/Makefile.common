@@ -36,7 +36,7 @@ ARCH ?=
 DRIVER_VERSION ?=
 KERNEL_VERSION ?=
 
-INSTRUCTLAB_IMAGE = $(REGISTRY)/$(REGISTRY_ORG)/instructlab-$(HARDWARE):$(IMAGE_TAG)
+INSTRUCTLAB_IMAGE ?= $(REGISTRY)/$(REGISTRY_ORG)/instructlab-$(HARDWARE):$(IMAGE_TAG)
 WRAPPER = $(CURDIR)/../ilab-wrapper/ilab
 QLORA_WRAPPER = $(CURDIR)/../ilab-wrapper/ilab-qlora
 TRAIN_WRAPPER =  $(CURDIR)/../ilab-wrapper/ilab-training-launcher
