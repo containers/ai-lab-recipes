@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-311:1-66
+FROM registry.access.redhat.com/ubi9/python-311:1-66.1720018730
 WORKDIR /opt/app-root/src/converter
 USER root
 RUN chown -R default:root /opt/app-root/src/converter
