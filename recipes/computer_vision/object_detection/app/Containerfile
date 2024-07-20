@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-311:1-66
+FROM registry.access.redhat.com/ubi9/python-311:1-66.1720018730
 WORKDIR /locallm
 COPY requirements.txt /locallm/requirements.txt
 RUN pip install --upgrade pip && \

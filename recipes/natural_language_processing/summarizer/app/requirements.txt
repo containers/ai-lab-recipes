@@ -1,5 +1,5 @@
 langchain==0.1.20
 langchain-openai==0.1.7
 streamlit==1.34.0
-PyMuPDF==1.24.5
+PyMuPDF==1.24.7
 rouge_score==0.1.2
