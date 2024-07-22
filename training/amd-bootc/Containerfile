@@ -2,9 +2,6 @@
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
 
-# Start with the instructlab image
-FROM ${INSTRUCTLAB_IMAGE} AS ilab
-
 # Define the base image for the second stage
 FROM ${BASEIMAGE}
 

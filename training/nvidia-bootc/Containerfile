@@ -2,9 +2,6 @@ ARG DRIVER_TOOLKIT_IMAGE="quay.io/ai-lab/nvidia-builder:latest"
 ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
 
-# Start with the instructlab image
-FROM ${INSTRUCTLAB_IMAGE} AS ilab
-
 FROM ${DRIVER_TOOLKIT_IMAGE} as builder
 
 ARG BASE_URL='https://us.download.nvidia.com/tesla'
