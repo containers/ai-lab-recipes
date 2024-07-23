@@ -133,6 +133,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         nvidia-persistenced-${DRIVER_VERSION} \
         nvidia-container-toolkit \
         rsync \
+	skopeo \
         ${EXTRA_RPM_PACKAGES} \
     && if [[ "$(rpm -qa | grep kernel-core | wc -l)" != "1" ]]; then \
         echo "ERROR - Multiple kernel-core packages detected"; \
