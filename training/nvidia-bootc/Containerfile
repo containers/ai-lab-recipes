@@ -104,7 +104,7 @@ COPY --from=builder --chmod=444 /home/builder/yum-packaging-precompiled-kmod/tmp
 # Temporary workaround until the permanent fix for libdnf is merged
 COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-firstboot.service
 # Enable common services
-COPY build/usr /usr
+COPY duplicated/common/usr /usr
 
 ARG IMAGE_VERSION_ID
 
@@ -187,13 +187,10 @@ fi
 # Also make sure not to duplicate if a base image already has it specified.
 RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
     sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
-	/etc/containers/storage.conf && \
-    if [ -f "/run/.input/ilab" ]; then \
-	  cp /run/.input/ilab /usr/bin/ilab; \
-     else \
-	  curl -o /usr/bin/ilab "https://raw.githubusercontent.com/containers/ai-lab-recipes/main/training/ilab-wrapper/ilab"; \
-    fi \
-    && chmod +x /usr/bin/ilab
+	/etc/containers/storage.conf
+
+COPY duplicated/ilab-wrapper/ilab /usr/bin/ilab
+RUN chmod +x /usr/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
 

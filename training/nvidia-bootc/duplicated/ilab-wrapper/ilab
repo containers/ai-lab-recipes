@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Template values replaced by container build
+CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
+IMAGE_NAME="__REPLACE_IMAGE_NAME__"
+
+export ENTRYPOINT="/opt/python3.11/venv/bin/ilab"
+export PARAMS=("$@")
+
+for dir in "$HOME/.cache" "$HOME/.config" "$HOME/.local"; do
+	mkdir -p "$dir"
+done
+
+if [[ "$1" = "shell" ]]; then
+	export ENTRYPOINT=bash
+	export PARAMS=()
+fi
+
+PODMAN_COMMAND=("podman" "run" "--rm" "-it"
+	"--device" "${CONTAINER_DEVICE}"
+	"--security-opt" "label=disable" "--net" "host"
+	"-v" "$HOME:$HOME"
+        "--env" "HOME"
+	"--entrypoint" "$ENTRYPOINT"
+	"--env" "HF_TOKEN"
+	"${IMAGE_NAME}")
+
+exec "${PODMAN_COMMAND[@]}" "${PARAMS[@]}"
