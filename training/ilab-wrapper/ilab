@@ -25,4 +25,4 @@ PODMAN_COMMAND=("podman" "run" "--rm" "-it"
 	"--env" "HF_TOKEN"
 	"${IMAGE_NAME}")
 
-"${PODMAN_COMMAND[@]}" "${PARAMS[@]}"
+exec "${PODMAN_COMMAND[@]}" "${PARAMS[@]}"
