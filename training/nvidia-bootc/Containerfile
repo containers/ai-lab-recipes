@@ -193,6 +193,7 @@ COPY duplicated/ilab-wrapper/ilab /usr/bin/ilab
 RUN chmod +x /usr/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
+ARG INSTRUCTLAB_IMAGE_PULL_SECRET="instructlab-nvidia-pull"
 
 RUN for i in /usr/bin/ilab*; do \
 	sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' $i;  \
@@ -207,7 +208,7 @@ RUN --mount=type=secret,id=instructlab-nvidia-pull/.dockerconfigjson \
     if [ -f "/run/.input/instructlab-nvidia/oci-layout" ]; then \
          IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
          podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
-    elif [ -f "/run/secrets/instructlab-nvidia-pull/.dockerconfigjson" ]; then \
+    elif [ -f "/run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson" ]; then \
          IID=$(sudo podman --root /usr/lib/containers/storage pull --authfile /run/secrets/instructlab-nvidia-pull/.dockerconfigjson ${INSTRUCTLAB_IMAGE}); \
     else \
          IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
