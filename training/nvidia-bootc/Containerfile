@@ -14,6 +14,9 @@ ARG TARGET_ARCH=''
 
 ARG DRIVER_VERSION='550.90.07'
 
+ARG VENDOR=''
+ARG RPM_HOST=''
+
 USER builder
 
 WORKDIR /home/builder
@@ -63,6 +66,8 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
         --define "kernel_dist ${KDIST}" \
         --define "driver ${DRIVER_VERSION}" \
         --define "driver_branch ${DRIVER_STREAM}" \
+        --define "vendor ${VENDOR:-undefined}" \
+        --define "_buildhost ${RPM_HOST:-${HOSTNAME}}" \
         -v -bb SPECS/kmod-nvidia.spec
 
 FROM ${BASEIMAGE}
