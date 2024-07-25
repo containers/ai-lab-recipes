@@ -1,0 +1,12 @@
+[Unit]
+Description=Check for available RHEL AI upgrade
+ConditionPathExists=/run/ostree-booted
+After=network-online.target
+StartLimitIntervalSec=400
+StartLimitBurst=3
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/upgrade-informer
+Restart=on-failure
+RestartSec=90

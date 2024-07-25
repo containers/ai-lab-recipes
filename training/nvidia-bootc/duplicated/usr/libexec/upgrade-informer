@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Run the command and capture its output
+output=$(bootc upgrade --check | sed -e 1q)
+message_file="/etc/motd.d/upgrade-message"
+bootc_auth="/etc/ostree/auth.json"
+
+if [[ $output == Update\ available* ]]; then
+    if [[ ! -f $message_file ]]; then
+        echo "New version was found"
+        bootc_image=$(awk '{print $4}' <<< "$output")
+        # If auth file exists we should use it
+        auth_params=""
+        if [[ -f $bootc_auth ]]; then
+            auth_params="--authfile $bootc_auth"
+        fi
+
+        # Get image version
+        # shellcheck disable=SC2086
+        image_version_id=$(skopeo inspect --format json $auth_params "$bootc_image" | jq -r '.Labels | .["image_version_id"] // empty')
+
+        # If upgrade available, write the output to the file
+        cat > $message_file << EOF
+
+**   Attention!   **
+** A new $image_version_id version is available **
+** In order to apply it run: bootc upgrade --apply
+** Please note that the system will reboot after the upgrade **
+
+EOF
+    fi
+else
+    echo "No upgrade was found"
+    rm $message_file 2> /dev/null
+fi
+
+echo "Finished running upgrade informer"
