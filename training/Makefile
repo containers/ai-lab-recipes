@@ -62,15 +62,21 @@ vllm:
 #
 # Create bootc container images prepared for AI
 #
-.PHONY: driver-tookit amd nvidia intel bootc-models
+.PHONY: driver-tookit amd-bootc nvidia-bootc intel-bootc
 driver-tookit:
 	$(MAKE) -C common/ -f Makefile.common driver-toolkit
-amd: instruct-amd
+amd-bootc:
 	$(MAKE) -C amd-bootc/ bootc
-intel: instruct-intel
+intel-bootc:
 	$(MAKE) -C intel-bootc/ bootc
-nvidia: instruct-nvidia
+nvidia-bootc:
 	$(MAKE) -C nvidia-bootc/ driver-toolkit bootc
+
+# bootc container images with the instructlab dependency
+.PHONY: amd nvidia intel
+amd: instruct-amd amd-bootc
+intel: instruct-intel intel-bootc
+nvidia: instruct-nvidia nvidia-bootc
 
 #
 # Create bootc container images prepared with AI models pre-loaded
