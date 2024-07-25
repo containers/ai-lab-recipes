@@ -23,6 +23,8 @@ if image:
     window.image(img, use_column_width=True)  
     # convert PIL image into bytes for post request 
     bytes_io = io.BytesIO() 
+    if img.mode in ("RGBA", "P"): 
+        img = img.convert("RGB")
     img.save(bytes_io, "JPEG")
     img_bytes = bytes_io.getvalue()
     b64_image = base64.b64encode(img_bytes).decode('utf-8')
