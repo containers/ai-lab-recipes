@@ -16,11 +16,15 @@ if [[ "$1" = "shell" ]]; then
 	export PARAMS=()
 fi
 
-PODMAN_COMMAND=("podman" "run" "--rm" "-it"
+PODMAN_COMMAND=(
+	"podman" "run" "--rm" "-it"
 	"--device" "${CONTAINER_DEVICE}"
 	"--security-opt" "label=disable" "--net" "host"
 	"-v" "$HOME:$HOME"
-        "--env" "HOME"
+	"--storage-opt" "overlay.mount_program=/usr/bin/fuse-overlayfs"
+	"--storage-opt" "overlay.force_mask=shared"
+	"--storage-opt" "additionalimagestore=/usr/lib/containers/storage"
+	"--env" "HOME"
 	"--entrypoint" "$ENTRYPOINT"
 	"--env" "HF_TOKEN"
 	"${IMAGE_NAME}")
