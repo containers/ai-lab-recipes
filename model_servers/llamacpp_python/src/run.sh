@@ -16,8 +16,8 @@ if [ ${MODEL_PATH} ]; then
         --n_gpu_layers ${GPU_LAYERS:=0} \
         --clip_model_path ${CLIP_MODEL_PATH:=None} \
         --chat_format ${CHAT_FORMAT:=llama-2} \
-        ${PRETRAINED_MODEL_PATH:=}
-        ${HF_PRETRAINED_MODEL:%=--hf_pretrained_model_name_or_path %} \
+        ${PRETRAINED_MODEL_PATH:=} \
+        ${HF_PRETRAINED_MODEL:+--hf_pretrained_model_name_or_path ${HF_PRETRAINED_MODEL}} \
         --interrupt_requests ${INTERRUPT_REQUESTS:=False}
     exit 0
 fi
