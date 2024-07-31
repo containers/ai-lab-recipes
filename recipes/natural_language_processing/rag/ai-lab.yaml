@@ -16,6 +16,32 @@ application:
       ports:
         - 8001
       image: quay.io/ai-lab/llamacpp_python:latest
+    - name: llamacpp-server-cuda
+      contextdir: ../../../model_servers/llamacpp_python
+      containerfile: ./cuda/Containerfile
+      model-service: true
+      backend:
+        - llama
+      arch:
+        - amd64
+      gpu-env:
+        - cuda
+      ports:
+        - 8001
+      image: quay.io/ai-lab/llamacpp_python_cuda:latest
+    - name: llamacpp-server-metal
+      contextdir: ../../../model_servers/llamacpp_python
+      containerfile: ./vulkan/arm64/Containerfile
+      model-service: true
+      backend:
+        - llama
+      arch:
+        - arm64
+      gpu-env:
+        - metal      
+      ports:
+        - 8001
+      image: quay.io/ai-lab/llamacpp_python_vulkan:latest      
     - name: chromadb-server
       contextdir: ../../../vector_dbs/chromadb
       containerfile: Containerfile
