@@ -4,8 +4,8 @@ if [ ${CONFIG_PATH} ] || [[ ${MODEL_PATH} && ${CONFIG_PATH} ]]; then
     exit 0
 fi
 
-if [ "${HF_PRETRAINED_MODEL}" == "None" ]; then
-    HF_PRETRAINED_MODEL=""
+if [ "${MODEL_HF_PRETRAINED_MODEL}" == "None" ]; then
+    MODEL_HF_PRETRAINED_MODEL=""
 fi
 
 if [ ${MODEL_PATH} ]; then
@@ -15,9 +15,9 @@ if [ ${MODEL_PATH} ]; then
         --port ${PORT:=8001} \
         --n_gpu_layers ${GPU_LAYERS:=0} \
         --clip_model_path ${CLIP_MODEL_PATH:=None} \
-        --chat_format ${CHAT_FORMAT:=llama-2} \
+        --chat_format ${MODEL_CHAT_FORMAT:=llama-2} \
         ${PRETRAINED_MODEL_PATH:=} \
-        ${HF_PRETRAINED_MODEL:+--hf_pretrained_model_name_or_path ${HF_PRETRAINED_MODEL}} \
+        ${MODEL_HF_PRETRAINED_MODEL:+--hf_pretrained_model_name_or_path ${MODEL_HF_PRETRAINED_MODEL}} \
         --interrupt_requests ${INTERRUPT_REQUESTS:=False}
     exit 0
 fi
