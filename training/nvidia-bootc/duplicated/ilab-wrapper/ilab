@@ -1,5 +1,7 @@
 #!/bin/bash
 
+function echo-err { echo "$@" >&2; }
+
 # Template values replaced by container build
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
 IMAGE_NAME="__REPLACE_IMAGE_NAME__"
@@ -8,7 +10,7 @@ export ENTRYPOINT="/opt/python3.11/venv/bin/ilab"
 export PARAMS=("$@")
 
 if [[ -n "$ILAB_HOME" ]]; then
-    HOME="$ILAB_HOME"
+	HOME="$ILAB_HOME"
 fi
 
 for dir in "$HOME/.cache" "$HOME/.config" "$HOME/.local"; do
@@ -40,12 +42,45 @@ for PODMAN_MOUNT in "${ADDITIONAL_MOUNTS[@]}"; do
 	ADDITIONAL_MOUNT_OPTIONS+=("-v" "$PODMAN_MOUNT")
 done
 
-PODMAN_COMMAND=("podman" "run" "--rm" "-it"
+# We run the container as sudo in order to be able to access the root container
+# storage, which has the ilab image pre-pulled. But for security reasons we map
+# root UID 0 inside the container to the current user's UID (and all the other
+# subuids to the user's /etc/subuid range) so that we're effectively running
+# the container as the current user.
+#
+# In the future, we will run podman as the current user, once we figure a
+# reasonable way for the current user to access the root's user container
+# storage.
+CURRENT_USER_NAME=$(id --user --name)
+CURRENT_USER_SUBUID_RANGE=$(awk \
+	--field-separator ':' \
+	--assign current_user="$CURRENT_USER_NAME" \
+	--assign current_uid="$UID" \
+	'$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
+	/etc/subuid)
+
+# TODO: Handle multiple subuid ranges, for now, hard fail
+if [[ $(wc -l <<<"$CURRENT_USER_SUBUID_RANGE") != 1 ]]; then
+	if [[ -z "$CURRENT_USER_SUBUID_RANGE" ]]; then
+		echo-err "No subuid range found for user $CURRENT_USER_NAME ($UID)"
+	else
+		echo-err "Multiple subuid ranges found for user $CURRENT_USER_NAME ($UID), this is currently unsupported"
+		echo-err "$CURRENT_USER_SUBUID_RANGE"
+	fi
+	exit 1
+fi
+
+IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
+
+PODMAN_COMMAND=("sudo" "podman" "run" "--rm" "-it"
+	"${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
 	"--device" "${CONTAINER_DEVICE}"
 	"--security-opt" "label=disable" "--net" "host"
 	"-v" "$HOME:$HOME"
 	"${ADDITIONAL_MOUNT_OPTIONS[@]}"
-	"--env" "HOME"
+	# This is intentionally NOT using "--env" "HOME" because we want the HOME
+	# of the current shell and not the HOME set by sudo
+	"--env" "HOME=$HOME"
 	"--entrypoint" "$ENTRYPOINT"
 	"--env" "HF_TOKEN"
 	"${IMAGE_NAME}")
