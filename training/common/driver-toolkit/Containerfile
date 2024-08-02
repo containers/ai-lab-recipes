@@ -11,26 +11,25 @@ ARG ENABLE_RT=''
 
 USER root
 
-# TODO: rework this monstrosity into a build.sh (or even not shell script)
 # The need for the `cp /etc/dnf/dnf.conf` is a workaround for https://github.com/containers/bootc/issues/637
-RUN mv /etc/selinux /etc/selinux.tmp \
-    && dnf -y update --exclude kernel* \
-    && dnf info --installed kernel > /dev/null || dnf install -y kernel-core \
-    && if [ "${KERNEL_VERSION}" == "" ]; then \
-        RELEASE=$(dnf info --installed kernel-core | awk -F: '/^Release/{print $2}' | tr -d '[:blank:]') \
-        && VERSION=$(dnf info --installed kernel-core | awk -F: '/^Version/{print $2}' | tr -d '[:blank:]') \
-        && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
-        fi \
-    && echo "${KERNEL_VERSION}" \
+RUN if test -z "${KERNEL_VERSION}" ; then \
+      echo "The KERNEL_VERSION argument is mandatory. Exiting" ; \
+      exit 1 ; \
+    fi \
+    && echo "Kernel version: ${KERNEL_VERSION}" \
+    && mv /etc/selinux /etc/selinux.tmp \
     && dnf -y install dnf-plugin-config-manager \
     && cp -a /etc/dnf/dnf.conf{,.tmp} && mv /etc/dnf/dnf.conf{.tmp,} \
     && dnf config-manager --best --nodocs --setopt=install_weak_deps=False --save \
+    && dnf -y update --exclude kernel* \
     && dnf -y install \
+        kernel-${KERNEL_VERSION} \
         kernel-devel-${KERNEL_VERSION} \
         kernel-modules-${KERNEL_VERSION} \
         kernel-modules-extra-${KERNEL_VERSION} \
     && if [ "${ENABLE_RT}" ] && [ $(arch) == "x86_64" ]; then \
         dnf -y --enablerepo=rt install \
+            kernel-rt-${KERNEL_VERSION} \
             kernel-rt-devel-${KERNEL_VERSION} \
             kernel-rt-modules-${KERNEL_VERSION} \
             kernel-rt-modules-extra-${KERNEL_VERSION}; \
