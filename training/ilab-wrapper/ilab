@@ -4,7 +4,7 @@
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
 IMAGE_NAME="__REPLACE_IMAGE_NAME__"
 
-export ENTRYPOINT="/opt/python3.11/venv/bin/ilab"
+export ENTRYPOINT="ilab"
 export PARAMS=("$@")
 
 if [[ -n "$ILAB_HOME" ]]; then
