@@ -1,25 +1,25 @@
 #!/bin/bash
 
-function echo-err { echo "$@" >&2; }
+echo-err() { echo "$@" >&2; }
 
 # Template values replaced by container build
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
 IMAGE_NAME="__REPLACE_IMAGE_NAME__"
 
-export ENTRYPOINT="ilab"
-export PARAMS=("$@")
+ENTRYPOINT="ilab"
+PARAMS=("$@")
 
 if [[ -n "$ILAB_HOME" ]]; then
-	HOME="$ILAB_HOME"
+    HOME="$ILAB_HOME"
 fi
 
 for dir in "$HOME/.cache" "$HOME/.config" "$HOME/.local"; do
-	mkdir -p "$dir"
+    mkdir -p "$dir"
 done
 
 if [[ "$1" = "shell" ]]; then
-	export ENTRYPOINT=bash
-	export PARAMS=()
+    ENTRYPOINT=bash
+    PARAMS=()
 fi
 
 # If you need to mount additional volumes into the container, you can specify them
@@ -34,12 +34,12 @@ fi
 # ILAB_ADDITIONAL_MOUNTS="/host/path:/container/path '/host/path with spaces':/container/path"
 ADDITIONAL_MOUNTS=()
 if [ -n "${ILAB_ADDITIONAL_MOUNTS}" ]; then
-	# (eval is used here to allow the user to specify mounts that might have spaces in them)
-	eval "ADDITIONAL_MOUNTS=(${ILAB_ADDITIONAL_MOUNTS})"
+    # (eval is used here to allow the user to specify mounts that might have spaces in them)
+    eval "ADDITIONAL_MOUNTS=(${ILAB_ADDITIONAL_MOUNTS})"
 fi
 ADDITIONAL_MOUNT_OPTIONS=()
 for PODMAN_MOUNT in "${ADDITIONAL_MOUNTS[@]}"; do
-	ADDITIONAL_MOUNT_OPTIONS+=("-v" "$PODMAN_MOUNT")
+    ADDITIONAL_MOUNT_OPTIONS+=("-v" "$PODMAN_MOUNT")
 done
 
 # We run the container as sudo in order to be able to access the root container
@@ -53,40 +53,40 @@ done
 # storage.
 CURRENT_USER_NAME=$(id --user --name)
 CURRENT_USER_SUBUID_RANGE=$(awk \
-	--field-separator ':' \
-	--assign current_user="$CURRENT_USER_NAME" \
-	--assign current_uid="$UID" \
-	'$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
-	/etc/subuid)
+    --field-separator ':' \
+    --assign current_user="$CURRENT_USER_NAME" \
+    --assign current_uid="$UID" \
+    '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
+    /etc/subuid)
 
 # TODO: Handle multiple subuid ranges, for now, hard fail
 if [[ $(wc -l <<<"$CURRENT_USER_SUBUID_RANGE") != 1 ]]; then
-	if [[ -z "$CURRENT_USER_SUBUID_RANGE" ]]; then
-		echo-err "No subuid range found for user $CURRENT_USER_NAME ($UID)"
-	else
-		echo-err "Multiple subuid ranges found for user $CURRENT_USER_NAME ($UID), this is currently unsupported"
-		echo-err "$CURRENT_USER_SUBUID_RANGE"
-	fi
-	exit 1
+    if [[ -z "$CURRENT_USER_SUBUID_RANGE" ]]; then
+        echo-err "No subuid range found for user $CURRENT_USER_NAME ($UID)"
+    else
+        echo-err "Multiple subuid ranges found for user $CURRENT_USER_NAME ($UID), this is currently unsupported"
+        echo-err "$CURRENT_USER_SUBUID_RANGE"
+    fi
+    exit 1
 fi
 
 IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
 
 PODMAN_COMMAND=("sudo" "podman" "run" "--rm" "-it"
-	"${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
-	"--device" "${CONTAINER_DEVICE}"
-	"--security-opt" "label=disable" "--net" "host"
-	"--shm-size" "10G"
-	"-v" "$HOME:$HOME"
-	"${ADDITIONAL_MOUNT_OPTIONS[@]}"
-	# This is intentionally NOT using "--env" "HOME" because we want the HOME
-	# of the current shell and not the HOME set by sudo
-	"--env" "HOME=$HOME"
-	"--env" "ILAB_GLOBAL_CONFIG=$ILAB_GLOBAL_CONFIG"
-	"--env" "VLLM_LOGGING_LEVEL=$VLLM_LOGGING_LEVEL"
-	"--env" "NCCL_DEBUG=$NCCL_DEBUG"
-	"--entrypoint" "$ENTRYPOINT"
-	"--env" "HF_TOKEN"
-	"${IMAGE_NAME}")
+    "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
+    "--device" "${CONTAINER_DEVICE}"
+    "--security-opt" "label=disable" "--net" "host"
+    "--shm-size" "10G"
+    "-v" "$HOME:$HOME"
+    "${ADDITIONAL_MOUNT_OPTIONS[@]}"
+    # This is intentionally NOT using "--env" "HOME" because we want the HOME
+    # of the current shell and not the HOME set by sudo
+    "--env" "HOME=$HOME"
+    "--env" "ILAB_GLOBAL_CONFIG=$ILAB_GLOBAL_CONFIG"
+    "--env" "VLLM_LOGGING_LEVEL=$VLLM_LOGGING_LEVEL"
+    "--env" "NCCL_DEBUG=$NCCL_DEBUG"
+    "--entrypoint" "$ENTRYPOINT"
+    "--env" "HF_TOKEN"
+    "${IMAGE_NAME}")
 
 exec "${PODMAN_COMMAND[@]}" "${PARAMS[@]}"
