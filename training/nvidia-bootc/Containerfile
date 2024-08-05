@@ -198,7 +198,7 @@ ARG INSTRUCTLAB_IMAGE_PULL_SECRET="instructlab-nvidia-pull"
 RUN for i in /usr/bin/ilab*; do \
 	sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' $i;  \
 	sed -i 's/__REPLACE_CONTAINER_DEVICE__/nvidia.com\/gpu=all/' $i; \
-	sed -i "s%__REPLACE_IMAGE_NAME__%${INSTRUCTLAB_IMAGE}%" $i; \
+	sed -i "s%__REPLACE_IMAGE_NAME__%instructlab-nvidia:${INSTRUCTLAB_IMAGE##*:}%" $i; \
     done
 
 # Added for running as an OCI Container to prevent Overlay on Overlay issues.
@@ -206,12 +206,14 @@ VOLUME /var/lib/containers
 
 RUN --mount=type=secret,id=${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson \
     if [ -f "/run/.input/instructlab-nvidia/oci-layout" ]; then \
-         IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
-         podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
+        IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
+        podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
     elif [ -f "/run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson" ]; then \
-         IID=$(sudo podman --root /usr/lib/containers/storage pull --authfile /run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson ${INSTRUCTLAB_IMAGE}); \
+        podman --root /usr/lib/containers/storage pull --authfile /run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson ${INSTRUCTLAB_IMAGE}; \
+        podman --root /usr/lib/containers/storage tag ${INSTRUCTLAB_IMAGE} instructlab-nvidia:${INSTRUCTLAB_IMAGE##*:}; \
+        podman --root /usr/lib/containers/storage rmi ${INSTRUCTLAB_IMAGE}; \
     else \
-         IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
+        podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}; \
     fi
 RUN podman system reset --force 2>/dev/null
 
