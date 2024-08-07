@@ -60,28 +60,35 @@ fi
 # In the future, we will run podman as the current user, once we figure a
 # reasonable way for the current user to access the root's user container
 # storage.
-CURRENT_USER_NAME=$(id --user --name)
-CURRENT_USER_SUBUID_RANGE=$(awk \
-    --field-separator ':' \
-    --assign current_user="$CURRENT_USER_NAME" \
-    --assign current_uid="$UID" \
-    '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
-    /etc/subuid)
+if [[ "$UID" == 0 ]]; then
+    # If we're already running as root, we don't need to map any UIDs
+    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=()
+else
+    CURRENT_USER_NAME=$(id --user --name)
+    CURRENT_USER_SUBUID_RANGE=$(awk \
+        --field-separator ':' \
+        --assign current_user="$CURRENT_USER_NAME" \
+        --assign current_uid="$UID" \
+        '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
+        /etc/subuid)
 
-# TODO: Handle multiple subuid ranges, for now, hard fail
-if [[ $(wc -l <<<"$CURRENT_USER_SUBUID_RANGE") != 1 ]]; then
-    if [[ -z "$CURRENT_USER_SUBUID_RANGE" ]]; then
-        echo-err "No subuid range found for user $CURRENT_USER_NAME ($UID)"
-    else
-        echo-err "Multiple subuid ranges found for user $CURRENT_USER_NAME ($UID), this is currently unsupported"
-        echo-err "$CURRENT_USER_SUBUID_RANGE"
+    # TODO: Handle multiple subuid ranges, for now, hard fail
+    if [[ $(wc -l <<<"$CURRENT_USER_SUBUID_RANGE") != 1 ]]; then
+        if [[ -z "$CURRENT_USER_SUBUID_RANGE" ]]; then
+            echo-err "No subuid range found for user $CURRENT_USER_NAME ($UID)"
+        else
+            echo-err "Multiple subuid ranges found for user $CURRENT_USER_NAME ($UID), this is currently unsupported"
+            echo-err "$CURRENT_USER_SUBUID_RANGE"
+        fi
+        exit 1
     fi
-    exit 1
+
+    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
 fi
 
 IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
-
-PODMAN_COMMAND=("sudo" "podman" "run" "--rm" "-it"
+PRESERVE_ENV="VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
+PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it"
     "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
     "--device" "${CONTAINER_DEVICE}"
     "--security-opt" "label=disable" "--net" "host"
@@ -90,10 +97,9 @@ PODMAN_COMMAND=("sudo" "podman" "run" "--rm" "-it"
     "${ADDITIONAL_MOUNT_OPTIONS[@]}"
     # This is intentionally NOT using "--env" "HOME" because we want the HOME
     # of the current shell and not the HOME set by sudo
-    "--env" "HOME=$HOME"
-    "--env" "ILAB_GLOBAL_CONFIG=$ILAB_GLOBAL_CONFIG"
-    "--env" "VLLM_LOGGING_LEVEL=$VLLM_LOGGING_LEVEL"
-    "--env" "NCCL_DEBUG=$NCCL_DEBUG"
+    "--env" "VLLM_LOGGING_LEVEL"
+    "--env" "HOME"
+    "--env" "NCCL_DEBUG"
     "--entrypoint" "$ENTRYPOINT"
     "--env" "HF_TOKEN"
     "${IMAGE_NAME}")

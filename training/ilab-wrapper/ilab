@@ -87,8 +87,8 @@ else
 fi
 
 IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
-
-PODMAN_COMMAND=("sudo" "podman" "run" "--rm" "-it"
+PRESERVE_ENV="VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
+PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it"
     "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
     "--device" "${CONTAINER_DEVICE}"
     "--security-opt" "label=disable" "--net" "host"
@@ -97,10 +97,9 @@ PODMAN_COMMAND=("sudo" "podman" "run" "--rm" "-it"
     "${ADDITIONAL_MOUNT_OPTIONS[@]}"
     # This is intentionally NOT using "--env" "HOME" because we want the HOME
     # of the current shell and not the HOME set by sudo
-    "--env" "HOME=$HOME"
-    "--env" "ILAB_GLOBAL_CONFIG=$ILAB_GLOBAL_CONFIG"
-    "--env" "VLLM_LOGGING_LEVEL=$VLLM_LOGGING_LEVEL"
-    "--env" "NCCL_DEBUG=$NCCL_DEBUG"
+    "--env" "VLLM_LOGGING_LEVEL"
+    "--env" "HOME"
+    "--env" "NCCL_DEBUG"
     "--entrypoint" "$ENTRYPOINT"
     "--env" "HF_TOKEN"
     "${IMAGE_NAME}")
