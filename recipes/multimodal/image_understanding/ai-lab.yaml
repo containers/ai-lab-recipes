@@ -12,6 +12,26 @@ application:
       arch:
         - arm64
         - amd64
+    - name: llamacpp-server-cuda
+      contextdir: ../../../model_servers/llamacpp_python
+      containerfile: ./cuda/Containerfile
+      model-service: true
+      backend:
+        - llama
+      arch:
+        - amd64
+      gpu-env:
+        - cuda
+    - name: llamacpp-server-metal
+      contextdir: ../../../model_servers/llamacpp_python
+      containerfile: ./vulkan/arm64/Containerfile
+      model-service: true
+      backend:
+        - llama
+      arch:
+        - arm64
+      gpu-env:
+        - metal
     - name: image-understanding-inference-app
       contextdir: app
       containerfile: Containerfile
