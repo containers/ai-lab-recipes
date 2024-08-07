@@ -2,6 +2,22 @@
 
 echo-err() { echo "$@" >&2; }
 
+function verify_range() {
+    subuid_range="$1"
+    username="$2"
+    NUMBER_OF_MATCHING_SUBUID_RANGES=$(if [[ -z "$subuid_range" ]]; then echo 0; else wc -l <<<"$subuid_range"; fi)
+
+    if [[ "$NUMBER_OF_MATCHING_SUBUID_RANGES" == 0 ]]; then
+        echo-err "No /etc/subuid range found for user $username ($UID)"
+        exit 1
+    elif [[ "$NUMBER_OF_MATCHING_SUBUID_RANGES" != 1 ]]; then
+        # TODO: Handle multiple subuid ranges. But for now, hard fail
+        echo-err "Multiple /etc/subuid ranges found for user $username ($UID), this is currently unsupported:"
+        echo-err "$subuid_range"
+        exit 1
+    fi
+}
+
 # Template values replaced by container build
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
 IMAGE_NAME="__REPLACE_IMAGE_NAME__"
@@ -72,21 +88,11 @@ else
         '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
         /etc/subuid)
 
-    # TODO: Handle multiple subuid ranges, for now, hard fail
-    if [[ $(wc -l <<<"$CURRENT_USER_SUBUID_RANGE") != 1 ]]; then
-        if [[ -z "$CURRENT_USER_SUBUID_RANGE" ]]; then
-            echo-err "No subuid range found for user $CURRENT_USER_NAME ($UID)"
-        else
-            echo-err "Multiple subuid ranges found for user $CURRENT_USER_NAME ($UID), this is currently unsupported"
-            echo-err "$CURRENT_USER_SUBUID_RANGE"
-        fi
-        exit 1
-    fi
+    verify_range "$CURRENT_USER_SUBUID_RANGE" "$CURRENT_USER_NAME"
 
     IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
 fi
 
-IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
 PRESERVE_ENV="VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
 PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it"
     "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
