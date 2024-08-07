@@ -56,3 +56,15 @@ currently built images are  tracked in
 ## [Training](./training/README.md)
 
 Linux Operating System Bootable containers enabled for AI Training
+
+## Setting Up Git Hooks
+
+To install our standard git hooks, run the following command:
+
+```sh
+./install-hooks.sh
+```
+
+### pre-commit hook
+
+Ensures that `training/ilab-wrapper/ilab` is duplicated into `training/nvidia-bootc/duplicated/ilab-wrapper/ilab`
