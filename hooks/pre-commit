@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SOURCE_FILE="training/ilab-wrapper/ilab"
+DEST_FILE="training/nvidia-bootc/duplicated/ilab-wrapper/ilab"
+
+if [[ -f "$SOURCE_FILE" ]]; then
+  mkdir -p "$(dirname "$DEST_FILE")"
+  cp "$SOURCE_FILE" "$DEST_FILE"
+  git add "$DEST_FILE"
+else
+  echo "Source file $SOURCE_FILE does not exist. Aborting commit."
+  exit 1
+fi
