@@ -22,7 +22,7 @@ COPY --chown=1001:0 x509-configuration.ini x509-configuration.ini
 RUN export KVER=$(rpm -q --qf "%{VERSION}" kernel-core) \
         KREL=$(rpm -q --qf "%{RELEASE}" kernel-core | sed 's/\.el.\(_.\)*$//') \
         KDIST=$(rpm -q --qf "%{RELEASE}" kernel-core | awk -F '.' '{ print "."$NF}') \
-        OS_VERSION_MAJOR=$(grep "^VERSION=" /etc/os-release | cut -d '=' -f 2 | sed 's/"//g') \
+        OS_VERSION_MAJOR=$(grep "^VERSION=" /etc/os-release | cut -d '=' -f 2 | sed 's/"//g' | cut -d '.' -f 1) \
     && if [ "${BUILD_ARCH}" == "" ]; then \
         export BUILD_ARCH=$(arch) \
         && export TARGET_ARCH=$(echo "${BUILD_ARCH}" | sed 's/+64k//') ;\
@@ -93,7 +93,7 @@ ARG IMAGE_VERSION_ID
 # The need for the `cp /etc/dnf/dnf.conf` is a workaround for https://github.com/containers/bootc/issues/637
 RUN mv /etc/selinux /etc/selinux.tmp \
     && dnf install -y /rpms/kmod-nvidia-*.rpm \
-    && export OS_VERSION_MAJOR=$(grep "^VERSION=" /etc/os-release | cut -d '=' -f 2 | sed 's/"//g') \
+    && export OS_VERSION_MAJOR=$(grep "^VERSION=" /etc/os-release | cut -d '=' -f 2 | sed 's/"//g' | cut -d '.' -f 1) \
     && if [ "${TARGET_ARCH}" == "" ]; then \
         export TARGET_ARCH="$(arch)" ;\
     fi \
