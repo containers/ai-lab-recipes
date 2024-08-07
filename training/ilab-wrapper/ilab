@@ -9,6 +9,27 @@ IMAGE_NAME="__REPLACE_IMAGE_NAME__"
 ENTRYPOINT="ilab"
 PARAMS=("$@")
 
+check_insights(){
+    if [ -f /etc/ilab-skip-insights ]; then
+        return
+    fi
+    if [ -f /etc/insights-client/machine-id ]; then
+        return
+    fi
+    cat << EOF
+Error: Host Not Registered with Red Hat Insights
+
+It appears that this host has not been registered with the Insights client
+Please refer to the documentation for instructions on how to complete the registration process
+
+For more information, visit
+https://gitlab.cee.redhat.com/red-hat-enterprise-linux-ai-documentation/rhelai_v1.1/-/blob/main/building_environment/setting_up_accounts.adoc
+EOF
+    exit 1
+}
+
+check_insights
+
 if [[ -n "$ILAB_HOME" ]]; then
     HOME="$ILAB_HOME"
 fi
