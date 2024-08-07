@@ -40,6 +40,16 @@ Please refer to the documentation for instructions on how to complete the regist
 
 For more information, visit
 https://gitlab.cee.redhat.com/red-hat-enterprise-linux-ai-documentation/rhelai_v1.1/-/blob/main/building_environment/setting_up_accounts.adoc
+
+=============================================
+UNTIL WE HAVE PUBLIC DOCUMENTATION ON RHEL AI
+=============================================
+How to manage activation keys:
+https://docs.redhat.com/en/documentation/subscription_central/1-latest/html/getting_started_with_activation_keys_on_the_hybrid_cloud_console/assembly-creating-managing-activation-keys
+Connect to insights using:
+rhc connect --activation-key example_key --organization 123
+
+
 EOF
     exit 1
 }
