@@ -6,9 +6,6 @@ FROM ${DRIVER_TOOLKIT_IMAGE} as builder
 
 ARG BASE_URL='https://us.download.nvidia.com/tesla'
 
-ARG OS_VERSION_MAJOR=''
-ARG KERNEL_VERSION=''
-
 ARG BUILD_ARCH=''
 ARG TARGET_ARCH=''
 
@@ -22,27 +19,14 @@ USER builder
 WORKDIR /home/builder
 COPY --chown=1001:0 x509-configuration.ini x509-configuration.ini
 
-RUN if [ "${KERNEL_VERSION}" == "" ]; then \
-        RELEASE=$(rpm -q kernel-core --qf="%{RELEASE}") \
-        && VERSION=$(rpm -q kernel-core --qf="%{VERSION}") \
-        && export KERNEL_VERSION="${VERSION}-${RELEASE}" ;\
-    fi \
-    && if [ "${OS_VERSION_MAJOR}" == "" ]; then \
-        . /etc/os-release \
-	&& export OS_ID="$(echo ${ID})" \
-        && export OS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
-       fi \
+RUN export KVER=$(rpm -q --qf "%{VERSION}" kernel-core) \
+        KREL=$(rpm -q --qf "%{RELEASE}" kernel-core | sed 's/\.el.\(_.\)*$//') \
+        KDIST=$(rpm -q --qf "%{RELEASE}" kernel-core | awk -F '.' '{ print "."$NF}') \
+        OS_VERSION_MAJOR=$(grep "^VERSION=" /etc/os-release | cut -d '=' -f 2 | sed 's/"//g') \
     && if [ "${BUILD_ARCH}" == "" ]; then \
         export BUILD_ARCH=$(arch) \
         && export TARGET_ARCH=$(echo "${BUILD_ARCH}" | sed 's/+64k//') ;\
-        fi \
-    && export KVER=$(echo ${KERNEL_VERSION} | cut -d '-' -f 1) \
-    && KREL=$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/\.el._*.*\..\+$//' | cut -d'.' -f 1) \
-    && if [ "${OS_ID}" == "rhel" ]; then \
-		KDIST="."$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | cut -d '.' -f 2-) ;\
-	else \
-		KDIST="."$(echo ${KERNEL_VERSION} | cut -d '-' -f 2 | sed 's/^.*\(\.el._*.*\)\..\+$/\1/' | cut -d'.' -f 2) ;\
-	fi \
+    fi \
     && DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) \
     && git clone --depth 1 --single-branch -b rhel${OS_VERSION_MAJOR} https://github.com/NVIDIA/yum-packaging-precompiled-kmod \
     && cd yum-packaging-precompiled-kmod \
@@ -73,9 +57,6 @@ RUN if [ "${KERNEL_VERSION}" == "" ]; then \
 FROM ${BASEIMAGE}
 
 ARG BASE_URL='https://us.download.nvidia.com/tesla'
-
-ARG OS_VERSION_MAJOR=''
-ARG KERNEL_VERSION=''
 
 ARG VENDOR=''
 LABEL vendor=${VENDOR}
@@ -112,18 +93,15 @@ ARG IMAGE_VERSION_ID
 # The need for the `cp /etc/dnf/dnf.conf` is a workaround for https://github.com/containers/bootc/issues/637
 RUN mv /etc/selinux /etc/selinux.tmp \
     && dnf install -y /rpms/kmod-nvidia-*.rpm \
+    && export OS_VERSION_MAJOR=$(grep "^VERSION=" /etc/os-release | cut -d '=' -f 2 | sed 's/"//g') \
     && if [ "${TARGET_ARCH}" == "" ]; then \
         export TARGET_ARCH="$(arch)" ;\
-        fi \
-    && if [ "${OS_VERSION_MAJOR}" == "" ]; then \
-        . /etc/os-release \
-        && export OS_VERSION_MAJOR="$(echo ${VERSION} | cut -d'.' -f 1)" ;\
-       fi \
+    fi \
+    && if [ "${TARGET_ARCH}" == "aarch64" ]; then CUDA_REPO_ARCH="sbsa"; fi \
     && export DRIVER_STREAM=$(echo ${DRIVER_VERSION} | cut -d '.' -f 1) \
         CUDA_VERSION_ARRAY=(${CUDA_VERSION//./ }) \
         CUDA_DASHED_VERSION=${CUDA_VERSION_ARRAY[0]}-${CUDA_VERSION_ARRAY[1]} \
         CUDA_REPO_ARCH=${TARGET_ARCH} \
-    && if [ "${TARGET_ARCH}" == "aarch64" ]; then CUDA_REPO_ARCH="sbsa"; fi \
     && cp -a /etc/dnf/dnf.conf{,.tmp} && mv /etc/dnf/dnf.conf{.tmp,} \
     && dnf config-manager --best --nodocs --setopt=install_weak_deps=False --save \
     && dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel${OS_VERSION_MAJOR}/${CUDA_REPO_ARCH}/cuda-rhel${OS_VERSION_MAJOR}.repo \
