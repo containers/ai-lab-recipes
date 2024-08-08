@@ -172,6 +172,7 @@ RUN chmod +x /usr/bin/ilab
 
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-nvidia:latest"
 ARG INSTRUCTLAB_IMAGE_PULL_SECRET="instructlab-nvidia-pull"
+ARG INSTRUCTLAB_IMAGE_RETAG
 
 RUN for i in /usr/bin/ilab*; do \
 	sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' $i;  \
@@ -191,6 +192,11 @@ RUN --mount=type=secret,id=${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson \
     else \
          IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
     fi
+
+RUN if [ ! -z "${INSTRUCTLAB_IMAGE_RETAG}" ]; then \
+        podman tag ${INSTRUCTLAB_IMAGE} ${INSTRUCTLAB_IMAGE%%:*}:${INSTRUCTLAB_IMAGE_RETAG}; \
+    fi
+
 RUN podman system reset --force 2>/dev/null
 
 LABEL image_version_id="${IMAGE_VERSION_ID}"
