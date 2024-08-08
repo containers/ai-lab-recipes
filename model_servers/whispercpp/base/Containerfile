@@ -19,7 +19,7 @@ COPY --from=builder /app /app
 COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /bin/
 COPY --from=mwader/static-ffmpeg:6.1.1 /ffprobe /bin/
 
-COPY --chown=0:0 --chmod=755 src /app
+COPY --chown=1001:0 --chmod=755 src /app
 
 USER 1001
 
