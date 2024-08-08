@@ -6,8 +6,8 @@ FROM ${DRIVER_TOOLKIT_IMAGE} as builder
 # NOTE: The entire Gaudi stack from Kernel drivers to PyTorch and Instructlab
 # must be updated in lockstep. Please coordinate updates with all
 # stakeholders.
-ARG DRIVER_VERSION=1.16.1-7
-ARG HABANA_REPO="https://vault.habana.ai/artifactory/rhel/9/9.2"
+ARG DRIVER_VERSION=1.17.0-495
+ARG HABANA_REPO="https://vault.habana.ai/artifactory/rhel/9/9.4"
 
 WORKDIR /home/builder
 
@@ -28,7 +28,7 @@ RUN . /etc/os-release \
 
 FROM ${BASEIMAGE}
 
-ARG DRIVER_VERSION=1.16.1-7
+ARG DRIVER_VERSION=1.17.0-495
 ARG EXTRA_RPM_PACKAGES=''
 
 ARG VENDOR=''
