@@ -20,6 +20,7 @@ COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /bin/
 COPY --from=mwader/static-ffmpeg:6.1.1 /ffprobe /bin/
 
 COPY --chown=0:0 --chmod=755 src /app
+RUN chown 1001:1001 /app
 
 USER 1001
 
