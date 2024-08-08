@@ -193,4 +193,7 @@ RUN --mount=type=secret,id=${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson \
     fi
 RUN podman system reset --force 2>/dev/null
 
+RUN groupadd ilab \
+    && echo "%ilab ALL=(ALL) NOPASSWD: /usr/bin/ilab internal-reexec *" > /etc/sudoers.d/ilab-group
+
 LABEL image_version_id="${IMAGE_VERSION_ID}"

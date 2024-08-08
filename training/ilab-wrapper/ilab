@@ -1,6 +1,21 @@
 #!/bin/bash
 
-echo-err() { echo "$@" >&2; }
+# This script is a wrapper around the ilab command in a podman container that
+# tries to make the experience as seamless as possible. Currently accessing the
+# pre-pulled ilab image requires root access, so the script will attempt to
+# re-run itself with sudo. A RHEL AI system should come preloaded with an ilab
+# group that is allowed to run this script as sudo without a password prompt,
+# so make sure that the user running this script is in the ilab group to avoid
+# the prompt. Note that it's best that you not run this script yourself as sudo,
+# it's best you let the script to re-run itself as sudo.
+#
+# For security reasons we map root UID 0 inside the container to the current
+# user's UID (and all the other subuids to the user's /etc/subuid range) so
+# that we're effectively running the container as the current user.
+#
+# In the future, we will run podman as the current user, once we figure a
+# reasonable way for the current user to access the root's user container
+# storage.
 
 function verify_range() {
     subuid_range="$1"
@@ -18,96 +33,115 @@ function verify_range() {
     fi
 }
 
-# Template values replaced by container build
-CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
-IMAGE_NAME="__REPLACE_IMAGE_NAME__"
+if [[ "$1" != "internal-reexec" ]]; then
+    echo-err() { echo "$@" >&2; }
 
-ENTRYPOINT="ilab"
-PARAMS=("$@")
+    # Template values replaced by container build
+    CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
+    IMAGE_NAME="__REPLACE_IMAGE_NAME__"
 
-if [[ -n "$ILAB_HOME" ]]; then
-    HOME="$ILAB_HOME"
-fi
+    if [[ -n "$ILAB_HOME" ]]; then
+        HOME="$ILAB_HOME"
+    fi
 
-for dir in "$HOME/.cache" "$HOME/.config" "$HOME/.local"; do
-    mkdir -p "$dir"
-done
+    for dir in "$HOME/.cache" "$HOME/.config" "$HOME/.local"; do
+        mkdir -p "$dir"
+    done
 
-if [[ "$1" = "shell" ]]; then
-    ENTRYPOINT=bash
-    PARAMS=()
-fi
+    ENTRYPOINT="ilab"
+    PARAMS=("$@")
 
-# If you need to mount additional volumes into the container, you can specify them
-# using the ILAB_ADDITIONAL_MOUNTS environment variable.
-#
-# Example ILAB_ADDITIONAL_MOUNTS usage:
-#
-# ILAB_ADDITIONAL_MOUNTS="/host/path:/container/path /host/path2:/container/path2"
-#
-# If your path contains spaces, you can use quotes:
-#
-# ILAB_ADDITIONAL_MOUNTS="/host/path:/container/path '/host/path with spaces':/container/path"
-ADDITIONAL_MOUNTS=()
-if [ -n "${ILAB_ADDITIONAL_MOUNTS}" ]; then
-    # (eval is used here to allow the user to specify mounts that might have spaces in them)
-    eval "ADDITIONAL_MOUNTS=(${ILAB_ADDITIONAL_MOUNTS})"
-fi
-ADDITIONAL_MOUNT_OPTIONS=()
-for PODMAN_MOUNT in "${ADDITIONAL_MOUNTS[@]}"; do
-    ADDITIONAL_MOUNT_OPTIONS+=("-v" "$PODMAN_MOUNT")
-done
+    if [[ "$1" = "shell" ]]; then
+        ENTRYPOINT=bash
+        PARAMS=()
+    fi
 
-# Add pull-secret to additional mounts
-# In case of normal user, $XDG_RUNTIME_DIR is used
-if [[ -f ${XDG_RUNTIME_DIR}/containers/auth.json ]]; then
-    ADDITIONAL_MOUNT_OPTIONS+=("-v" "${XDG_RUNTIME_DIR}/containers/auth.json:/run/containers/0/auth.json")
-# For root the main /run/containers is used
-elif [[ -f /run/containers/${UID}/auth.json ]]; then
-    ADDITIONAL_MOUNT_OPTIONS+=("-v" "/run/containers/${UID}/auth.json:/run/containers/0/auth.json")
-fi
+    # If you need to mount additional volumes into the container, you can specify them
+    # using the ILAB_ADDITIONAL_MOUNTS environment variable.
+    #
+    # Example ILAB_ADDITIONAL_MOUNTS usage:
+    #
+    # ILAB_ADDITIONAL_MOUNTS="/host/path:/container/path /host/path2:/container/path2"
+    #
+    # If your path contains spaces, you can use quotes:
+    #
+    # ILAB_ADDITIONAL_MOUNTS="/host/path:/container/path '/host/path with spaces':/container/path"
+    ADDITIONAL_MOUNTS=()
+    if [ -n "${ILAB_ADDITIONAL_MOUNTS}" ]; then
+        # (eval is used here to allow the user to specify mounts that might have spaces in them)
+        eval "ADDITIONAL_MOUNTS=(${ILAB_ADDITIONAL_MOUNTS})"
+    fi
+    ADDITIONAL_MOUNT_OPTIONS=()
+    for PODMAN_MOUNT in "${ADDITIONAL_MOUNTS[@]}"; do
+        ADDITIONAL_MOUNT_OPTIONS+=("-v" "$PODMAN_MOUNT")
+    done
 
-# We run the container as sudo in order to be able to access the root container
-# storage, which has the ilab image pre-pulled. But for security reasons we map
-# root UID 0 inside the container to the current user's UID (and all the other
-# subuids to the user's /etc/subuid range) so that we're effectively running
-# the container as the current user.
-#
-# In the future, we will run podman as the current user, once we figure a
-# reasonable way for the current user to access the root's user container
-# storage.
-if [[ "$UID" == 0 ]]; then
-    # If we're already running as root, we don't need to map any UIDs
-    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=()
+    # Add pull-secret to additional mounts
+    # In case of normal user, $XDG_RUNTIME_DIR is used
+    if [[ -f ${XDG_RUNTIME_DIR}/containers/auth.json ]]; then
+        ADDITIONAL_MOUNT_OPTIONS+=("-v" "${XDG_RUNTIME_DIR}/containers/auth.json:/run/containers/0/auth.json")
+    # For root the main /run/containers is used
+    elif [[ -f /run/containers/${UID}/auth.json ]]; then
+        ADDITIONAL_MOUNT_OPTIONS+=("-v" "/run/containers/${UID}/auth.json:/run/containers/0/auth.json")
+    fi
+
+    if [[ "$UID" == 0 ]]; then
+        # If we're already running as root, we don't need to map any UIDs
+        IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=()
+    else
+        CURRENT_USER_NAME=$(id --user --name)
+        CURRENT_USER_SUBUID_RANGE=$(awk \
+            --field-separator ':' \
+            --assign current_user="$CURRENT_USER_NAME" \
+            --assign current_uid="$UID" \
+            '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
+            /etc/subuid)
+
+        verify_range "$CURRENT_USER_SUBUID_RANGE" "$CURRENT_USER_NAME"
+
+        IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
+    fi
+
+    PRESERVE_ENV="VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
+    PODMAN_ENV_FLAGS=()
+    for ENV_VAR in $(echo "$PRESERVE_ENV" | tr ',' ' '); do
+        # This is intentionally using the "--env VARNAME=$VARNAME" form and not
+        # the "--env VARNAME" form because we want the VARNAME of the current
+        # shell and not the VARNAME set by sudo
+        #
+        # Also we must conditionally set the environment variable, because if
+        # the variable is not set, we don't want to pass an empty value to the
+        # container, this could lead to unexpected behavior from instructlab.
+        #
+        # Also we don't want to simply use sudo --preserve-env=VARNAME,VARNAME,...
+        # because this requires special sudo permissions that are not present
+        # for all users by default.
+        if [[ -n "${!ENV_VAR}" ]]; then
+            PODMAN_ENV_FLAGS+=("--env" "$ENV_VAR=${!ENV_VAR}")
+        fi
+    done
+
+    PODMAN_COMMAND=("podman" "run" "--rm" "-it"
+        "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
+        "--device" "${CONTAINER_DEVICE}"
+        "--security-opt" "label=disable" "--net" "host"
+        "--shm-size" "10G"
+        "-v" "$HOME:$HOME"
+        "${PODMAN_ENV_FLAGS[@]}"
+        "${ADDITIONAL_MOUNT_OPTIONS[@]}"
+        "--entrypoint" "$ENTRYPOINT"
+        "${IMAGE_NAME}")
+
+    COMMAND=("${PODMAN_COMMAND[@]}" "${PARAMS[@]}")
+
+    if [[ "$EUID" == 0 ]]; then
+        # If we're already running as root, we don't need to re-exec with sudo
+        exec "${COMMAND[@]}"
+    else
+        sudo "$0" internal-reexec "${COMMAND[@]}"
+        exit $?
+    fi
 else
-    CURRENT_USER_NAME=$(id --user --name)
-    CURRENT_USER_SUBUID_RANGE=$(awk \
-        --field-separator ':' \
-        --assign current_user="$CURRENT_USER_NAME" \
-        --assign current_uid="$UID" \
-        '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
-        /etc/subuid)
-
-    verify_range "$CURRENT_USER_SUBUID_RANGE" "$CURRENT_USER_NAME"
-
-    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
+    shift # Discard "internal-reexec"
+    exec "${@}"
 fi
-
-PRESERVE_ENV="VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
-PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it"
-    "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
-    "--device" "${CONTAINER_DEVICE}"
-    "--security-opt" "label=disable" "--net" "host"
-    "--shm-size" "10G"
-    "-v" "$HOME:$HOME"
-    "${ADDITIONAL_MOUNT_OPTIONS[@]}"
-    # This is intentionally NOT using "--env" "HOME" because we want the HOME
-    # of the current shell and not the HOME set by sudo
-    "--env" "VLLM_LOGGING_LEVEL"
-    "--env" "HOME"
-    "--env" "NCCL_DEBUG"
-    "--entrypoint" "$ENTRYPOINT"
-    "--env" "HF_TOKEN"
-    "${IMAGE_NAME}")
-
-exec "${PODMAN_COMMAND[@]}" "${PARAMS[@]}"
