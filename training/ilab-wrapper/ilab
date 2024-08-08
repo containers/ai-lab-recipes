@@ -2,7 +2,7 @@
 
 echo-err() { echo "$@" >&2; }
 
-function verify_range() {
+verify_range() {
     subuid_range="$1"
     username="$2"
     NUMBER_OF_MATCHING_SUBUID_RANGES=$(if [[ -z "$subuid_range" ]]; then echo 0; else wc -l <<<"$subuid_range"; fi)
@@ -17,6 +17,35 @@ function verify_range() {
         exit 1
     fi
 }
+
+check_insights() {
+    if [[ -f /etc/insights-client/machine-id ]]; then
+        return
+    fi
+    if [[ -f /etc/ilab/insights-opt-out ]]; then
+        return
+    fi
+    local ID
+    eval "$(grep ^ID= /etc/os-release)"
+    if [[ "$ID" != "rhel" ]]; then
+        return
+    fi
+    cat << EOF
+This host is not connected to Red Hat Insights.
+
+To connect this host to Red Hat Insights run the following command:
+sudo rhc connect --organization <org_id> --activation-key <your_activation_key>
+
+To generate an Activation Key:
+https://console.redhat.com/insights/connector/activation-keys (this page will also display your Organization ID).
+
+For more information on Red Hat Insights, please visit:
+https://docs.redhat.com/en/documentation/subscription_central/1-latest/html/getting_started_with_activation_keys_on_the_hybrid_cloud_console/assembly-creating-managing-activation-keys
+EOF
+    exit 1
+}
+
+check_insights
 
 # Template values replaced by container build
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
