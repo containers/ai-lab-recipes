@@ -99,7 +99,7 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner}}/${{ matrix.image_name }}
           platforms: ${{ matrix.platforms }}
-          tags: latest {{ github.ref_type == 'tag' && github.ref_name || '' }}
+          tags: latest ${{ github.ref_type == 'tag' && github.ref_name || '' }}
           containerfiles: ./model_servers/${{ matrix.directory }}/${{ matrix.flavor }}/Containerfile
           context: model_servers/${{ matrix.directory }}/
 
