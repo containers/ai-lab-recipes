@@ -12,6 +12,7 @@ import os
 
 model_service = os.getenv("MODEL_ENDPOINT","http://0.0.0.0:8001")
 model_service = f"{model_service}/v1"
+model_name = os.getenv("MODEL_NAME", "") 
 chunk_size = os.getenv("CHUNK_SIZE", 150)
 embedding_model = os.getenv("EMBEDDING_MODEL","BAAI/bge-base-en-v1.5")
 vdb_vendor = os.getenv("VECTORDB_VENDOR", "chromadb")
@@ -75,6 +76,7 @@ for msg in st.session_state.messages:
 
 llm = ChatOpenAI(base_url=model_service, 
                  api_key="EMPTY",
+                 model=model_name,
                  streaming=True,
                  callbacks=[StreamlitCallbackHandler(st.container(),
                                                      collapse_completed_thoughts=True)])
