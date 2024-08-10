@@ -81,7 +81,6 @@ ENV DISABLE_VGPU_VERSION_CHECK=$DISABLE_VGPU_VERSION_CHECK
 USER root
 
 COPY --from=builder /home/builder/yum-packaging-precompiled-kmod/RPMS/*/*.rpm /rpms/
-COPY --from=builder --chmod=444 /home/builder/yum-packaging-precompiled-kmod/tmp/firmware/*.bin /lib/firmware/nvidia/${DRIVER_VERSION}/
 # Temporary workaround until the permanent fix for libdnf is merged
 COPY nvidia-toolkit-firstboot.service /usr/lib/systemd/system/nvidia-toolkit-firstboot.service
 # Enable common services
@@ -110,6 +109,7 @@ RUN mv /etc/selinux /etc/selinux.tmp \
         cloud-init \
         pciutils \
         tmux \
+        nvidia-driver-${DRIVER_VERSION} \
         nvidia-driver-cuda-${DRIVER_VERSION} \
         nvidia-driver-libs-${DRIVER_VERSION} \
         nvidia-driver-NVML-${DRIVER_VERSION} \
