@@ -128,6 +128,7 @@ PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it
     "--device" "${CONTAINER_DEVICE}"
     "--security-opt" "label=disable" "--net" "host"
     "--shm-size" "10G"
+    "--pids-limit" "-1"
     "-v" "$HOME:$HOME"
     "${ADDITIONAL_MOUNT_OPTIONS[@]}"
     # This is intentionally NOT using "--env" "HOME" because we want the HOME
