@@ -1,0 +1,2 @@
+[install]
+kargs = ["console=tty0", "console=ttyS0,115200n8", "net.ifnames=0", "nvme_core.io_timeout=4294967295"]

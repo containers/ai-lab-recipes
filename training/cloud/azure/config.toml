@@ -1,0 +1,6 @@
+[customizations.kernel]
+name = "customizations-for-azure"
+# This is suggested by https://github.com/osbuild/images/blob/a4ae81dc3eed3e86c359635e3135fc8a07f411dd/pkg/distro/rhel/rhel9/azure.go#L454
+# append = "ro loglevel=3 console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300"
+# However, starting a RHEL instance in azure shows this one, and I'll be using it
+append = "loglevel=3 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 net.ifnames=0"

@@ -1,0 +1,8 @@
+ARG BASEIMAGE=quay.io/ai-labs/bootc-nvidia:latest
+FROM ${BASEIMAGE}
+
+ARG CLOUD
+
+COPY $CLOUD/cloud-setup.sh /tmp
+RUN /tmp/cloud-setup.sh && rm -f /tmp/cloud-setup.sh
+COPY $CLOUD/files/ /
