@@ -74,7 +74,7 @@ def read_file(file):
         pages = loader.load()
         text = "".join([p.page_content for p in pages]) 
     
-    if file_type == "text/plain":
+    if file_type in ["text/markdown", "text/plain"]:
         text = file.read().decode()   
     
     return text
@@ -86,7 +86,7 @@ def evaluate_summary(text, response):
     return score
 
 st.title("🔎 Summarizer")
-file = st.file_uploader("Upload file",type=[".txt",".pdf"])
+file = st.file_uploader("Upload file",type=[".txt",".pdf", ".md"])
 
 llm = ChatOpenAI(base_url=model_service,
              api_key="not required",
