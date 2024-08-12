@@ -88,13 +88,17 @@ for PODMAN_MOUNT in "${ADDITIONAL_MOUNTS[@]}"; do
 done
 
 # Add pull-secret to additional mounts
-# In case of normal user, $XDG_RUNTIME_DIR is used
-if [[ -f ${XDG_RUNTIME_DIR}/containers/auth.json ]]; then
-    ADDITIONAL_MOUNT_OPTIONS+=("-v" "${XDG_RUNTIME_DIR}/containers/auth.json:/run/containers/0/auth.json")
-# For root the main /run/containers is used
-elif [[ -f /run/containers/${UID}/auth.json ]]; then
-    ADDITIONAL_MOUNT_OPTIONS+=("-v" "/run/containers/${UID}/auth.json:/run/containers/0/auth.json")
-fi
+# In case of normal user, /run/user is used (XDG_RUNTIME_DIR), if root, it will be /run/containers
+for authfile in \
+    "${XDG_RUNTIME_DIR}/containers/auth.json" \
+    /run/user/${UID}/containers/auth.json \
+    /run/containers/${UID}/auth.json
+do
+    if [[ -f "$authfile" ]]; then
+        ADDITIONAL_MOUNT_OPTIONS+=("-v" "$authfile:/run/containers/0/auth.json")
+        break
+    fi
+done
 
 # We run the container as sudo in order to be able to access the root container
 # storage, which has the ilab image pre-pulled. But for security reasons we map
