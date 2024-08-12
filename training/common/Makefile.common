@@ -89,7 +89,6 @@ check-umask:
 bootc-image-builder:
 	mkdir -p build/store build/output
 	podman run \
-	  $(ARCH:%=--target-arch %) \
 	  $(AUTH_JSON:%=-v %:/run/containers/0/auth.json) \
 	  --rm \
 	  -ti \
@@ -106,6 +105,7 @@ bootc-image-builder:
 	    --chown $(DISK_UID):$(DISK_GID) \
 	    --local \
 	    --type $(DISK_TYPE) \
+	    $(ARCH:%=--target-arch %) \
 	    $(BOOTC_IMAGE)
 
 .PHONY: driver-toolkit
