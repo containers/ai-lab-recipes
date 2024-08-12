@@ -86,7 +86,7 @@ def evaluate_summary(text, response):
     return score
 
 st.title("🔎 Summarizer")
-file = st.file_uploader("Upload file",type=[".txt",".pdf"])
+file = st.file_uploader("Upload file",type=[".txt",".pdf", ".md"])
 
 llm = ChatOpenAI(base_url=model_service,
              api_key="not required",
