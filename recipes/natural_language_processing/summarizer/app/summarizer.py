@@ -74,7 +74,7 @@ def read_file(file):
         pages = loader.load()
         text = "".join([p.page_content for p in pages]) 
     
-    if file_type == "text/plain":
+    if file_type in ["text/markdown", "text/plain"]:
         text = file.read().decode()   
     
     return text
