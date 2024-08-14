@@ -43,7 +43,8 @@ application:
       contextdir: ../../../model_servers/llamacpp_python
       containerfile: ./base/Containerfile
       model-service: true
-      backend: llama-cpp
+      backend: 
+        - llama-cpp
       arch:
         - arm64
         - amd64
