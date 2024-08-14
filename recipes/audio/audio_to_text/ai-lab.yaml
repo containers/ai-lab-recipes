@@ -8,8 +8,7 @@ application:
       contextdir: ../../../model_servers/whispercpp
       containerfile: ./base/Containerfile
       model-service: true
-      backend:
-        - llama
+      backend: whisper-cpp
       arch:
         - arm64
         - amd64
