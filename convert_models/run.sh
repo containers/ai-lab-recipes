@@ -1,7 +1,7 @@
 #! /bin/bash
 
 hf_model_url=${HF_MODEL_URL}
-hf_token=${HF_TOKEN}
+hf_token=${HF_TOKEN:="None"}
 model_org=$(echo $hf_model_url | sed -n 's/\(.*\)\/\(.*\)/\1/p')
 model_name=$(echo $hf_model_url | sed -n 's/\(.*\)\/\(.*\)/\2/p')
 keep_orgi=${KEEP_ORIGINAL_MODEL}
