@@ -19,10 +19,10 @@ podman build -t converter .
 
 ## Quantize and Convert 
 
-You can run the conversion image directly with podman in the terminal. You just need to provide it with the huggingface model name you want to download, the quantization level you want to use and whether or not you want to keep the raw files after conversion.
+You can run the conversion image directly with podman in the terminal. You just need to provide it with the huggingface model name you want to download, the quantization level you want to use and whether or not you want to keep the raw files after conversion. "HF_TOKEN" is optional, it is required for private models.
 
 ```bash
-podman run -it --rm -v models:/converter/converted_models -e HF_MODEL_URL=<ORG/MODEL_NAME> -e QUANTIZATION=Q4_K_M -e KEEP_ORIGINAL_MODEL="False"
+podman run -it --rm -v models:/converter/converted_models -e HF_MODEL_URL=<ORG/MODEL_NAME> -e HF_TOKEN=<YOUR_HF_TOKEN_ID> -e QUANTIZATION=Q4_K_M -e KEEP_ORIGINAL_MODEL="False" converter
 ```
 
 You can also use the UI shown above to do the same.
