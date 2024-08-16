@@ -9,7 +9,7 @@ application:
       containerfile: ./base/Containerfile
       model-service: true
       backend:
-        - llama
+        - whisper-cpp
       arch:
         - arm64
         - amd64

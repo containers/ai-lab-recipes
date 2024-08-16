@@ -8,8 +8,8 @@ application:
       contextdir: ../../../model_servers/object_detection_python
       containerfile: ./base/Containerfile
       model-service: true
-      backend: 
-        - torch
+      backend:
+        - pytorch
       arch:
         - arm64
         - amd64

@@ -44,7 +44,7 @@ application:
       containerfile: ./base/Containerfile
       model-service: true
       backend: 
-        - llama
+        - llama-cpp
       arch:
         - arm64
         - amd64
