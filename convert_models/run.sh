@@ -1,6 +1,7 @@
 #! /bin/bash
 
 hf_model_url=${HF_MODEL_URL}
+hf_token=${HF_TOKEN:="None"}
 model_org=$(echo $hf_model_url | sed -n 's/\(.*\)\/\(.*\)/\1/p')
 model_name=$(echo $hf_model_url | sed -n 's/\(.*\)\/\(.*\)/\2/p')
 keep_orgi=${KEEP_ORIGINAL_MODEL}
@@ -15,11 +16,11 @@ if [ -e "/opt/app-root/src/converter/converted_models/cache/models--$model_org--
 fi
 
 echo "Downloading $hf_model_url"
-python download_huggingface.py --model $hf_model_url
-python llama.cpp/convert.py /opt/app-root/src/converter/converted_models/$hf_model_url
-python llama.cpp/convert-hf-to-gguf.py /opt/app-root/src/converter/converted_models/$hf_model_url
+python download_huggingface.py --model $hf_model_url --token $hf_token
+python llama.cpp/examples/convert_legacy_llama.py /opt/app-root/src/converter/converted_models/$hf_model_url
+python llama.cpp/convert_hf_to_gguf.py /opt/app-root/src/converter/converted_models/$hf_model_url
 mkdir -p /opt/app-root/src/converter/converted_models/gguf/
-llama.cpp/quantize /opt/app-root/src/converter/converted_models/$hf_model_url/ggml-model-f16.gguf /opt/app-root/src/converter/converted_models/gguf/$model_org-$model_name-${QUANTIZATION}.gguf ${QUANTIZATION}
+llama.cpp/llama-quantize /opt/app-root/src/converter/converted_models/$hf_model_url/ggml-model-f16.gguf /opt/app-root/src/converter/converted_models/gguf/$model_org-$model_name-${QUANTIZATION}.gguf ${QUANTIZATION}
 rm -rf /opt/app-root/src/converter/converted_models/$model_org
 
 if [ $keep_orgi = "False" ]; then

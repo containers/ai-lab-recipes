@@ -22,6 +22,9 @@ with col2:
 
 model_name = st.text_input(label="Enter a huggingface model url to convert",
                            placeholder="org/model_name")
+token_id = st.text_input(label="Enter your huggingface token (optional)",
+                         help="huggingface token is required for private model"
+                        ) or "None"
 keep_files = st.checkbox("Keep huggingface model files after conversion?")
 submit_button = st.button(label="submit")
 if submit_button:
@@ -30,8 +33,9 @@ if submit_button:
                         "run", 
                         "-it", 
                         "--rm", 
-                        "-v", f"{volume}:/opt/app-root/src/converter/converted_models", 
-                        "-e", f"HF_MODEL_URL={model_name}" ,
+                        "-v", f"{volume}:/converter/converted_models", 
+                        "-e", f"HF_MODEL_URL={model_name}",
+                        "-e", f"HF_TOKEN={token_id}",
                         "-e", f"QUANTIZATION={quantization}",
                         "-e", f"KEEP_ORIGINAL_MODEL={keep_files}",
                         "converter"],stdout=subprocess.PIPE) 
