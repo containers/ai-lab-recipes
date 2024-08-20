@@ -49,8 +49,7 @@ check_insights
 
 # Template values replaced by container build
 CONTAINER_DEVICE="__REPLACE_CONTAINER_DEVICE__"
-SOURCE_IMAGE="__REPLACE_IMAGE_NAME__"
-IMAGE_NAME="localhost/instructlab:__REPLACE_IMAGE_TAG__"
+IMAGE_NAME="__REPLACE_IMAGE_NAME__"
 
 ENTRYPOINT="ilab"
 PARAMS=("$@")
@@ -144,13 +143,5 @@ PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it
     "--entrypoint" "$ENTRYPOINT"
     "--env" "HF_TOKEN"
     "${IMAGE_NAME}")
-
-sudo podman image exists "$IMAGE_NAME"
-if [ "$?" != "0" ]; then
-   echo "Initializing ilab container..."
-   id=$(sudo podman create "$SOURCE_IMAGE")
-   sudo podman commit "$id" "$IMAGE_NAME"
-   sudo podman rm "$id"
-fi
 
 exec "${PODMAN_COMMAND[@]}" "${PARAMS[@]}"
