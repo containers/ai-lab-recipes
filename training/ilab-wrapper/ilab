@@ -135,8 +135,6 @@ PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it
     "--pids-limit" "-1"
     "-v" "$HOME:$HOME"
     "${ADDITIONAL_MOUNT_OPTIONS[@]}"
-    # This is intentionally NOT using "--env" "HOME" because we want the HOME
-    # of the current shell and not the HOME set by sudo
     "--env" "VLLM_LOGGING_LEVEL"
     "--env" "HOME"
     "--env" "NCCL_DEBUG"
