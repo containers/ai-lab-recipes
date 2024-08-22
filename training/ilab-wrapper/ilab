@@ -2,22 +2,6 @@
 
 echo-err() { echo "$@" >&2; }
 
-verify_range() {
-    subuid_range="$1"
-    username="$2"
-    NUMBER_OF_MATCHING_SUBUID_RANGES=$(if [[ -z "$subuid_range" ]]; then echo 0; else wc -l <<<"$subuid_range"; fi)
-
-    if [[ "$NUMBER_OF_MATCHING_SUBUID_RANGES" == 0 ]]; then
-        echo-err "No /etc/subuid range found for user $username ($UID)"
-        exit 1
-    elif [[ "$NUMBER_OF_MATCHING_SUBUID_RANGES" != 1 ]]; then
-        # TODO: Handle multiple subuid ranges. But for now, hard fail
-        echo-err "Multiple /etc/subuid ranges found for user $username ($UID), this is currently unsupported:"
-        echo-err "$subuid_range"
-        exit 1
-    fi
-}
-
 check_insights() {
     if [[ -f /etc/insights-client/machine-id ]]; then
         return
@@ -100,35 +84,7 @@ do
     fi
 done
 
-# We run the container as sudo in order to be able to access the root container
-# storage, which has the ilab image pre-pulled. But for security reasons we map
-# root UID 0 inside the container to the current user's UID (and all the other
-# subuids to the user's /etc/subuid range) so that we're effectively running
-# the container as the current user.
-#
-# In the future, we will run podman as the current user, once we figure a
-# reasonable way for the current user to access the root's user container
-# storage.
-if [[ "$UID" == 0 ]]; then
-    # If we're already running as root, we don't need to map any UIDs
-    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=()
-else
-    CURRENT_USER_NAME=$(id --user --name)
-    CURRENT_USER_SUBUID_RANGE=$(awk \
-        --field-separator ':' \
-        --assign current_user="$CURRENT_USER_NAME" \
-        --assign current_uid="$UID" \
-        '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
-        /etc/subuid)
-
-    verify_range "$CURRENT_USER_SUBUID_RANGE" "$CURRENT_USER_NAME"
-
-    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
-fi
-
-PRESERVE_ENV="SSL_CERT_FILE,SSL_CERT_DIR,VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
-PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it"
-    "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
+PODMAN_COMMAND=("podman" "run" "--rm" "-it"
     "--device" "${CONTAINER_DEVICE}"
     "--security-opt" "label=disable" "--net" "host"
     "--shm-size" "10G"
