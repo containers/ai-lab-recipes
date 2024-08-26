@@ -1,6 +1,30 @@
 # Define the images to be used
 ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-amd:latest"
 ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
+ARG DRIVER_TOOLKIT_IMAGE="quay.io/ai-lab/nvidia-builder:latest"
+
+# first stage image for installing the kernel modules and firmware sources
+FROM ${BASEIMAGE} as sources
+COPY amdgpu.repo-6.1.2 /etc/yum.repos.d/amdgpu-6.1.2.repo
+RUN mv /etc/selinux /etc/selinux.tmp\
+    && dnf install -y amdgpu-dkms \
+    && dnf clean all \
+    && mv /etc/selinux.tmp /etc/selinux \
+    && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
+
+
+FROM ${DRIVER_TOOLKIT_IMAGE} as builder
+USER root
+#ARG KERNEL_VERSION
+COPY --from=sources /usr/src/amdgpu-6.7.0-1781449.el9 /amdgpu-drivers-source
+WORKDIR /amdgpu-drivers-source
+RUN KERNEL_VERSION=$(cat /etc/driver-toolkit-release.sh | cut -d'=' -f2 | cut -d'"'  -f2) \
+   && ./amd/dkms/pre-build.sh ${KERNEL_VERSION} \
+   && make TTM_NAME=amdttm SCHED_NAME=amd-sched -C /usr/src/kernels/${KERNEL_VERSION} M=/amdgpu-drivers-source \
+   && ./amd/dkms/post-build.sh ${KERNEL_VERSION}
+#RUN ./amd/dkms/pre-build.sh ${KERNEL_VERSION}
+#RUN make TTM_NAME=amdttm SCHED_NAME=amd-sched -C /usr/src/kernels/${KERNEL_VERSION} M=/amdgpu-drivers-source
+#RUN ./amd/dkms/post-build.sh ${KERNEL_VERSION}
 
 # Define the base image for the second stage
 FROM ${BASEIMAGE}
@@ -9,10 +33,22 @@ ARG VENDOR=''
 LABEL vendor=${VENDOR}
 LABEL org.opencontainers.image.vendor=${VENDOR}
 
+COPY --from=builder /amdgpu-drivers-source/amd/amdgpu/amdgpu.ko /lib/modules/*/amd/amdgpu/amdgpu.ko
+COPY --from=builder /amdgpu-drivers-source/amd/amdkcl/amdkcl.ko /lib/modules/*/amd/amdkcl/amdkcl.ko
+COPY --from=builder /amdgpu-drivers-source/amd/amdxcp/amdxcp.ko /lib/modules/*/amd/amdxcp/amdxcp.ko
+COPY --from=builder /amdgpu-drivers-source/scheduler/amd-sched.ko /lib/modules/*/scheduler/amd-sched.ko
+COPY --from=builder /amdgpu-drivers-source/ttm/amdttm.ko /lib/modules/*/ttm/amdttm.ko
+COPY --from=builder /amdgpu-drivers-source/amddrm_buddy.ko /lib/modules/*/amddrm_buddy.ko
+COPY --from=builder /amdgpu-drivers-source/amddrm_ttm_helper.ko /lib/modules/*/amddrm_ttm_helper.ko
+RUN rm /lib/modules/*/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko.xz
+RUN export KERNEL_VERSION=$(rpm -q --qf "%{VERSION}-%{RELEASE}.%{ARCH}" kernel-core) \
+    && depmod $KERNEL_VERSION
+COPY --from=sources /lib/firmware/updates/amdgpu /lib/firmware/amdgpu
+
 ADD rocm.repo /etc/yum.repos.d/rocm.repo
 
 ARG EXTRA_RPM_PACKAGES=''
-RUN mv /etc/selinux /etc/selinux.tmp && \ 
+RUN mv /etc/selinux /etc/selinux.tmp && \
   dnf install -y \
   cloud-init \
   pciutils \
@@ -46,7 +82,7 @@ ARG SSHPUBKEY
 RUN if [ -n "${SSHPUBKEY}" ]; then \
     set -eu; mkdir -p /usr/ssh && \
         echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
-	    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys; \
+            echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys; \
 fi
 
 RUN sed -i 's/__REPLACE_TRAIN_DEVICE__/cuda/' /usr/bin/ilab
