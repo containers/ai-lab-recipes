@@ -1,0 +1,144 @@
+#!/bin/bash
+
+echo-err() { echo "$@" >&2; }
+
+verify_range() {
+    subuid_range="$1"
+    username="$2"
+    NUMBER_OF_MATCHING_SUBUID_RANGES=$(if [[ -z "$subuid_range" ]]; then echo 0; else wc -l <<<"$subuid_range"; fi)
+
+    if [[ "$NUMBER_OF_MATCHING_SUBUID_RANGES" == 0 ]]; then
+        echo-err "No /etc/subuid range found for user $username ($UID)"
+        exit 1
+    elif [[ "$NUMBER_OF_MATCHING_SUBUID_RANGES" != 1 ]]; then
+        # TODO: Handle multiple subuid ranges. But for now, hard fail
+        echo-err "Multiple /etc/subuid ranges found for user $username ($UID), this is currently unsupported:"
+        echo-err "$subuid_range"
+        exit 1
+    fi
+}
+
+check_insights() {
+    if [[ -f /etc/insights-client/machine-id ]]; then
+        return
+    fi
+    if [[ -f /etc/ilab/insights-opt-out ]]; then
+        return
+    fi
+    local ID
+    eval "$(grep ^ID= /etc/os-release)"
+    if [[ "$ID" != "rhel" ]]; then
+        return
+    fi
+    cat << EOF
+This host is not connected to Red Hat Insights.
+
+To connect this host to Red Hat Insights run the following command:
+sudo rhc connect --organization <org_id> --activation-key <your_activation_key>
+
+To generate an Activation Key:
+https://console.redhat.com/insights/connector/activation-keys (this page will also display your Organization ID).
+
+For more information on Red Hat Insights, please visit:
+https://docs.redhat.com/en/documentation/subscription_central/1-latest/html/getting_started_with_activation_keys_on_the_hybrid_cloud_console/assembly-creating-managing-activation-keys
+EOF
+    exit 1
+}
+
+check_insights
+
+# Template values replaced by container build
+IMAGE_NAME="__REPLACE_IMAGE_NAME__"
+
+ENTRYPOINT="ilab"
+PARAMS=("$@")
+
+if [[ -n "$ILAB_HOME" ]]; then
+    HOME="$ILAB_HOME"
+fi
+
+for dir in "$HOME/.cache" "$HOME/.config" "$HOME/.local"; do
+    mkdir -p "$dir"
+done
+
+if [[ "$1" = "shell" ]]; then
+    ENTRYPOINT=bash
+    PARAMS=()
+fi
+
+# If you need to mount additional volumes into the container, you can specify them
+# using the ILAB_ADDITIONAL_MOUNTS environment variable.
+#
+# Example ILAB_ADDITIONAL_MOUNTS usage:
+#
+# ILAB_ADDITIONAL_MOUNTS="/host/path:/container/path /host/path2:/container/path2"
+#
+# If your path contains spaces, you can use quotes:
+#
+# ILAB_ADDITIONAL_MOUNTS="/host/path:/container/path '/host/path with spaces':/container/path"
+ADDITIONAL_MOUNTS=()
+if [ -n "${ILAB_ADDITIONAL_MOUNTS}" ]; then
+    # (eval is used here to allow the user to specify mounts that might have spaces in them)
+    eval "ADDITIONAL_MOUNTS=(${ILAB_ADDITIONAL_MOUNTS})"
+fi
+ADDITIONAL_MOUNT_OPTIONS=()
+for PODMAN_MOUNT in "${ADDITIONAL_MOUNTS[@]}"; do
+    ADDITIONAL_MOUNT_OPTIONS+=("-v" "$PODMAN_MOUNT")
+done
+
+# Add pull-secret to additional mounts
+# In case of normal user, /run/user is used (XDG_RUNTIME_DIR), if root, it will be /run/containers
+for authfile in \
+    "${XDG_RUNTIME_DIR}/containers/auth.json" \
+    /run/user/${UID}/containers/auth.json \
+    /run/containers/${UID}/auth.json
+do
+    if [[ -f "$authfile" ]]; then
+        ADDITIONAL_MOUNT_OPTIONS+=("-v" "$authfile:/run/containers/0/auth.json")
+        break
+    fi
+done
+
+# We run the container as sudo in order to be able to access the root container
+# storage, which has the ilab image pre-pulled. But for security reasons we map
+# root UID 0 inside the container to the current user's UID (and all the other
+# subuids to the user's /etc/subuid range) so that we're effectively running
+# the container as the current user.
+#
+# In the future, we will run podman as the current user, once we figure a
+# reasonable way for the current user to access the root's user container
+# storage.
+if [[ "$UID" == 0 ]]; then
+    # If we're already running as root, we don't need to map any UIDs
+    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=()
+else
+    CURRENT_USER_NAME=$(id --user --name)
+    CURRENT_USER_SUBUID_RANGE=$(awk \
+        --field-separator ':' \
+        --assign current_user="$CURRENT_USER_NAME" \
+        --assign current_uid="$UID" \
+        '$1 == current_user || $1 == current_uid {print $2 ":" $3}' \
+        /etc/subuid)
+
+    verify_range "$CURRENT_USER_SUBUID_RANGE" "$CURRENT_USER_NAME"
+
+    IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
+fi
+
+PRESERVE_ENV="VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
+PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it"
+    "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
+    "--device" "/dev/kfd" "--device" "/dev/dri"
+    "--security-opt" "label=disable" "--net" "host"
+    "--shm-size" "10G"
+    "--pids-limit" "-1"
+    "-v" "$HOME:$HOME"
+    "${ADDITIONAL_MOUNT_OPTIONS[@]}"
+    "--env" "VLLM_LOGGING_LEVEL"
+    "--env" "HOME"
+    "--env" "NCCL_DEBUG"
+    "--entrypoint" "$ENTRYPOINT"
+    "--env" "HF_TOKEN"
+    "${IMAGE_NAME}")
+
+exec "${PODMAN_COMMAND[@]}" "${PARAMS[@]}"

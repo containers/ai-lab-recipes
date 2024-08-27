@@ -11,7 +11,8 @@ bootc: prepare-files
 		$(ARCH:%=--platform linux/%) \
 		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
 		$(EXTRA_RPM_PACKAGES:%=--build-arg EXTRA_RPM_PACKAGES=%) \
-		$(FROM:%=--from=%) \
+		$(DRIVER_TOOLKIT_IMAGE:%=--build-arg DRIVER_TOOLKIT_IMAGE=%) \
+		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(INSTRUCTLAB_IMAGE:%=--build-arg INSTRUCTLAB_IMAGE=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
 		$(VENDOR:%=--build-arg VENDOR=%) \
