@@ -34,9 +34,9 @@ COPY repos.d/RPM-GPG-KEY-AMD-ROCM /etc/pki/rpm-gpg/RPM-GPG-KEY-AMD-ROCM
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-AMD-ROCM \
     && mv /etc/selinux /etc/selinux.tmp \ 
     && dnf install -y \
+        amd-smi \
         cloud-init \
         pciutils \
-        rocm-smi \
         rsync \
         skopeo \
         tmux \
