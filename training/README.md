@@ -9,9 +9,6 @@ In order to run accelerated AI workloads, we've prepared [bootc](https://github.
 |-----------------|---------------------------------------------------------------------|
 | amd             | Create bootable container for AMD platform                          |
 | deepspeed       | DeepSpeed container for optimization deep learning                  |
-| cloud-amd       | Add cloud-init to bootable container for AMD platform               |
-| cloud-intel     | Add cloud-init to bootable container for Intel platform             |
-| cloud-nvidia    | Add cloud-init to bootable container for Nvidia platform            |
 | disk-amd        | Create disk image from bootable container for AMD platform          |
 | disk-intel      | Create disk image from bootable container for Intel platform        |
 | disk-nvidia     | Create disk image from bootable container for Nvidia platform       |
@@ -86,18 +83,6 @@ Of course, the other Makefile variables are still available, so the following is
 make nvidia REGISTRY=myregistry.com REGISTRY_ORG=ai-training IMAGE_NAME=nvidia IMAGE_TAG=v1 FROM=registry.redhat.io/rhel9/rhel-bootc:9.4
 ```
 
-# How to build Cloud ready images
-
-Bootc container images can be installed on physical machines, virtual machines and in the cloud.  Often it is useful to add the cloud-init package when running the operating systems in the cloud.
-
-To add cloud-init to your existing bootc container image, executing `make cloud-<platform>` should be enough. For example to build the `cloud-nvidia`, `cloud-amd` and `cloud-intel` bootc containers, respectively:
-
-```
-make cloud-nvidia
-make cloud-amd
-make cloud-intel
-```
-
 # How to build disk images
 bootc-image-builder produces disk images using a bootable container as input. Disk images can be used to directly provision a host
 The process will write the disk image in <platform>-bootc/build
@@ -110,7 +95,7 @@ make disk-nvidia
 ```
 or
 ```
-make disk-nvidia DISK_TYPE=ami BOOTC_IMAGE=quay.io/ai-lab/nvidia-bootc-cloud:latest
+make disk-nvidia DISK_TYPE=ami BOOTC_IMAGE=quay.io/ai-lab/nvidia-bootc-custom:latest
 ```
 
 In addition to the variables common to all targets, a few extra can be defined to customize disk image creation
