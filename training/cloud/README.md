@@ -14,19 +14,19 @@ Please refer to the official RHEL AI documentation on how to create machine imag
 
 # Makefile variables
 
-| Variable                  | Description                                     | Default                                                      |
-|---------------------------|-------------------------------------------------|--------------------------------------------------------------|
-| CLOUD                     | Sets the name of the cloud: aws, gcp, ibm, ...  |  ` `                                                          |
-| HARDWARE                  | Hardware accelerator RHEL AI source image       | `nvidia`                                                     |
-| VERSION                   | RHEL AI version                                 | `1.1`                                                        |
-| REGISTRY                  | Container Registry for storing container images | `quay.io`                                                    |
-| REGISTRY_ORG              | Container Registry organization                 | `ai-lab`                                                     |
-| IMAGE_NAME                | Container image name                            | `bootc-${HARDWARE}-rhel9-${CLOUD}`                           |
-| IMAGE_TAG                 | Container image tag                             | `${CLOUD}-latest`                                            |
-| CONTAINER_TOOL            | Container tool used for build                   | `podman`                                                     |
-| CONTAINER_TOOL_EXTRA_ARGS | Container tool extra arguments                  | ` `                                                          |
-| BASEIMAGE                 | Source RHEL AI image                            | `registry.stage.redhat.io/rhelai1/bootc-nvidia-rhel9:latest` |
-| BOOTC_IMAGE_CLOUD         | Override cloud image name                       | `${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}`     |
+| Variable                  | Description                                            | Default                                                      |
+|---------------------------|--------------------------------------------------------|--------------------------------------------------------------|
+| CLOUD                     | Sets the name of the cloud: aws, azure, gcp, ibm       | ` `                                                          |
+| HARDWARE                  | Hardware accelerator RHEL AI source image              | `nvidia`                                                     |
+| VERSION                   | RHEL AI version                                        | `1.1`                                                        |
+| REGISTRY                  | Container Registry for storing container images        | `quay.io`                                                    |
+| REGISTRY_ORG              | Container Registry organization                        | `ai-lab`                                                     |
+| IMAGE_NAME                | Container image name                                   | `bootc-${HARDWARE}-rhel9-${CLOUD}`                           |
+| IMAGE_TAG                 | Container image tag                                    | `${CLOUD}-latest`                                            |
+| CONTAINER_TOOL            | Container tool used for build                          | `podman`                                                     |
+| CONTAINER_TOOL_EXTRA_ARGS | Container tool extra arguments                         | ` `                                                          |
+| BASEIMAGE                 | Source RHEL AI image                                   | `registry.stage.redhat.io/rhelai1/bootc-nvidia-rhel9:latest` |
+| BOOTC_IMAGE_CLOUD         | Override cloud image name                              | `${REGISTRY}/${REGISTRY_ORG}/${IMAGE_NAME}:${IMAGE_TAG}`     |
 
 
 # Example on how to build your own AI Bootc disk image
