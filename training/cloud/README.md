@@ -16,7 +16,7 @@ Please refer to the official RHEL AI documentation on how to create machine imag
 
 | Variable                  | Description                                     | Default                                                      |
 |---------------------------|-------------------------------------------------|--------------------------------------------------------------|
-| CLOUD                     | Sets the name of the cloud: aws, gcp, azure, ...| ` `                                                          |
+| CLOUD                     | Sets the name of the cloud: aws, gcp, ibm, ...  |  ` `                                                          |
 | HARDWARE                  | Hardware accelerator RHEL AI source image       | `nvidia`                                                     |
 | VERSION                   | RHEL AI version                                 | `1.1`                                                        |
 | REGISTRY                  | Container Registry for storing container images | `quay.io`                                                    |
@@ -33,13 +33,13 @@ Please refer to the official RHEL AI documentation on how to create machine imag
 
 Simply execute `make cloud-image CLOUD=<cloud_provider> BASEIMAGE=<rhel_ai_base_image>`. For example:
 
-* make cloud-image CLOUD=azure BASEIMAGE=quay.io/ai-lab/nvidia-bootc:1.1
+* make cloud-image CLOUD=ibm BASEIMAGE=quay.io/ai-lab/nvidia-bootc:1.1
 * make cloud-image CLOUD=gcp BASEIMAGE=quay.io/ai-lab/nvidia-bootc:1.1
 
 Once you have the bootc image, you can use it to create a disk image.
 Simply execute `make cloud-disk CLOUD=<cloud_provider>`. For example:
 
-* make cloud-disk CLOUD=azure
+* make cloud-disk CLOUD=ibm
 * make cloud-disk CLOUD=gcp
 
 
