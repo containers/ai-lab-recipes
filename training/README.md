@@ -117,6 +117,10 @@ The following image disk types are currently available:
 | `anaconda-iso`        | An unattended Anaconda installer that installs to the first disk found.               |
 | `raw`                 | Unformatted [raw disk](https://en.wikipedia.org/wiki/Rawdisk).                        |
 
+# Images customized for cloud providers
+
+For building images customized for each supported cloud provider, please read the [cloud providers section](cloud)
+
 # Troubleshooting
 
 Sometimes, interrupting the build process may lead to wanting a complete restart of the process. For those cases, we can instruct `podman` to start from scratch and discard the cached layers. This is possible by passing the `--no-cache` parameter to the build process by using the `CONTAINER_TOOL_EXTRA_ARGS` variable:
