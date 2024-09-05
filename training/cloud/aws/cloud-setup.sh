@@ -2,10 +2,12 @@
 
 set -o errexit
 
+mv /etc/selinux /etc/selinux.tmp
 dnf install -y --nobest \
     cloud-init \
     langpacks-en \
     tuned
+mv /etc/selinux.tmp /etc/selinux
 
 # Chrony configuration
 sed -i \
