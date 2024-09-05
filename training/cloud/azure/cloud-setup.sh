@@ -2,6 +2,7 @@
 
 set -o errexit
 
+mv /etc/selinux /etc/selinux.tmp
 dnf install -y --nobest \
     cloud-init \
     hyperv-daemons \
@@ -12,6 +13,7 @@ dnf install -y --nobest \
     rng-tools \
     uuid \
     WALinuxAgent
+mv /etc/selinux.tmp /etc/selinux
 
 # sshd configuration
 cat << EOF >> /etc/ssh/sshd_config

@@ -14,6 +14,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 
+mv /etc/selinux /etc/selinux.tmp
 dnf install -y --nobest \
     acpid \
     cloud-init \
@@ -26,6 +27,7 @@ dnf install -y --nobest \
     tuned \
     tuned \
     vim
+mv /etc/selinux.tmp /etc/selinux
 
 # rpm-state is needed to remove microcode_ctl
 mkdir /var/lib/rpm-state
