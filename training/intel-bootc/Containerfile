@@ -1,4 +1,4 @@
-ARG DRIVER_TOOLKIT_IMAGE="quay.io/ai-lab/nvidia-builder:latest"
+ARG DRIVER_TOOLKIT_IMAGE="quay.io/ai-lab/intel-builder:latest"
 ARG BASEIMAGE="quay.io/centos-bootc/centos-bootc:stream9"
 
 FROM ${DRIVER_TOOLKIT_IMAGE} as builder
@@ -40,6 +40,10 @@ COPY --from=builder /home/builder/usr/src/habanalabs-${DRIVER_VERSION}/drivers/i
 COPY --from=builder /home/builder/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hbl_cn/habanalabs_cn.ko /tmp/extra/habanalabs_cn.ko
 COPY --from=builder /home/builder/usr/src/habanalabs-${DRIVER_VERSION}/drivers/net/ethernet/intel/hbl_en/habanalabs_en.ko /tmp/extra/habanalabs_en.ko
 COPY --from=builder /home/builder/lib/firmware/habanalabs /tmp/firmware/habanalabs
+COPY --from=builder /home/builder/usr/bin/hl-smi /usr/bin/hl-smi
+
+
+COPY duplicated/common/usr /usr
 
 RUN . /etc/os-release \
     && export OS_VERSION_MAJOR=$(echo ${VERSION} | cut -d'.' -f 1) \
@@ -49,16 +53,15 @@ RUN . /etc/os-release \
     && mv /tmp/firmware/habanalabs /lib/firmware \
     && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH}
 
-RUN dnf install -y ${EXTRA_RPM_PACKAGES} \
+RUN mv /etc/selinux /etc/selinux.tmp \
+    dnf install -y ${EXTRA_RPM_PACKAGES} \
     cloud-init \
     skopeo \
     rsync \
     && dnf clean all \
+    && mv /etc/selinux.tmp /etc/selinux \
     && ln -s ../cloud-init.target /usr/lib/systemd/system/default.target.wants
 
-ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-intel:latest"
-
-ARG SSHPUBKEY
 
 # The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
 # public key into the image, allowing root access via ssh.
@@ -68,10 +71,33 @@ RUN if [ -n "${SSHPUBKEY}" ]; then \
 	    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys; \
 fi
 
-# Prepull the instructlab image
-RUN if [ -f "/run/.input/instructlab-intel/oci-layout" ]; then \
+# Setup /usr/lib/containers/storage as an additional store for images.
+# Remove once the base images have this set by default.
+# Also make sure not to duplicate if a base image already has it specified.
+RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
+    sed -i -e '/additionalimage.*/a "/usr/lib/containers/storage",' \
+	/etc/containers/storage.conf
+
+COPY duplicated/ilab-wrapper/ilab /usr/bin/ilab
+RUN chmod +x /usr/bin/ilab
+
+ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/instructlab-intel:latest"
+ARG INSTRUCTLAB_IMAGE_PULL_SECRET="instructlab-intel-pull"
+
+
+# Added for running as an OCI Container to prevent Overlay on Overlay issues.
+VOLUME /var/lib/containers
+
+RUN --mount=type=secret,id=${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson \
+    if [ -f "/run/.input/instructlab-intel/oci-layout" ]; then \
          IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-intel) && \
          podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
+    elif [ -f "/run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson" ]; then \
+         IID=$(sudo podman --root /usr/lib/containers/storage pull --authfile /run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson ${INSTRUCTLAB_IMAGE}); \
     else \
          IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
     fi
+RUN podman system reset --force 2>/dev/null
+
+LABEL image_version_id="${IMAGE_VERSION_ID}"
+
