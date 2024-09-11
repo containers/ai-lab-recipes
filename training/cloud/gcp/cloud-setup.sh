@@ -21,10 +21,8 @@ dnf install -y --nobest \
     google-compute-engine \
     google-osconfig-agent \
     langpacks-en \
-    langpacks-en \
     rng-tools \
     timedatex \
-    tuned \
     tuned \
     vim
 mv /etc/selinux.tmp /etc/selinux
@@ -37,9 +35,6 @@ dnf remove -y \
 rmdir /var/lib/rpm-state
 
 rm -f /etc/yum.repos.d/google-cloud.repo
-
-# dnf install -y google-guest-agent
-# systemctl enable google-guest-agent
 
 # Chrony configuration
 sed -i \
