@@ -107,6 +107,8 @@ RUN mv /etc/selinux /etc/selinux.tmp \
     && dnf -y module enable nvidia-driver:${DRIVER_STREAM}/default \
     && dnf install -y \
         cloud-init \
+        git \
+        git-lfs \
         pciutils \
         tmux \
         nvidia-driver-${DRIVER_VERSION} \

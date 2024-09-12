@@ -36,6 +36,8 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-AMD-ROCM \
     && dnf install -y \
         amd-smi \
         cloud-init \
+        git \
+        git-lfs \
         pciutils \
         rsync \
         skopeo \
