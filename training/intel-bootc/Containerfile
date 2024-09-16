@@ -51,6 +51,8 @@ RUN . /etc/os-release \
 
 RUN dnf install -y ${EXTRA_RPM_PACKAGES} \
     cloud-init \
+    git \
+    git-lfs \
     skopeo \
     rsync \
     && dnf clean all \
