@@ -126,7 +126,7 @@ else
     IMPERSONATE_CURRENT_USER_PODMAN_FLAGS=("--uidmap" "0:$UID" "--uidmap" "1:$CURRENT_USER_SUBUID_RANGE")
 fi
 
-PRESERVE_ENV="VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
+PRESERVE_ENV="SSL_CERT_FILE,SSL_CERT_DIR,VLLM_LOGGING_LEVEL,NCCL_DEBUG,HOME,HF_TOKEN"
 PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it"
     "${IMPERSONATE_CURRENT_USER_PODMAN_FLAGS[@]}"
     "--device" "${CONTAINER_DEVICE}"
@@ -140,6 +140,8 @@ PODMAN_COMMAND=("sudo" "--preserve-env=$PRESERVE_ENV" "podman" "run" "--rm" "-it
     "--env" "NCCL_DEBUG"
     "--entrypoint" "$ENTRYPOINT"
     "--env" "HF_TOKEN"
+    "--env" "SSL_CERT_FILE"
+    "--env" "SSL_CERT_DIR"
     "${IMAGE_NAME}")
 
 exec "${PODMAN_COMMAND[@]}" "${PARAMS[@]}"
