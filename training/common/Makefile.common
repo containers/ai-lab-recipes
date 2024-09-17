@@ -114,6 +114,7 @@ driver-toolkit:
 		$(ARCH:%=--platform linux/%) \
 		$(BUILD_ARG_FILE:%=--build-arg-file=%) \
 		$(ENABLE_RT:%=--build-arg ENABLE_RC=%) \
+		$(FROM:%=--build-arg BASEIMAGE=%) \
 		$(DRIVER_TOOLKIT_BASE_IMAGE:%=--build-arg BASEIMAGE=%) \
 		$(KERNEL_VERSION:%=--build-arg KERNEL_VERSION=%) \
 		$(SOURCE_DATE_EPOCH:%=--timestamp=%) \
