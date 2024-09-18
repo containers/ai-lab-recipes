@@ -63,7 +63,7 @@ vllm:
 # Create bootc container images prepared for AI
 #
 .PHONY: driver-tookit amd-bootc nvidia-bootc intel-bootc
-driver-tookit:
+driver-toolkit:
 	$(MAKE) -C common/ -f Makefile.common driver-toolkit
 amd-bootc:
 	$(MAKE) -C amd-bootc/ bootc
