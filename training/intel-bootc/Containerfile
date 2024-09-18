@@ -33,7 +33,7 @@ ARG ARTIFACTORY_URL="vault.habana.ai"
 ARG REPO_TOKEN
 
 USER root
-COPY scripts/os_dependencies.sh /tmp/
+COPY --chmod=755 scripts/os_dependencies.sh /tmp/
 RUN /tmp/os_dependencies.sh \
     && mv /etc/selinux /etc/selinux.tmp \
     && dnf install -y --nodocs --allowerasing --best \
@@ -82,7 +82,7 @@ COPY --from=builder /home/builder/lib/firmware/habanalabs/gaudi/ /lib/firmware/h
 COPY --from=builder /home/builder/usr/sbin /usr/sbin/
 COPY --from=libbuilder /usr/lib/habanalabs/libhccl_ofi_wrapper.so /usr/lib/habanalabs/libhccl_ofi_wrapper.so
 COPY --from=libbuilder /opt/habanalabs/libfabric-1.20.0 /opt/habanalabs/libfabric-1.20.0
-COPY scripts/os_dependencies.sh /tmp/os_dependencies.sh
+COPY --chmod=755 scripts/os_dependencies.sh /tmp/
 
 #Install python3.11 and other build stuff
 RUN /tmp/os_dependencies.sh \
