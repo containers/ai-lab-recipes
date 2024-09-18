@@ -99,7 +99,8 @@ RUN /tmp/os_dependencies.sh \
 #Build ninja-build
 RUN git clone https://github.com/ninja-build/ninja.git \
     && cd ninja \
-    && ./configure.py --bootstrap
+    && ./configure.py --bootstrap \
+    && rm -rf ninja
 
 RUN . /etc/os-release \
     && export OS_VERSION_MAJOR=$(echo ${VERSION} | cut -d'.' -f 1) \
@@ -119,16 +120,20 @@ RUN . /etc/os-release \
     habanalabs-graph-${DRIVER_VERSION}.el9 \
     habanalabs-qual-${DRIVER_VERSION}.el9 \
     habanalabs-firmware-odm-${DRIVER_VERSION}.el9 \
-    && rm -f /etc/yum.repos.d/habanalabs.repo && rm -f /etc/yum.repos.d/habana.repo && \
-    dnf clean all && rm -rf /var/cache/yum \
+    && rm -f /etc/yum.repos.d/habanalabs.repo && rm -f /etc/yum.repos.d/habana.repo \
+    && dnf remove -y \
+    python3.11-devel \
+    libogg-devel \
+    opusfile-devel \
+    sox-devel \
+    libnl3-devel \
+    && dnf clean all && rm -rf /var/cache/yum \
     && mv /tmp/extra /usr/lib/modules/${KERNEL_VERSION}.${TARGET_ARCH} \
     && echo "softdep habanalabs post: habanalabs_ib" > /etc/modprobe.d/habanalabs_ib_dep.conf \
     && depmod -a ${KERNEL_VERSION}.${TARGET_ARCH} \
     && rm -rf tmp/*
 
-RUN python3.11 -m pip install pip==23.3.1 setuptools==67.3.3 wheel==0.38.4
-RUN python3.11 -m pip install habana_media_loader=="1.17.1.40"
-
+RUN python3.11 -m pip install pip==23.3.1 setuptools==67.3.3 wheel==0.38.4 habana_media_loader=="1.17.1.40"
 
 RUN dnf install -y ${EXTRA_RPM_PACKAGES} \
     cloud-init \
