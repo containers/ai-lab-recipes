@@ -12,6 +12,11 @@ import os
 model_service = os.getenv("MODEL_ENDPOINT",
                           "http://localhost:8001")
 model_service = f"{model_service}/v1"
+model_service_bearer = os.getenv("MODEL_ENDPOINT_BEARER")
+request_kwargs = {}
+if model_service_bearer is not None:
+    request_kwargs = {"headers": {"Authorization": f"Bearer {model_service_bearer}"}}
+import pdb;pdb.set_trace()
 
 @st.cache_resource(show_spinner=False)
 def checking_model_service():
@@ -20,8 +25,8 @@ def checking_model_service():
     ready = False
     while not ready:
         try:
-            request_cpp = requests.get(f'{model_service}/models')
-            request_ollama = requests.get(f'{model_service[:-2]}api/tags')
+            request_cpp = requests.get(f'{model_service}/models', **request_kwargs)
+            request_ollama = requests.get(f'{model_service[:-2]}api/tags', **request_kwargs)
             if request_cpp.status_code == 200:
                 server = "Llamacpp_Python"
                 ready = True
@@ -37,7 +42,7 @@ def checking_model_service():
 
 def get_models():
     try:
-        response = requests.get(f"{model_service[:-2]}api/tags")
+        response = requests.get(f"{model_service[:-2]}api/tags", **request_kwargs)
         return [i["name"].split(":")[0] for i in  
             json.loads(response.content)["models"]]
     except:
