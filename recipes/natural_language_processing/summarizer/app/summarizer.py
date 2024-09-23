@@ -15,6 +15,10 @@ import os
 model_service = os.getenv("MODEL_ENDPOINT",
                           "http://localhost:8001")
 model_service = f"{model_service}/v1"
+model_service_bearer = os.getenv("MODEL_ENDPOINT_BEARER")
+request_kwargs = {}
+if model_service_bearer is not None:
+    request_kwargs["headers"] = {"Authorization": f"Bearer {model_service_bearer}"}
 
 @st.cache_resource(show_spinner=False)
 def checking_model_service():
@@ -23,7 +27,7 @@ def checking_model_service():
     ready = False
     while not ready:
         try:
-            request = requests.get(f'{model_service}/models')
+            request = requests.get(f'{model_service}/models', **request_kwargs)
             if request.status_code == 200:
                 ready = True
         except:
@@ -53,8 +57,8 @@ def chunk_text(text):
     text_chunks = text_splitter.create_documents([text])
     for chunk in text_chunks:
         chunk = chunk.page_content
-        count = requests.post(f"{model_service[:-2]}extras/tokenize/count",
-                  json={"input":chunk}).content
+        chunk_kwargs = request_kwargs | {"json": {"input": chunk}}
+        count = requests.post(f"{model_service[:-2]}/v1/extras/tokenize/count", **chunk_kwargs).content
         count = json.loads(count)["count"]
         if count >= 2048:
             split_append_chunk(chunk, chunks)
