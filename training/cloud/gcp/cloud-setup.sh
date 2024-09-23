@@ -27,6 +27,11 @@ dnf install -y --nobest \
     vim
 mv /etc/selinux.tmp /etc/selinux
 
+# Install Google Ops Agent
+curl -sSo /tmp/add-google-cloud-ops-agent-repo.sh https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+bash /tmp/add-google-cloud-ops-agent-repo.sh --also-install --remove-repo
+rm /tmp/add-google-cloud-ops-agent-repo.sh
+
 # rpm-state is needed to remove microcode_ctl
 mkdir /var/lib/rpm-state
 dnf remove -y \
