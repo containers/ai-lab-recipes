@@ -29,7 +29,7 @@ pydantic==2.7.4
 pydantic_core==2.18.4
 Pygments==2.18.0
 python-dotenv==1.0.1
-python-multipart==0.0.9
+python-multipart==0.0.10
 PyYAML==6.0.2
 regex==2024.5.15
 requests==2.32.3
