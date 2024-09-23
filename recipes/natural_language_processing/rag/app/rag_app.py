@@ -12,6 +12,7 @@ import os
 
 model_service = os.getenv("MODEL_ENDPOINT","http://0.0.0.0:8001")
 model_service = f"{model_service}/v1"
+model_service_bearer = os.getenv("MODEL_ENDPOINT_BEARER")
 model_name = os.getenv("MODEL_NAME", "") 
 chunk_size = os.getenv("CHUNK_SIZE", 150)
 embedding_model = os.getenv("EMBEDDING_MODEL","BAAI/bge-base-en-v1.5")
@@ -75,7 +76,7 @@ for msg in st.session_state.messages:
 
 
 llm = ChatOpenAI(base_url=model_service, 
-                 api_key="EMPTY",
+                 api_key="EMPTY" if model_service_bearer is None else model_service_bearer,
                  model=model_name,
                  streaming=True,
                  callbacks=[StreamlitCallbackHandler(st.container(),
