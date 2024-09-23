@@ -16,7 +16,6 @@ model_service_bearer = os.getenv("MODEL_ENDPOINT_BEARER")
 request_kwargs = {}
 if model_service_bearer is not None:
     request_kwargs = {"headers": {"Authorization": f"Bearer {model_service_bearer}"}}
-import pdb;pdb.set_trace()
 
 @st.cache_resource(show_spinner=False)
 def checking_model_service():
