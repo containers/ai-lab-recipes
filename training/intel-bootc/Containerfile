@@ -30,11 +30,10 @@ FROM ${DRIVER_TOOLKIT_IMAGE} as libbuilder
 ARG DRIVER_VERSION
 ARG HABANA_REPO
 ARG ARTIFACTORY_URL="vault.habana.ai"
-ARG REPO_TOKEN
 
 USER root
 COPY --chmod=755 scripts/os_dependencies.sh /tmp/
-RUN /tmp/os_dependencies.sh \
+RUN --mount=type=secret,id=extra-secrets-intel-bootc/BUILDERS_TOKEN /tmp/os_dependencies.sh \
     && mv /etc/selinux /etc/selinux.tmp \
     && dnf install -y --nodocs --allowerasing --best \
        git \
@@ -70,7 +69,6 @@ RUN curl -L -o /tmp/main.zip https://github.com/HabanaAI/hccl_ofi_wrapper/archiv
 FROM ${BASEIMAGE}
 ARG DRIVER_VERSION="1.17.1-40"
 ARG ARTIFACTORY_URL="vault.habana.ai"
-ARG REPO_TOKEN
 
 USER root
 COPY --from=builder /home/builder/usr/src/habanalabs-${DRIVER_VERSION}/drivers/accel/habanalabs/habanalabs.ko /tmp/extra/habanalabs.ko
@@ -85,7 +83,8 @@ COPY --from=libbuilder /opt/habanalabs/libfabric-1.20.0 /opt/habanalabs/libfabri
 COPY --chmod=755 scripts/os_dependencies.sh /tmp/
 
 #Install python3.11 and other build stuff
-RUN mv /etc/selinux /etc/selinux.tmp \
+RUN --mount=type=secret,id=extra-secrets-intel-bootc/BUILDERS_TOKEN \
+    mv /etc/selinux /etc/selinux.tmp \
     && dnf install -y \
     python3.11 \
     python3.11-pip \
@@ -161,8 +160,8 @@ RUN grep -q /usr/lib/containers/storage /etc/containers/storage.conf || \
 	/etc/containers/storage.conf
 COPY duplicated/ilab-wrapper/ilab /usr/bin/ilab
 RUN chmod +x /usr/bin/ilab
-ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/intel-instructlab"
-ARG INSTRUCTLAB_IMAGE_PULL_SECRET="instructlab-intel-pull"
+ARG INSTRUCTLAB_IMAGE="quay.io/ai-lab/intel-instructlab:latest"
+ARG INSTRUCTLAB_IMAGE_PULL_SECRET="extra-secrets-intel-bootc"
 RUN for i in /usr/bin/ilab*; do \
 	sed -i 's/__REPLACE_TRAIN_DEVICE__/hpu/' $i;  \
 	sed -i "s%__REPLACE_IMAGE_NAME__%${INSTRUCTLAB_IMAGE}%" $i; \

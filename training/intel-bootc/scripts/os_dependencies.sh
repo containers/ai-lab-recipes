@@ -19,7 +19,7 @@ OS=$(grep -w ID /etc/os-release)
 echo "OS line is $OS"
 if [[ "$OS" == *"rhel"* ]]; then \
         mkdir -p /tmp/git && cd /tmp/git && \
-        git clone https://dummy_user:${REPO_TOKEN}@gitlab.com/${REPOS_REPO} && \
+        git clone https://dummy_user:${BUILDERS_TOKEN}@gitlab.com/${REPOS_REPO} && \
         cd builder/repos && \
         cp redhat.repo rhelai.repo habanalabs.repo  /etc/yum.repos.d/ && \
         cp RPM-GPG-KEY-HABANALABS /etc/pki/rpm-gpg/ && \
