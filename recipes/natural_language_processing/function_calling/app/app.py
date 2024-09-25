@@ -1,16 +1,12 @@
 from langchain_openai import ChatOpenAI
-from langchain.chains import LLMChain
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.output_parsers import PydanticToolsParser
-from langchain.globals import set_debug, set_verbose
 import streamlit as st
 import requests
 import time
 import json
 import os
-
-from urllib3 import request
 
 model_service = os.getenv("MODEL_ENDPOINT",
                           "http://localhost:8001")
@@ -97,7 +93,7 @@ chain = prompt | llm | PydanticToolsParser(tools=[getWeather])
 
 st.markdown("""
 This demo application will ask the LLM for the weather in the city given in the input field and
-specify a tool that can get weather information give a latitude and longitude. The weather information
+specify a tool that can get weather information given a latitude and longitude. The weather information
 retrieval is implemented using open-meteo.com.
 """)
 container = st.empty()
