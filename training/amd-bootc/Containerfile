@@ -75,13 +75,16 @@ VOLUME /var/lib/containers
 
 RUN --mount=type=secret,id=${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson \
     if [ -f "/run/.input/instructlab-amd/oci-layout" ]; then \
-         IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-amd) && \
+         IID=$(podman --root /usr/lib/containers/storage --storage-opt overlay.force_mask=shared pull oci:/run/.input/instructlab-amd) && \
          podman --root /usr/lib/containers/storage image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
     elif [ -f "/run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson" ]; then \
-         IID=$(sudo podman --root /usr/lib/containers/storage pull --authfile /run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson ${INSTRUCTLAB_IMAGE}); \
+         IID=$(sudo podman --root /usr/lib/containers/storage --storage-opt overlay.force_mask=shared pull --authfile /run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson ${INSTRUCTLAB_IMAGE}); \
     else \
-         IID=$(sudo podman --root /usr/lib/containers/storage pull ${INSTRUCTLAB_IMAGE}); \
-    fi
+         IID=$(sudo podman --root /usr/lib/containers/storage --storage-opt overlay.force_mask=shared pull ${INSTRUCTLAB_IMAGE}); \
+    fi && \
+    chmod -R a+X /usr/lib/containers
+
+COPY containers-storage.conf /etc/skel/.config/containers/storage.conf
 
 RUN podman system reset --force 2>/dev/null
 
