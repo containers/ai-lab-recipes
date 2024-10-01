@@ -7,11 +7,17 @@ FROM ${DRIVER_TOOLKIT_IMAGE} AS builder
 COPY repos.d/amdgpu.repo /etc/yum.repos.d/amdgpu.repo
 COPY repos.d/RPM-GPG-KEY-AMD-ROCM /etc/pki/rpm-gpg/RPM-GPG-KEY-AMD-ROCM
 
+COPY scripts/amdgpu_download.sh /root/amdgpu_download.sh
+COPY scripts/amdgpu_build.sh /root/amdgpu_build.sh
+COPY scripts/amdgpu_package.sh /root/amdgpu_package.sh
+
 USER root
 
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-AMD-ROCM \
-    && dnf install -y amdgpu-dkms \
-    && dnf clean all
+    && chmod +x /root/amdgpu_download.sh /root/amdgpu_build.sh /root/amdgpu_package.sh \
+    && /root/amdgpu_download.sh \
+    && /root/amdgpu_build.sh \
+    && /root/amdgpu_package.sh
 
 FROM ${BASEIMAGE}
 
@@ -20,11 +26,7 @@ LABEL vendor=${VENDOR}
 LABEL org.opencontainers.image.vendor=${VENDOR}
 
 RUN --mount=type=bind,from=builder,source=/,destination=/tmp/builder,ro \
-    export KERNEL_VERSION=$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-core) \
-    && rm -f /lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko.xz \
-    && cp -r /tmp/builder/lib/modules/${KERNEL_VERSION}/extra /lib/modules/${KERNEL_VERSION}/extra \
-    && cp -r /tmp/builder/lib/firmware/updates/amdgpu /lib/firmware/amdgpu \
-    && depmod ${KERNEL_VERSION}
+    rpm -i /tmp/builder/root/rpmbuild/RPMS/x86_64/amdgpu-modules-*.rpm
 
 ARG EXTRA_RPM_PACKAGES=''
 
