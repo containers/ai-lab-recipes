@@ -186,7 +186,7 @@ VOLUME /var/lib/containers
 
 RUN --mount=type=secret,id=${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson \
     if [ -f "/run/.input/instructlab-nvidia/oci-layout" ]; then \
-         IID=$(podman --root /usr/lib/containers/storage pull oci:/run/.input/instructlab-nvidia) && \
+         IID=$(podman --root /usr/lib/containers/storage --storage-opt overlay.force_mask=shared pull oci:/run/.input/instructlab-nvidia) && \
          podman --root /usr/lib/containers/storage --storage-opt overlay.force_mask=shared image tag ${IID} ${INSTRUCTLAB_IMAGE}; \
     elif [ -f "/run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson" ]; then \
          IID=$(sudo podman --root /usr/lib/containers/storage pull --storage-opt overlay.force_mask=shared --authfile /run/secrets/${INSTRUCTLAB_IMAGE_PULL_SECRET}/.dockerconfigjson ${INSTRUCTLAB_IMAGE}); \
