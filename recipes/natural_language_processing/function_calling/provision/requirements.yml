@@ -1,0 +1,4 @@
+---
+collections:
+  - name: containers.podman
+    version: 1.13.0
