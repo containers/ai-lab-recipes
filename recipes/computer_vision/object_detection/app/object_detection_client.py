@@ -7,8 +7,11 @@ import io
 
 st.title("🕵️‍♀️ Object Detection")
 endpoint =os.getenv("MODEL_ENDPOINT", default = "http://0.0.0.0:8000")
+endpoint_bearer = os.getenv("MODEL_ENDPOINT_BEARER")
 headers = {"accept": "application/json",
            "Content-Type": "application/json"}
+if endpoint_bearer:
+    headers["Authorization"] = f"Bearer {endpoint_bearer}"
 image = st.file_uploader("Upload Image")
 window = st.empty()
 

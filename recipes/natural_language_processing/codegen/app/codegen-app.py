@@ -10,6 +10,10 @@ import time
 
 model_service = os.getenv("MODEL_ENDPOINT", "http://localhost:8001")
 model_service = f"{model_service}/v1"
+model_service_bearer = os.getenv("MODEL_ENDPOINT_BEARER")
+request_kwargs = {}
+if model_service_bearer is not None:
+    request_kwargs = {"headers": {"Authorization": f"Bearer {model_service_bearer}"}}
 
 @st.cache_resource(show_spinner=False)
 def checking_model_service():
@@ -18,7 +22,7 @@ def checking_model_service():
     ready = False
     while not ready:
         try:
-            request = requests.get(f'{model_service}/models')
+            request = requests.get(f'{model_service}/models', **request_kwargs)
             if request.status_code == 200:
                 ready = True
         except:
