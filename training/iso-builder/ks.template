@@ -1,0 +1,11 @@
+text
+network --bootproto=dhcp --device=link --activate
+clearpart --all --initlabel --disklabel=gpt
+reqpart --add-boot
+part / --grow --fstype xfs
+ostreecontainer --url=/run/install/repo/container --transport=oci --no-signature-verification
+firewall --disabled
+services --enabled=sshd
+rootpw --iscrypted locked
+sshkey --username root "SSHKEY"
+reboot

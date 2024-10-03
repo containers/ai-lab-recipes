@@ -1,0 +1,7 @@
+FROM quay.io/centos/centos:stream9
+
+RUN dnf install -y skopeo buildah lorax
+ADD iso-builder.sh /root/iso-builder.sh
+ADD ks.template /root/ks.template
+
+ENTRYPOINT ["/bin/bash", "/root/iso-builder.sh"]
