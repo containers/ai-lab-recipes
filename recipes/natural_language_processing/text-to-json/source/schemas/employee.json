@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/containers/ai-lab-recipes/recipes/json-to-text/employee.schema.json",
+    "title": "employee",
+    "description": "Acme's Employee Information",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "The employee's full name",
+            "type": "string"
+        },
+        "employeeId": {
+            "description": "The unique identifier for a product",
+            "type": "integer"
+      },
+        "title": {
+            "description": "An Identifier for what position the employee holds within the company",
+            "type": "string"
+      },
+        "manager": {
+            "description": "Who sits above the employee in the Org chart and is responsible for managing them.",
+            "type": "object",
+            "items": { 
+              "$ref": "#" 
+            }
+      },
+        "teams": {
+            "description": "Which products, services or other initiatives is this employee responsible for contributing to.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "teamName": {
+                        "description": "A name used to refer to and distinguish between teams.",
+                        "type": "string"
+                    },
+                    "teamId": {
+                        "description": "A unique integer used to identify a team.",
+                        "type": "integer"
+                    },
+                    "leader": {
+                        "description": "The one who is responsbile for guiding the team.",
+                        "items": { 
+                          "$ref": "#" 
+                        }
+                    },
+                    "description": {
+                        "description": "A short blurb giving information on the team.",
+                        "type": "string"
+                    }
+                },
+                "required": ["teamName", "teamId"]
+            },
+        "minItems": 1,
+        "uniqueItems": true
+        }
+    },
+    "required": ["employeeId", "title", "teams"]
+}
