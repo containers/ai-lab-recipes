@@ -1,0 +1,26 @@
+# Embed Kepler systemd service
+# and opentelemetry-collector systemd service with collector config.
+#
+# This is meant to be built as an add-on build to any other bootc/Containerfile or bootc/Containerfile.nocache
+# See common/README_bootc_observability.md
+
+FROM quay.io/replace/centos-bootc:replace
+
+# Add Kepler service and opentelemetry-collector
+RUN curl -L -O https://github.com/sustainable-computing-io/kepler/releases/download/v0.7.10/kepler.rpm.tar.gz && \
+    tar xvzf kepler.rpm.tar.gz && \
+    dnf -y install RPMS/noarch/container-kepler-0.7.10-1.noarch.rpm && \
+    sudo systemctl enable container-kepler
+
+# See common/observability/mTLS for example files or adjust as necessary
+COPY mTLS /usr/share/mTLS
+
+# Add OpenTelemetry Collector with configuration file
+RUN sudo dnf copr enable -y frzifus/redhat-opentelemetry-collector-main && \
+        sudo dnf install -y opentelemetry-collector && \
+        sudo mkdir /etc/otelcol-logs && \
+        sudo chown -R observability:observability /etc/otelcol-logs && \
+        sudo systemctl enable opentelemetry-collector
+
+# See common/observability/kepler for example opentelemetry-collector config and adjust as necessary
+COPY kepler/otelcol-config.yaml /etc/opentelemetry-collector/configs/10-custom.yaml

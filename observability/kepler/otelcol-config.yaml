@@ -1,0 +1,57 @@
+---
+extensions:
+  file_storage:
+    # this dir must exist on filesystem where otelcollector is running
+    directory: /etc/otelcol-logs
+    timeout: 10s
+receivers:
+  journald:
+    units:
+      - container-kepler
+      - opentelemetry-collector
+      #- ovn-kubernetes
+      #- crio
+    priority: info
+  prometheus:
+    config:
+      scrape_configs:
+      - job_name: 'rhel-kepler-local'
+        scrape_interval: 5s
+        static_configs:
+        - targets: ['0.0.0.0:8888'] # container-kepler service
+processors:
+  batch:
+  memory_limiter:
+    check_interval: 5s
+    limit_percentage: 95
+    spike_limit_percentage: 25
+exporters:
+  otlphttp:
+    endpoint: OTLP_EXPORT_ENDPOINT
+    tls:
+      insecure: false
+      cert_file: /usr/share/mTLS/server.crt
+      key_file: /usr/share/mTLS/server.key
+      ca_file: /usr/share/mTLS/ca.crt
+  otlp:
+    endpoint: OTLP_EXPORT_ENDPOINT
+    tls:
+      insecure: false
+      cert_file: /usr/share/mTLS/server.crt
+      key_file: /usr/share/mTLS/server.key
+      ca_file: /usr/share/mTLS/ca.crt
+  debug:
+    verbosity: detailed
+service:
+  extensions: [file_storage]
+  telemetry:
+    metrics:
+      address: 0.0.0.0:9999
+  pipelines:
+    logs:
+      receivers: [journald]
+      exporters: [debug]
+    metrics:
+      receivers: [prometheus]
+      #exporters: [otlphttp]
+      exporters: [debug]
