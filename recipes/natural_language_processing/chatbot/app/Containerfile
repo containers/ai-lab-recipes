@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-311:1-77.1725907703
+FROM registry.access.redhat.com/ubi9/python-311:1-77.1726664316
 WORKDIR /chat
 COPY requirements.txt .
 RUN pip install --upgrade pip
