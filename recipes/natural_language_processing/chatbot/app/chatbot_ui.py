@@ -80,7 +80,7 @@ if server == "Ollama":
             options=models)
 
 llm = ChatOpenAI(base_url=model_service, 
-        api_key="sk-no-key-required",
+        api_key="sk-no-key-required" if model_service_bearer is None else model_service_bearer,
         model=model_name,
         streaming=True,
         callbacks=[StreamlitCallbackHandler(st.empty(),
