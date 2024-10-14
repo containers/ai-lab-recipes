@@ -1,0 +1,27 @@
+version: v1.0
+application:
+  type: language
+  name: ChatBot_nodejs
+  description: Chat with a model service in a web frontend.
+  containers:
+    - name: llamacpp-server
+      contextdir: ../../../model_servers/llamacpp_python
+      containerfile: ./base/Containerfile
+      model-service: true
+      backend:
+        - llama
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8001
+      image: quay.io/ai-lab/llamacppp_python:latest
+    - name: nodejs-chat-app
+      contextdir: app
+      containerfile: Containerfile
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8501
+      image: quay.io/ai-lab/chatbot-nodejs:latest
