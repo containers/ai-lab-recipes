@@ -1,0 +1,99 @@
+name: Iso Builder Test Worfklow
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - './training/iso-builder/**'
+      - '!training/iso-builder/README.md'
+      - '.github/workflows/iso_builder_test.yaml'
+  push:
+    branches:
+      - main
+    paths:
+      - './training/iso-builder/**'
+      - '!training/iso-builder/README.md'
+      - '.github/workflows/iso_builder_test.yaml'
+  
+  workflow_dispatch:
+
+env:
+  REGISTRY: quay.io
+  REGISTRY_ORG: ai-lab
+
+jobs:
+  iso-builder-build-and-test:
+    if: "!contains(github.event.pull_request.labels.*.name, 'hold-tests')"
+    strategy:
+      matrix:
+        include:
+          - platforms: linux/amd64,linux/arm64
+            parent_image_registry: quay.io
+            parent_image_org: centos-bootc
+            parent_image_name: centos-bootc
+            parent_image_tag: stream9
+            iso_image_name: iso-builder-centos-bootc
+            iso_download_url: https://mirror.stream.centos.org/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-boot.iso
+            iso_name: CentOS-Stream-9-latest-x86_64-boot.iso
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+
+      - name: Remove unnecessary files
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
+      - uses: actions/checkout@v4.1.4
+
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+
+      - name: Generate an SSH key
+        id: ssh-keygen
+        run: |
+          ssh-keygen -t ed25519 -C "ai-lab-recipes@redhat.com" -N "" -f id_rsa
+          echo "sshpubkey=$(cat id_rsa.pub | xargs)" >> $GITHUB_OUTPUT
+
+      - name: Download the ISO
+        working-directory: ./training/iso-builder/
+        run: |
+          make centos-iso-download
+
+      - name: Build Image
+        id: build_image
+        working-directory: ./training/iso-builder/
+        run: |
+          make image FROM=${{ matrix.parent_image_registry }}/${{ matrix.parent_image_org }}/${{ matrix.parent_image_name }}:${{ matrix.parent_image_tag }} IMAGE_NAME=${{ matrix.iso_image_name }} IMAGE_TAG=${{ matrix.parent_image_tag }}
+          echo "embedded_image=$(echo '${{ matrix.parent_image_registry }}/${{ matrix.parent_image_org }}/${{ matrix.parent_image_name }}:${{ matrix.parent_image_tag }}' | xargs)" >> $GITHUB_OUTPUT
+          echo "produced_image=$(echo '${{env.REGISTRY}}/${{env.REGISTRY_ORG}}/${{ matrix.iso_image_name }}:${{ matrix.parent_image_tag }}' | xargs)" >> $GITHUB_OUTPUT
+
+      - name: Run the Image
+        working-directory: ./training/iso-builder/
+        run: |
+          make iso IMAGE=${{ steps.build_image.outputs.produced_image }} EMBED_IMAGE=${{ steps.build_image.outputs.embedded_image }} ORIGINAL_ISO="ISOs/${{ matrix.iso_name }}" SSHKEY="${{ steps.ssh-keygen.outputs.sshpubkey }}" CONTAINER_TOOL_EXTRA_ARGS=--pull=never
+
+      # - name: Setup tmate session
+      #   if: ${{ failure() }}
+      #   uses: mxschmitt/action-tmate@v3.18
+      #   timeout-minutes: 10
+      #   with:
+      #     detached: false
+      #     limit-access-to-actor: true
+
+      # - name: Publish Job Results to Slack
+      #   id: slack
+      #   if: always()
+      #   uses: slackapi/slack-github-action@v1.26.0
+      #   with:
+      #     payload: |
+      #       {
+      #         "text": "${{ github.workflow }} workflow status: ${{ job.status }}\n${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
