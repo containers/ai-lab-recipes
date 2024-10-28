@@ -58,7 +58,7 @@ def chunk_text(text):
     for chunk in text_chunks:
         chunk = chunk.page_content
         chunk_kwargs = request_kwargs | {"json": {"input": chunk}}
-        count = requests.post(f"{model_service[:-2]}/v1/extras/tokenize/count", **chunk_kwargs).content
+        count = requests.post(f"{model_service[:-2]}extras/tokenize/count", **chunk_kwargs).content
         count = json.loads(count)["count"]
         if count >= 2048:
             split_append_chunk(chunk, chunks)
