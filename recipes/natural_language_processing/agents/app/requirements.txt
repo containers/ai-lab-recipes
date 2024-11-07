@@ -1,0 +1,10 @@
+streamlit>=1.24.0
+langchain-core>=0.1.0
+langchain-openai>=0.0.5
+python-dotenv>=0.19.0
+
+requests>=2.31.0
+
+typing-extensions>=4.5.0
+
+streamlit-chat>=0.1.1
