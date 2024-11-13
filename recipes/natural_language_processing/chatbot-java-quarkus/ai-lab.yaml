@@ -1,8 +1,8 @@
 version: v1.0
 application:
   type: language
-  name: ChatBot_Streamlit
-  description: Chat with a model service in a web frontend.
+  name: ChatBot_Java_Quarkus
+  description: Chatbot sample based on Quarkus
   containers:
     - name: llamacpp-server
       contextdir: ../../../model_servers/llamacpp_python
