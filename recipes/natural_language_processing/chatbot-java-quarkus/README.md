@@ -1,4 +1,4 @@
-# Java-based chatbot application
+# Java-based chatbot application - Quarkus
 
 This application implements a simple chatbot backed by Quarkus and its
 LangChain4j extension. The UI communicates with the backend application via
