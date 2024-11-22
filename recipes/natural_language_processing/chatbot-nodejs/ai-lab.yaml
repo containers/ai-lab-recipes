@@ -23,5 +23,5 @@ application:
         - arm64
         - amd64
       ports:
-        - 8051
+        - 8501
       image: quay.io/ai-lab/chatbot-nodejs:latest
