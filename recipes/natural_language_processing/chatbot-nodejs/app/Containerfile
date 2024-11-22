@@ -49,8 +49,8 @@ COPY --from=builder --chown=1001:1001 /app/.next/static ./.next/static
 
 USER 1001
 
-EXPOSE 8051
+EXPOSE 8501
 
-ENV PORT 8051
+ENV PORT 8501
 
 CMD ["sh", "-c", "HOSTNAME=localhost node server"]
