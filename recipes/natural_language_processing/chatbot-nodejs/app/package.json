@@ -30,7 +30,7 @@
     "@langchain/core": "^0.2.14"
   },
   "scripts": {
-    "dev": "next dev -p 8051",
+    "dev": "next dev -p 8501",
     "build": "next build",
     "lint": "next lint"
   },

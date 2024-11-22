@@ -15,7 +15,7 @@ application:
         - amd64
       ports:
         - 8001
-      image: quay.io/ai-lab/llamacppp_python:latest
+      image: quay.io/ai-lab/llamacpp_python:latest
     - name: nodejs-chat-app
       contextdir: app
       containerfile: Containerfile
