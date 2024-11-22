@@ -53,4 +53,4 @@ EXPOSE 8051
 
 ENV PORT 8051
 
-CMD ["node", "server"]
+CMD ["sh", "-c", "HOSTNAME=localhost node server"]
