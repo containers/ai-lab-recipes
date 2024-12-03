@@ -10,7 +10,9 @@ models/*
 convert_models/converted_models
 recipes/common/bin/*
 */.venv/
+**/venv/**
 training/cloud/examples
 training/instructlab/instructlab
 vector_dbs/milvus/volumes/milvus/*
 .idea
+**/volumes/**

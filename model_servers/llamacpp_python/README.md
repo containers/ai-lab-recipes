@@ -19,8 +19,9 @@ The [base image](../llamacpp_python/base/Containerfile) is the standard image th
 To build the base model service image:
 
 ```bash
-make -f Makefile build
+make build
 ```
+
 To pull the base model service image:
 
 ```bash
@@ -33,8 +34,9 @@ podman pull quay.io/ai-lab/llamacpp_python
 The [Cuda image](../llamacpp_python/cuda/Containerfile) include all the extra drivers necessary to run our model server with Nvidia GPUs. This will significant speed up the models response time over CPU only deployments.
 
 To Build the the Cuda variant image:
+
 ```bash
-make -f Makefile build-cuda
+make build-cuda
 ```
 
 To pull the base model service image:
@@ -48,6 +50,7 @@ podman pull quay.io/ai-lab/llamacpp_python_cuda
 To run the Cuda image with GPU acceleration, you need to install the correct [Cuda drivers](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#driver-installation) for your system along with the [Nvidia Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#). Please use the links provided to find installation instructions for your system.
 
 Once those are installed you can use the container toolkit CLI to discover your Nvidia device(s).
+
 ```bash
 sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
 ```
@@ -63,15 +66,14 @@ To build the Vulkan model service variant image:
 
 | System Architecture | Command |
 |---|---|
-| amd64 | make -f Makefile build-vulkan-amd64 |
-| arm64 | make -f Makefile build-vulkan-arm64 |
+| amd64 | make build-vulkan-amd64 |
+| arm64 | make build-vulkan-arm64 |
 
 To pull the base model service image:
 
 ```bash
 podman pull quay.io/ai-lab/llamacpp_python_vulkan
 ```
-
 
 
 ## Download Model(s)
@@ -88,7 +90,7 @@ Place all models in the [models](../../models/) directory.
 You can use this snippet below to download the default model:
 
 ```bash
-make -f Makefile download-model-granite
+make download-model-granite
 ```
 
 Or you can use the generic `download-models` target from the `/models` directory to download any model file from huggingface:
@@ -107,7 +109,7 @@ make MODEL_NAME=<model_name> MODEL_URL=<model_url> -f  Makefile download-model
 To deploy the LLM server you must specify a volume mount `-v` where your models are stored on the host machine and the `MODEL_PATH` for your model of choice. The model_server is most easily deploy from calling the make command: `make -f Makefile run`. Of course as with all our make calls you can pass any number of the following variables: `REGISTRY`, `IMAGE_NAME`, `MODEL_NAME`, `MODEL_PATH`, and `PORT`.
 
 ```bash
-podman run --rm -it \
+podman run --rm -d \
   -p 8001:8001 \
   -v Local/path/to/locallm/models:/locallm/models:ro \
   -e MODEL_PATH=models/granite-7b-lab-Q4_K_M.gguf \
@@ -120,7 +122,7 @@ podman run --rm -it \
 or with Cuda image
 
 ```bash
-podman run --rm -it \
+podman run --rm -d \
   --device nvidia.com/gpu=all \
   -p 8001:8001 \
   -v Local/path/to/locallm/models:/locallm/models:ro \
@@ -130,6 +132,7 @@ podman run --rm -it \
   -e MODEL_CHAT_FORMAT=openchat \
   llamacpp_python
 ```
+
 ### Multiple Model Service:
 
 To enable dynamic loading and unloading of different models present on your machine, you can start the model service with a `CONFIG_PATH` instead of a `MODEL_PATH`.
@@ -159,7 +162,7 @@ Here is an example `models_config.json` with two model options.
 Now run the container with the specified config file.
 
 ```bash
-podman run --rm -it -d \
+podman run --rm -d \
         -p 8001:8001 \
         -v Local/path/to/locallm/models:/locallm/models:ro \
         -e CONFIG_PATH=models/<config-filename> \

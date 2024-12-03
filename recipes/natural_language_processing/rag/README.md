@@ -13,24 +13,27 @@ Our AI Application will connect to our Model Service via it's OpenAI compatible 
 
 ## Try the RAG chat application
 
-_COMING SOON to AI LAB_
 The [Podman Desktop](https://podman-desktop.io) [AI Lab Extension](https://github.com/containers/podman-desktop-extension-ai-lab) includes this recipe among others. To try it out, open `Recipes Catalog` -> `RAG Chatbot` and follow the instructions to start the application.
 
 If you prefer building and running the application from terminal, please run the following commands from this directory.
 
 First, build application's meta data and run the generated Kubernetes YAML which will spin up a Pod along with a number of containers:
+
 ```
+cd recipes/natural_language_processing/rag
 make quadlet
 podman kube play build/rag.yaml
 ```
 
 The Pod is named `rag`, so you may use [Podman](https://podman.io) to manage the Pod and its containers:
+
 ```
 podman pod list
 podman ps
 ```
 
 To stop and remove the Pod, run:
+
 ```
 podman pod stop rag
 podman pod rm rag
@@ -59,11 +62,9 @@ The recommended model can be downloaded using the code snippet below:
 
 ```bash
 cd ../../../models
-curl -sLO https://huggingface.co/instructlab/granite-7b-lab-GGUF/resolve/main/granite-7b-lab-Q4_K_M.gguf
+make download-model-granite
 cd ../recipes/natural_language_processing/rag
 ```
-
-_A full list of supported open models is forthcoming._  
 
 In addition to the LLM, RAG applications also require an embedding model to convert documents between natural language and vector representations. For this demo we will use [`BAAI/bge-base-en-v1.5`](https://huggingface.co/BAAI/bge-base-en-v1.5) it is a fairly standard model for this use case and has an MIT license.    
 
@@ -82,25 +83,39 @@ To deploy the Vector Database service locally, simply use the existing ChromaDB 
 
 
 #### ChromaDB
+
 ```bash
 podman pull chromadb/chroma
 ```
+
 ```bash
-podman run --rm -it -p 8000:8000 chroma
+podman run --rm -d --name chroma -p 8000:8000 chroma
 ```
+
+Check that the chroma pod is running with
+
+```bash
+podman ps
+podman logs chroma
+```
+
 #### Milvus
+
 ```bash
 podman pull milvusdb/milvus:master-20240426-bed6363f
+cd recipes/natural_language_processing/rag/app
+mkdir -p volumes/milvus
 ```
+
 ```bash
-podman run -it \
+podman run --rm -d \
         --name milvus-standalone \
         --security-opt seccomp:unconfined \
         -e ETCD_USE_EMBED=true \
         -e ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml \
         -e COMMON_STORAGETYPE=local \
         -v $(pwd)/volumes/milvus:/var/lib/milvus \
-        -v $(pwd)/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml \
+        -v $(pwd)/milvus-embedEtcd.yaml:/milvus/configs/embedEtcd.yaml \
         -p 19530:19530 \
         -p 9091:9091 \
         -p 2379:2379 \
@@ -112,34 +127,60 @@ podman run -it \
         milvusdb/milvus:master-20240426-bed6363f \
         milvus run standalone  1> /dev/null
 ```
+
 Note: For running the Milvus instance, make sure you have the `$(pwd)/volumes/milvus` directory and `$(pwd)/embedEtcd.yaml` file as shown in this repository. These are required by the database for its operations.
 
+Example contents of milvus-embedEtcd.yaml are shown below. See
+[milvus-io/milvus/configs](https://github.com/milvus-io/milvus/blob/master/configs/advanced/etcd.yaml) for more details.
+
+```bash
+listen-client-urls: http://0.0.0.0:2379
+advertise-client-urls: http://0.0.0.0:2379
+quota-backend-bytes: 4294967296
+auto-compaction-mode: revision
+auto-compaction-retention: '1000'
+```
+
+Check that the milvus pod is running with
+
+```bash
+podman ps
+podman logs milvus-standalone
+```
 
 ### Build the Model Service
 
-The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
+The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../../../model_servers/llamacpp_python/README.md).
 
-The Model Service can be built with the following code snippet:
+The llamacpp_python Model Service can be built with the following code snippet:
 
 ```bash
-cd model_servers/llamacpp_python
-podman build -t llamacppserver -f ./base/Containerfile .
+cd ../../../model_servers/llamacpp_python
+make IMAGE=llamacppserver  build
 ```
 
 
 ### Deploy the Model Service
 
-The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../model_servers/llamacpp_python/README.md).
+The complete instructions for building and deploying the Model Service can be found in the [the llamacpp_python model-service document](../../..//model_servers/llamacpp_python/README.md).
 
 The local Model Service relies on a volume mount to the localhost to access the model files. You can start your local Model Service using the following Podman command:
+
 ```
-podman run --rm -it \
+podman run --rm -d --name model-server \
         -p 8001:8001 \
         -v Local/path/to/locallm/models:/locallm/models \
         -e MODEL_PATH=models/<model-filename> \
         -e HOST=0.0.0.0 \
         -e PORT=8001 \
         llamacppserver
+```
+
+Check that the model-server pod is running with
+
+```bash
+podman ps
+podman logs model-server
 ```
 
 ### Build the AI Application
@@ -153,23 +194,46 @@ make APP_IMAGE=rag build
 
 ### Deploy the AI Application
 
-Make sure the Model Service and the Vector Database are up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API. In our case the Model Service is running inside the Podman machine so we need to provide it with the appropriate address `10.88.0.1`. The same goes for the Vector Database. Make sure the `VECTORDB_HOST` is correctly set to `10.88.0.1` for communication within the Podman virtual machine.
+Make sure the Model Service and the Vector Database are up and running before starting this container image. When starting the AI Application container image we need to direct it to the correct `MODEL_ENDPOINT`. This could be any appropriately hosted Model Service (running locally or in the cloud) using an OpenAI compatible API.
 
 There also needs to be a volume mount into the `models/` directory so that the application can access the embedding model as well as a volume mount into the `data/` directory where it can pull documents from to populate the Vector Database.  
 
 The following Podman command can be used to run your AI Application:
 
+#### With Chroma Vector Database
+
 ```bash
-podman run --rm -it -p 8501:8501 \
--e MODEL_ENDPOINT=http://10.88.0.1:8001 \
--e VECTORDB_HOST=10.88.0.1 \
+podman run --rm --name rag-inference -d -p 8501:8501 \
+-e MODEL_ENDPOINT=http://127.0.0.1:8001 \
+-e VECTORDB_HOST=127.0.0.1 \
 -v Local/path/to/locallm/models/:/rag/models \
-rag   
+rag
+```
+
+#### With Milvus Standalone Vector Database
+
+```bash
+podman run --rm -d --name rag-inference -p 8501:8501 \
+-e MODEL_ENDPOINT=http://127.0.0.1:8001 \
+-e VECTORDB_VENDOR=milvus \
+-e VECTORDB_HOST=127.0.0.1 \
+-e VECTORDB_PORT=19530 \
+-v Local/path/to/locallm/models/:/rag/models \
+rag
+```
+
+Check that the rag inference pod is running with
+
+```bash
+podman ps
+podman logs rag-inference
 ```
 
 ### Interact with the AI Application
 
-Everything should now be up an running with the rag application available at [`http://localhost:8501`](http://localhost:8501). By using this recipe and getting this starting point established, users should now have an easier time customizing and building their own LLM enabled RAG applications.   
+Everything should now be up an running with the rag application available at [`http://localhost:8501`](http://localhost:8501).
+There is a [sample text file](./sample-data/fake_meeting.txt) that can be uploaded in the UI and used to test the RAG capablility.
+By using this recipe and getting this starting point established, users should now have an easier time customizing and building their own LLM enabled RAG applications.
 
 ### Embed the AI Application in a Bootable Container Image
 
