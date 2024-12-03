@@ -78,7 +78,7 @@ jobs:
           context: models
 
       - name: Login to Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
         uses: redhat-actions/podman-login@v1.7
         with:
           registry: ${{ env.REGISTRY }}
@@ -86,7 +86,7 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
       - name: Push image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
         uses: redhat-actions/push-to-registry@v2.8
         with:
           image: ${{ steps.build_image.outputs.image }}
