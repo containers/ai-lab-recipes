@@ -8,12 +8,12 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/model_image_build_push.yaml
+      - .github/workflows/models.yaml
   push:
     branches:
       - main
     paths:
-      - .github/workflows/model_image_build_push.yaml
+      - .github/workflows/models.yaml
   
   workflow_dispatch:
 
