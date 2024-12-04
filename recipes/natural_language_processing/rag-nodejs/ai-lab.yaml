@@ -1,0 +1,37 @@
+version: v1.0
+application:
+  type: language
+  name: nodejs-rag-demo
+  description: A Node.js RAG chat bot using local documents.
+  containers:
+    - name: llamacpp-server
+      contextdir: ../../../model_servers/llamacpp_python
+      containerfile: ./base/Containerfile
+      model-service: true
+      backend:
+        - llama-cpp
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8001
+      image: quay.io/ai-lab/llamacpp_python:latest
+    - name: chromadb-server
+      contextdir: ../../../vector_dbs/chromadb
+      containerfile: Containerfile
+      vectordb: true
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8000
+      image: quay.io/ai-lab/chromadb:latest
+    - name: nodejs-rag-inference-app
+      contextdir: app
+      containerfile: Containerfile
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8501
+      image: quay.io/ai-lab/rag-nodejs:latest
