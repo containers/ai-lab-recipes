@@ -57,7 +57,7 @@ Finally, you will also need to add `--device nvidia.com/gpu=all` to your `podman
 
 ### Vulkan (experimental)
 
-The [Vulkan image](../llamacpp_python/vulkan/Containerfile) is experimental, but can be used for gaining partial GPU access on an M-series Mac, significantly speeding up model response time over a CPU only deployment. This image requires that your podman machine provider is "applehv" and that you use krunkit instead of vfkit. Since these tools are not currently supported by podman desktop this image will remain "experimental".
+The [Vulkan](https://docs.vulkan.org/guide/latest/what_is_vulkan.html) image ([amd64](../llamacpp_python/vulkan/amd64/Containerfile)/[arm64](../llamacpp_python/vulkan/arm64/Containerfile)) is experimental, but can be used for gaining partial GPU access on an M-series Mac, significantly speeding up model response time over a CPU only deployment. This image requires that your podman machine provider is "applehv" and that you use krunkit instead of vfkit. Since these tools are not currently supported by podman desktop this image will remain "experimental".
 
 To build the Vulkan model service variant image:
 
