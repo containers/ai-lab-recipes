@@ -4,8 +4,8 @@ RUN dnf install -y python3-dnf-plugin-versionlock && \
     dnf install -y \
 https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
     dnf copr enable -y slp/mesa-krunkit epel-9-aarch64 && \
-    dnf install -y mesa-vulkan-drivers-23.3.3-101.el9.aarch64 && \
-    dnf versionlock mesa-vulkan-drivers-23.3.3-101.el9.aarch64 && \
+    dnf install -y mesa-vulkan-drivers-24.1.2-101.el9.aarch64 && \
+    dnf versionlock mesa-vulkan-drivers-24.1.2-101.el9.aarch64 && \
     dnf install -y git cmake ninja-build gcc gcc-c++ vulkan-loader-devel vulkan-tools
 USER 1001
 WORKDIR /locallm
