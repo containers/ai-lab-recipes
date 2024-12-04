@@ -1,0 +1,35 @@
+version: v1.0
+application:
+  type: language
+  name: ChatBot_Java_Quarkus_SQL_RAG
+  description: Chatbot sample with SQL-based RAG based on Quarkus
+  containers:
+    - name: llamacpp-server
+      contextdir: ../../../model_servers/llamacpp_python
+      containerfile: ./base/Containerfile
+      model-service: true
+      backend:
+        - llama-cpp
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8001
+      image: quay.io/ai-lab/llamacpp_python:latest
+    - name: postgresql-server
+      contextdir: ../../../relational_dbs/postgresql
+      containerfile: Containerfile
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 5432
+      image: quay.io/ai-lab/postgresql:latest
+    - name: quarkus-chat-app
+      contextdir: app
+      containerfile: Containerfile
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8080
