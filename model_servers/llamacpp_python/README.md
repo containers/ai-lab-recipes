@@ -110,25 +110,25 @@ To deploy the LLM server you must specify a volume mount `-v` where your models 
 podman run --rm -it \
   -p 8001:8001 \
   -v Local/path/to/locallm/models:/locallm/models:ro \
-  -e MODEL_PATH=models/granite-7b-lab-Q4_K_M.gguf
-  -e HOST=0.0.0.0
-  -e PORT=8001
-  -e MODEL_CHAT_FORMAT=openchat
-  llamacpp_python \
+  -e MODEL_PATH=models/granite-7b-lab-Q4_K_M.gguf \
+  -e HOST=0.0.0.0 \
+  -e PORT=8001 \
+  -e MODEL_CHAT_FORMAT=openchat \
+  llamacpp_python
 ```
 
 or with Cuda image
 
 ```bash
 podman run --rm -it \
-  --device nvidia.com/gpu=all
+  --device nvidia.com/gpu=all \
   -p 8001:8001 \
   -v Local/path/to/locallm/models:/locallm/models:ro \
-  -e MODEL_PATH=models/granite-7b-lab-Q4_K_M.gguf
-  -e HOST=0.0.0.0
-  -e PORT=8001
-  -e MODEL_CHAT_FORMAT=openchat
-  llamacpp_python \
+  -e MODEL_PATH=models/granite-7b-lab-Q4_K_M.gguf \
+  -e HOST=0.0.0.0 \
+  -e PORT=8001 \
+  -e MODEL_CHAT_FORMAT=openchat \
+  llamacpp_python
 ```
 ### Multiple Model Service:
 
