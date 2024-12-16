@@ -1,0 +1,12 @@
+FROM registry.access.redhat.com/ubi8/openjdk-21:latest
+WORKDIR /deployments
+COPY --chown=185 . .
+RUN mvn package
+EXPOSE 8080
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_APP_JAR="/deployments/target/quarkus-app/quarkus-run.jar"
+# FIXME: the sleep is to allow the postgresql container to start first and
+# should be replaced with a mechanism to declare that the application
+# container depends on the database container, once something like that is
+# supported...
+CMD echo "sleeping for 10 seconds..."; sleep 10; /usr/local/s2i/run
