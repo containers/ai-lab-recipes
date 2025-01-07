@@ -5,8 +5,8 @@ cachetools==5.3.3
 certifi==2024.2.2
 charset-normalizer==3.3.2
 click==8.1.8
-gitdb==4.0.11
-GitPython==3.1.43
+gitdb==4.0.12
+GitPython==3.1.44
 idna==3.7
 Jinja2==3.1.5
 jsonschema==4.21.1
@@ -29,7 +29,7 @@ requests==2.31.0
 rich==13.7.1
 rpds-py==0.18.1
 six==1.16.0
-smmap==5.0.1
+smmap==5.0.2
 streamlit==1.33.0
 tenacity==8.2.3
 toml==0.10.2
