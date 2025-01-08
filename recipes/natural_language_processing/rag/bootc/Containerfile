@@ -18,7 +18,7 @@ ARG RECIPE=rag
 ARG MODEL_IMAGE=quay.io/ai-lab/granite-7b-lab:latest
 ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp_python:latest
-ARG CHROMADBImage=quay.io/ai-lab/chromadb
+ARG CHROMADB_IMAGE=quay.io/ai-lab/chromadb:latest
 ARG TARGETARCH
 
 # Add quadlet files to setup system to automatically run AI application on boot
@@ -43,6 +43,6 @@ VOLUME /var/lib/containers
 RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${SERVER_IMAGE}
 RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${APP_IMAGE}
 RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${MODEL_IMAGE}
-RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${CHROMADBImage}
+RUN podman pull --arch=${TARGETARCH} --root /usr/lib/containers/storage ${CHROMADB_IMAGE}
 
 RUN podman system reset --force 2>/dev/null
