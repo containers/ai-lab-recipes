@@ -2,10 +2,11 @@ from langchain_community.vectorstores import Chroma
 from chromadb import HttpClient
 from chromadb.config import Settings
 import chromadb.utils.embedding_functions as embedding_functions
-from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
+from langchain_community.embeddings import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Milvus
 from pymilvus import MilvusClient
 from pymilvus import connections, utility
+
 
 class VectorDB:
     def __init__(self, vector_vendor, host, port, collection_name, embedding_model):
