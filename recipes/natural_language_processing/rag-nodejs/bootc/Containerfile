@@ -18,7 +18,7 @@ ARG RECIPE=rag-nodejs
 ARG MODEL_IMAGE=quay.io/ai-lab/granite-7b-lab:latest
 ARG APP_IMAGE=quay.io/ai-lab/${RECIPE}:latest
 ARG SERVER_IMAGE=quay.io/ai-lab/llamacpp_python:latest
-ARG CHROMADB_IMAGE=quay.io/ai-lab/chromadb:latest
+ARG CHROMADB_IMAGE=ghcr.io/chroma-core/chroma:0.5.16
 ARG TARGETARCH
 
 # Add quadlet files to setup system to automatically run AI application on boot
