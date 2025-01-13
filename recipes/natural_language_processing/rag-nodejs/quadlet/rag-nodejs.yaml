@@ -26,7 +26,7 @@ spec:
   - env:
     - name: CHROMADB_ENDPOINT
       value: http://0.0.0.0:8000/v1
-    image: ghcr.io/chroma-core/chroma:0.5.16
+    image: ghcr.io/chroma-core/chroma:0.5.23
     name: rag-chromadb
     ports:
     - containerPort: 8000
