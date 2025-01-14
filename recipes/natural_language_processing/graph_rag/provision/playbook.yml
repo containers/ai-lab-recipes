@@ -1,0 +1,72 @@
+---
+- name: Test Environment Provisioning
+  hosts: test_environments
+  remote_user: fedora
+  become: true
+  gather_facts: false
+
+  tasks:
+  
+  - name: Wait until the instance is ready
+    ansible.builtin.wait_for_connection:
+    delay: 10
+    timeout: 60
+  
+  - name: Gather facts for first time
+    ansible.builtin.setup:
+
+  - name: Required Packages
+    ansible.builtin.package:
+      name: podman
+      state: present
+
+  - name: Models host directory
+    ansible.builtin.file:
+      path: locallm/models
+      state: directory
+
+  - name: Download Model
+    ansible.builtin.get_url:
+      url: https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q5_K_S.gguf
+      dest: locallm/models
+
+  - name: Run Model
+    containers.podman.podman_container:
+      name: llamacpp_python
+      image: ghcr.io/containers/llamacpp_python:latest
+      state: started
+      interactive: true
+      tty: true
+      detach: true
+      ports:
+      - 8001:8001
+      volume:
+      - ./locallm/models:/locallm/models:ro,Z
+      env:
+        MODEL_PATH: models/llama-2-7b-chat.Q5_K_S.gguf
+        HOST: 0.0.0.0
+        PORT: 8001
+
+  - name: Run Application
+    containers.podman.podman_container:
+      name: rag
+      image: ghcr.io/containers/rag:latest
+      state: started
+      interactive: true
+      tty: true
+      ports:
+      - 8501:8501
+      env:
+        MODEL_SERVICE_ENDPOINT: http://10.88.0.1:8001/v1
+
+  - name: Run Vector Database
+    containers.podman.podman_container:
+      name: chromadb
+      image: ghcr.io/containers/chromadb:latest
+      state: started
+      interactive: true
+      tty: true
+      ports:
+      - 8000:8000
+      env:
+        CHROMADB_ENDPOINT: http://0.0.0.0:8000/v1
