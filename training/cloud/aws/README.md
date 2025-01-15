@@ -20,8 +20,6 @@ console=ttyS0,115200n8 net.ifnames=0 nvme_core.io_timeout=4294967295
 - Getty configuration
     - NautoVTs false
 
-- Cloud init default user: `ec2-user`
-
 - Packages
     - @core metapackage
     - authselect-compat
