@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webui-llamacpp-pod
+spec:
+  containers:
+    - name: open-webui
+      image: ghcr.io/open-webui/open-webui:main
+      ports:
+        - containerPort: 8001
+          hostPort: 3000
+      env:
+        - name: ENABLE_OLLAMA_API
+          value: "false"
+        - name: WEBUI_AUTH
+          value: "false"
+        - name: PORT
+          value: "8001"
+        - name: OPENAI_API_BASE_URL
+          value: "http://0.0.0.0:8080/v1"
+        - name: OPENAI_API_KEY
+          value: "empty"
+      volumeMounts:
+        - name: open-webui-data
+          mountPath: /app/backend/data
+        - name: ramalama-gguf
+          mountPath: /ramalama
+        - name: model-config
+          mountPath: /configs/model-config
+    - name: llamacpp-python
+      image: quay.io/sallyom/llamacpp-python:latest
+      ports:
+        - containerPort: 8080
+          hostPort: 9999
+      env:
+        - name: CONFIG_PATH
+          value: /configs/model-config
+        - name: CONFIG_FILE
+          value: /configs/model-config
+      volumeMounts:
+        - name: ramalama-gguf
+          mountPath: /ramalama
+        - name: model-config
+          mountPath: /configs/model-config
+  volumes:
+    - name: open-webui-data
+      persistentVolumeClaim:
+        claimName: open-webui
+    - name: ramalama-gguf
+      persistentVolumeClaim:
+        claimName: ramalama-gguf
+    - name: model-config
+    # TODO: UPDATE THIS TO MATCH YOUR FILESYSTEM
+    # model-config example is in this folder at ./model-config
+      hostPath:
+        path: /Users/somalley/git/containers/ai-lab-recipes/platforms/ramalama-open-webui/model-config
+        type: File

@@ -1,0 +1,24 @@
+{
+    "host": "0.0.0.0",
+    "port": 8080,
+    "models": [
+        {
+            "model": "/ramalama/models/huggingface/bartowski/Meta-Llama-3-8B-Instruct-GGUF/Meta-Llama-3-8B-Instruct-Q5_K_M.gguf",
+            "model_alias": "llama3",
+            "n_gpu_layers": -1,
+            "n_ctx": 2048
+        },
+        {
+            "model": "/ramalama/models/huggingface/NousResearch/Hermes-2-Pro-Mistral-7B-GGUF/Hermes-2-Pro-Mistral-7B.Q4_K_M.gguf",
+            "model_alias": "hermes",
+            "n_gpu_layers": -1,
+            "n_ctx": 2048
+        },
+        {
+            "model": "/ramalama/models/huggingface/ibm-granite/granite-3b-code-base-2k-GGUF/granite-3b-code-base.Q4_K_M.gguf",
+            "model_alias": "granite-code",
+            "n_gpu_layers": -1,
+            "n_ctx": 2048
+        }
+    ]
+}
