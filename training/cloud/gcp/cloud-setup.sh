@@ -36,11 +36,10 @@ mv /etc/selinux.tmp /etc/selinux
 # rm /tmp/add-google-cloud-ops-agent-repo.sh
 
 # rpm-state is needed to remove microcode_ctl
-mkdir /var/lib/rpm-state
+mkdir -p /var/lib/rpm-state
 dnf remove -y \
     irqbalance \
     microcode_ctl
-rmdir /var/lib/rpm-state
 
 rm -f /etc/yum.repos.d/google-cloud.repo
 
