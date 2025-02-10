@@ -1,0 +1,10 @@
+[Install]
+WantedBy=APP.service
+
+[Service]
+TimeoutStartSec=infinity
+
+[Image]
+Image=APP_IMAGE
+Image=MODEL_IMAGE
+Image=SERVER_IMAGE
