@@ -4,7 +4,10 @@ USER root
 RUN chown -R default:root /opt/app-root/src/converter
 USER default
 RUN git clone https://github.com/ggerganov/llama.cpp.git
-RUN cd llama.cpp/ && make
+RUN cd llama.cpp/ && cmake -B build && cmake --build build --config Release
 RUN pip install -r llama.cpp/requirements.txt
 COPY . /opt/app-root/src/converter/
+USER root
+RUN chmod -R ug=rwX,o-rwx /opt/app-root/src/converter
+USER default
 ENTRYPOINT ["sh", "run.sh"]
