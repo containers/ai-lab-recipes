@@ -27,7 +27,6 @@ from pydantic_ai.messages import (
 model_service = os.getenv("MODEL_ENDPOINT",
                           "http://localhost:8001")
 model_service = f"{model_service}/v1"
-model_service_bearer = os.getenv("MODEL_ENDPOINT_BEARER")
 
 # Initialize the OpenAI-compatible model for your Llama.cpp server
 model = OpenAIModel(
