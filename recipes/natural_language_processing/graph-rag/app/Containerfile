@@ -1,0 +1,19 @@
+FROM registry.access.redhat.com/ubi9/python-311:1-77.1726664316
+
+WORKDIR /graph-rag
+COPY requirements.txt .  
+COPY rag_app.py .  
+
+# Detect architecture and install Rust only on ARM (aarch64/arm64)
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+        source "$HOME/.cargo/env" && \
+        rustc --version && \
+        cargo --version; \
+    fi && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir --upgrade -r /graph-rag/requirements.txt
+
+EXPOSE 8501
+ENTRYPOINT [ "streamlit", "run", "rag_app.py" ]
