@@ -1,0 +1,78 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Computer",
+    "type": "object",
+    "properties": {
+      "brand": {
+        "type": "string",
+        "description": "The brand or manufacturer of the computer"
+      },
+      "model": {
+        "type": "string",
+        "description": "The model of the computer"
+      },
+      "processor": {
+        "type": "object",
+        "description": "Details about the processor of the computer",
+        "properties": {
+          "manufacturer": {
+            "type": "string",
+            "description": "The manufacturer of the processor"
+          },
+          "model": {
+            "type": "string",
+            "description": "The model of the processor"
+          },
+          "cores": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The number of processor cores"
+          },
+          "clock_speed": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The clock speed of the processor in GHz"
+          }
+        },
+        "required": ["manufacturer", "model", "cores", "clock_speed"]
+      },
+      "ram": {
+        "type": "object",
+        "description": "Details about the RAM of the computer",
+        "properties": {
+          "size_gb": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The size of RAM in gigabytes"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of RAM (e.g., DDR4)"
+          }
+        },
+        "required": ["size_gb", "type"]
+      },
+      "storage": {
+        "type": "object",
+        "description": "Details about the storage of the computer",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of storage (e.g., SSD, HDD)"
+          },
+          "capacity_gb": {
+            "type": "number",
+            "minimum": 0,
+            "description": "The capacity of storage in gigabytes"
+          }
+        },
+        "required": ["type", "capacity_gb"]
+      },
+      "price": {
+        "type": "number",
+        "minimum": 0,
+        "description": "The price of the computer in USD"
+      }
+    },
+    "required": ["brand", "model", "processor", "ram", "storage", "price"]
+  }
