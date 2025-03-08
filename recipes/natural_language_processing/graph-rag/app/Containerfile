@@ -1,7 +1,11 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-77.1726664316
 
+# Set the working directory
 WORKDIR /graph-rag
-RUN chmod -R 777 /graph-rag
+# Ensure the default user has the correct permissions on the working directory
+RUN chown -R 1001:0 /graph-rag
+
+# Copy the application files
 COPY requirements.txt .  
 COPY rag_app.py .  
 
@@ -16,5 +20,8 @@ RUN ARCH=$(uname -m) && \
     pip install --upgrade pip && \
     pip install --no-cache-dir --upgrade -r /graph-rag/requirements.txt
 
+# Expose the port for the application
 EXPOSE 8501
+
+# Set the entrypoint to run the application
 ENTRYPOINT [ "streamlit", "run", "rag_app.py" ]
