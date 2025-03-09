@@ -1,7 +1,7 @@
 FROM registry.access.redhat.com/ubi9/python-311:1-77.1726664316
 WORKDIR /chatbot-pydantic-ai
-# Set permissions to ensure everything inside /pydantic is accessible by all
-RUN chmod -R 777 /chatbot-pydantic-ai
+# Ensure the default user has the correct permissions on the working directory
+RUN chown -R 1001:0 /chatbot-pydantic-ai
 COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /chatbot-pydantic-ai/requirements.txt
