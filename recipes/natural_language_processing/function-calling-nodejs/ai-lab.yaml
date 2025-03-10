@@ -2,7 +2,7 @@ version: v1.0
 application:
   type: language
   name: FunctionCalling_nodejs
-  description: TODO - Chat with a model service in a web frontend.
+  description: Call a function to get weather data.
   containers:
     - name: llamacpp-server
       contextdir: ../../../model_servers/llamacpp_python
