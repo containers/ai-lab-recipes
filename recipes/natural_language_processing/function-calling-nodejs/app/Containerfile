@@ -11,6 +11,8 @@ USER 0
 RUN npm install
 
 ENV NODE_ENV production
+
+USER 1001
 EXPOSE 8501
 
 ENV PORT 8501
