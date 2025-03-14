@@ -1,0 +1,21 @@
+# Install the app dependencies in a full UBI Node docker image
+FROM registry.access.redhat.com/ubi9/nodejs-20:9.5-1741165622
+
+# Copy package.json
+COPY package*.json ./
+COPY ./ ./
+
+USER 0
+
+# Install npm packages
+RUN npm install
+
+ENV NODE_ENV production
+
+USER 1001
+EXPOSE 8501
+
+ENV PORT 8501
+
+CMD ["sh", "-c", "HOSTNAME=0.0.0.0 node ."]
+
