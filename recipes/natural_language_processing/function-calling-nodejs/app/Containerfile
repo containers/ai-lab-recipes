@@ -2,10 +2,8 @@
 FROM registry.access.redhat.com/ubi9/nodejs-20:9.5-1741165622
 
 # Copy package.json
-COPY package*.json ./
-COPY ./ ./
-
-USER 0
+COPY --chown=default:root --chmod=0775 package*.json ./
+COPY --chown=default:root --chmod=0775 ./ ./
 
 # Install npm packages
 RUN npm install
