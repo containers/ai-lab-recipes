@@ -38,7 +38,7 @@ async def llm_model_func(
     prompt_tokens = len(encode_string_by_tiktoken(prompt))
     
     # Calculate remaining tokens for history_messages
-    max_total_tokens = 1500
+    max_total_tokens = 1000
     
     # If the prompt itself exceeds the token limit, truncate it
     if prompt_tokens > max_total_tokens:
@@ -68,7 +68,7 @@ rag = LightRAG(
     llm_model_func=llm_model_func,
     chunk_token_size = 256,
     chunk_overlap_token_size = 50,
-    llm_model_max_token_size=1250,
+    llm_model_max_token_size=1000,
     llm_model_name=LLM_MODEL,
     embedding_func=EmbeddingFunc(
         embedding_dim=384,
@@ -133,6 +133,16 @@ async def async_query(query, mode="mix"):
         # Store the final response in session state
         st.session_state.last_submission = response
 
+    except ValueError as e:
+        if "exceed context window" in str(e):
+            st.error(
+                "The tokens in your query exceed the model's context window. Please try a different query mode or shorten your query."
+            )
+            # Optionally, you could reset the query mode or suggest alternatives
+            st.session_state.query_mode = "mix"  # Default to "mix" mode
+            st.session_state.user_query = ''  # Clear the user query
+        else:
+            st.error(f"Error processing query: {e}")
     except Exception as e:
         st.error(f"Error processing query: {e}")
 
