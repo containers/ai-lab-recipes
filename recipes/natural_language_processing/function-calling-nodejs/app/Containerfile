@@ -1,5 +1,5 @@
 # Install the app dependencies in a full UBI Node docker image
-FROM registry.access.redhat.com/ubi9/nodejs-20:9.5-1746001811
+FROM registry.access.redhat.com/ubi9/nodejs-20:9.5-1746604787
 
 # Copy package.json
 COPY --chown=default:root --chmod=0775 package*.json ./
