@@ -12,6 +12,7 @@ import os
 
 import streamlit as st
 from pydantic_ai import Agent
+from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.messages import (
     ModelMessage,
@@ -29,10 +30,13 @@ model_service = os.getenv("MODEL_ENDPOINT",
 model_service = f"{model_service}/v1"
 
 # Initialize the OpenAI-compatible model for your Llama.cpp server
-model = OpenAIModel(
-    'llama',
+provider = OpenAIProvider(
     base_url=model_service,  # Llama.cpp server endpoint
     api_key='dummy',  # No API key needed unless configured
+)
+model = OpenAIModel(
+    'llama',
+    provider=provider,
 )
 
 # Initialize Pydantic AI Agent with the custom model
@@ -124,7 +128,7 @@ def to_chat_message(m: ModelMessage) -> dict:
     elif isinstance(m, ModelResponse):
         if isinstance(first_part, TextPart):
             return {
-                'role': 'model',
+                'role': 'assistant',
                 'timestamp': m.timestamp.isoformat(),
                 'content': first_part.content,
             }
@@ -169,7 +173,7 @@ async def main():
             response_placeholder = st.empty()
 
             # Run the agent with the user prompt and the chat history
-            async with agent.run_stream(prompt, message_history=messages) as result:
+            async with agent.run_stream(prompt, message_history=messages[:-1]) as result:
                 response_text = ""
                 async for text in result.stream(debounce_by=0.01):
                     response_text = text
