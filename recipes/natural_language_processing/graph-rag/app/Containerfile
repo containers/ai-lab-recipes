@@ -9,15 +9,7 @@ RUN chown -R 1001:0 /graph-rag
 COPY requirements.txt .  
 COPY rag_app.py .  
 
-# Detect architecture and install Rust only on ARM (aarch64/arm64)
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
-        source "$HOME/.cargo/env" && \
-        rustc --version && \
-        cargo --version; \
-    fi && \
-    pip install --upgrade pip && \
+RUN pip install --upgrade pip && \
     pip install --no-cache-dir --upgrade -r /graph-rag/requirements.txt
 
 # Expose the port for the application

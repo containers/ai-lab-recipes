@@ -3,5 +3,5 @@ langchain-graph-retriever==0.8.0
 langchain-huggingface==0.2.0
 langchain-openai==0.3.17
 transformers==4.52.1
-torch==2.7.0+cpu
+torch==2.7.0
 PyMuPDF==1.25.5
