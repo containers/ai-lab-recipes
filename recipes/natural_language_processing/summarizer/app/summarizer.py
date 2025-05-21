@@ -57,9 +57,9 @@ def chunk_text(text):
     text_chunks = text_splitter.create_documents([text])
     for chunk in text_chunks:
         chunk = chunk.page_content
-        chunk_kwargs = request_kwargs | {"json": {"input": chunk}}
-        count = requests.post(f"{model_service[:-2]}extras/tokenize/count", **chunk_kwargs).content
-        count = json.loads(count)["count"]
+        chunk_kwargs = request_kwargs | {"json": {"content": chunk}}
+        count = requests.post(f"{model_service[:-2]}tokenize", **chunk_kwargs).content
+        count = len(json.loads(count)["tokens"])
         if count >= 2048:
             split_append_chunk(chunk, chunks)
         else:
