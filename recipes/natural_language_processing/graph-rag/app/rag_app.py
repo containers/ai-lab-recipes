@@ -1,196 +1,183 @@
-import sys
 import os
-import shutil
-import nest_asyncio
+import fitz  # PyMuPDF
 import streamlit as st
-import fitz
-import logging
+from typing import List
+from langchain_core.documents import Document
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_graph_retriever import GraphRetriever
+from graph_retriever.strategies import Eager
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
 
-# logging.basicConfig(level=logging.DEBUG)
-
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.hf import hf_embed
-from lightrag.llm.openai import openai_complete_if_cache
-from lightrag.utils import EmbeddingFunc, encode_string_by_tiktoken, truncate_list_by_token_size, decode_tokens_by_tiktoken
-from transformers import AutoModel, AutoTokenizer
-
-# Apply nest_asyncio to solve event loop issues
-nest_asyncio.apply()
-
-WORKING_DIR = "rag_data"
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-LLM_MODEL = "dummy"
-API_KEY = "dummy"
-
+# Configuration
+EMBEDDING_MODEL = "sentence-transformers/all-mpnet-base-v2"
 model_service = os.getenv("MODEL_ENDPOINT",
                           "http://localhost:8001")
 model_service = f"{model_service}/v1"
-
-# Check if folder exists
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
-async def llm_model_func(
-    prompt: str, system_prompt: str = None, history_messages: list[str] = [], **kwargs
-) -> str:
-    """LLM function to ensure total tokens (prompt + system_prompt + history_messages) <= 2048."""
-    # Calculate token sizes
-    prompt_tokens = len(encode_string_by_tiktoken(prompt))
-    
-    # Calculate remaining tokens for history_messages
-    max_total_tokens = 1000
-    
-    # If the prompt itself exceeds the token limit, truncate it
-    if prompt_tokens > max_total_tokens:
-        print("Warning: Prompt exceeds token limit. Truncating prompt.")
-        truncated_prompt = encode_string_by_tiktoken(prompt)[:max_total_tokens]
-        prompt = decode_tokens_by_tiktoken(truncated_prompt)
-        prompt_tokens = len(truncated_prompt)
-    
-    # Truncate history_messages to fit within the remaining tokens
-    
-    # Log token sizes for debugging
-    print(f"Prompt tokens: {prompt_tokens}")
-    
-    # Call the LLM with truncated prompt and history_messages
-    return await openai_complete_if_cache(
-        model=LLM_MODEL,
-        prompt=prompt,
-        system_prompt=system_prompt,
-        # history_messages=history_messages,
-        base_url=model_service,
-        api_key=API_KEY,
-        **kwargs,
-    )
-
-rag = LightRAG(
-    working_dir=WORKING_DIR,
-    llm_model_func=llm_model_func,
-    chunk_token_size = 256,
-    chunk_overlap_token_size = 50,
-    llm_model_max_token_size=1000,
-    llm_model_name=LLM_MODEL,
-    embedding_func=EmbeddingFunc(
-        embedding_dim=384,
-        max_token_size=5000,
-        func=lambda texts: hf_embed(
-            texts,
-            tokenizer=AutoTokenizer.from_pretrained(EMBEDDING_MODEL),
-            embed_model=AutoModel.from_pretrained(EMBEDDING_MODEL),
-        ),
-    ),
-)
+LLM_MODEL = "local-model"
+WORKING_DIR = "graph_rag_data"
 
 # Initialize session state
 if 'uploaded_file_previous' not in st.session_state:
     st.session_state.uploaded_file_previous = None
 
-if 'rag_initialized' not in st.session_state:
-    st.session_state.rag_initialized = False
+if 'retriever' not in st.session_state:
+    st.session_state.retriever = None
+
+if 'chain' not in st.session_state:
+    st.session_state.chain = None
 
 if 'user_query' not in st.session_state:
     st.session_state.user_query = ''
-if 'last_submission' not in st.session_state:
-    st.session_state.last_submission = ''
 
-def pdf_to_text(pdf_path, output_path):
+def pdf_to_text(pdf_path: str) -> str:
+    """Extract text from PDF file."""
     try:
         doc = fitz.open(pdf_path)
         text = ''
         for page in doc:
             text += page.get_text()
-        with open(output_path, 'w', encoding='utf-8') as file:
-            file.write(text)
+        return text
     except Exception as e:
         st.error(f"Error extracting text from PDF: {e}")
         raise
 
-async def async_query(query, mode="mix"):
-    print('\n')
-    print("query: ", query)
-    try:
-        with st.spinner("Processing your query..."):
-            stream = rag.query(query, param=QueryParam(mode=mode, stream=True, max_token_for_text_unit=1750, max_token_for_global_context=1750, max_token_for_local_context=1750))
-
-        # Create a placeholder for the streamed content
-        output_placeholder = st.empty()
-        
-        # Manually consume the stream and write to Streamlit
-        response = ""
-        
-        # Check if stream is an async iterable
-        if hasattr(stream, "__aiter__"):
-            print("async")
-            async for chunk in stream:
-                response += chunk
-                # Update the placeholder with the latest response
-                output_placeholder.markdown(response, unsafe_allow_html=True)
-        else:
-            print("not async")
-            st.write(stream)
-            response = stream
-        
-        # Store the final response in session state
-        st.session_state.last_submission = response
-
-    except ValueError as e:
-        if "exceed context window" in str(e):
-            st.error(
-                "The tokens in your query exceed the model's context window. Please try a different query mode or shorten your query."
+def create_documents_from_text(text: str) -> List[Document]:
+    """Create LangChain Documents from text with basic metadata."""
+    chunks = text.split('\n\n')  # Simple paragraph-based chunking
+    documents = []
+    for i, chunk in enumerate(chunks):
+        if chunk.strip():  # Skip empty chunks
+            documents.append(
+                Document(
+                    page_content=chunk.strip(),
+                    metadata={"id": f"chunk_{i}", "source": "uploaded_file"}
+                )
             )
-            # Optionally, you could reset the query mode or suggest alternatives
-            st.session_state.query_mode = "mix"  # Default to "mix" mode
-            st.session_state.user_query = ''  # Clear the user query
-        else:
-            st.error(f"Error processing query: {e}")
+    return documents
+
+def setup_retriever(documents: List[Document]) -> GraphRetriever:
+    """Set up the Graph Retriever with HuggingFace embeddings."""
+    # Initialize embeddings
+    embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+    
+    # Create vector store
+    vector_store = InMemoryVectorStore.from_documents(
+        documents=documents,
+        embedding=embeddings,
+    )
+    
+    # Create graph retriever
+    retriever = GraphRetriever(
+        store=vector_store,
+        edges=[("source", "source")],  # Simple edge - can customize based on your metadata
+        strategy=Eager(k=5, start_k=1, max_depth=2),
+    )
+    
+    return retriever
+
+def setup_llm_chain(retriever: GraphRetriever):
+    """Set up the LLM chain with the retriever."""
+    llm = ChatOpenAI(
+        base_url=model_service,
+        api_key="dummy", 
+        model=LLM_MODEL,
+        streaming=True,
+    )
+    
+    prompt = ChatPromptTemplate.from_template(
+        """Answer the question based only on the context provided.
+        
+        Context: {context}
+        
+        Question: {question}"""
+    )
+    
+    def format_docs(docs):
+        return "\n\n".join(f"{doc.page_content}" for doc in docs)
+    
+    chain = (
+        {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+    
+    return chain
+
+def process_query(query: str):
+    """Process user query using the Graph RAG chain."""
+    if st.session_state.chain is None:
+        st.error("Please upload and process a PDF file first.")
+        return
+    
+    try:
+        st.subheader("Answer:")
+        with st.spinner("Processing your query..."):
+            # Stream output token-by-token
+            response_placeholder = st.empty()
+
+            full_response = ""
+            for chunk in st.session_state.chain.stream(query):
+                full_response += chunk
+                response_placeholder.markdown(full_response + "▌")
+
+            response_placeholder.markdown(full_response)
+
     except Exception as e:
         st.error(f"Error processing query: {e}")
 
-def query(query, mode="mix"):
-    # Run the async function in the event loop
-    import asyncio
-    asyncio.run(async_query(query, mode))
 
 # Streamlit UI
-st.title("GraphRAG Chatbot")
+st.title("Graph RAG with PDF Upload")
 
 uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
 
 if uploaded_file is not None:
     if uploaded_file.name != st.session_state.uploaded_file_previous:
         st.session_state.uploaded_file_previous = uploaded_file.name
-        if os.path.exists(WORKING_DIR):
-            shutil.rmtree(WORKING_DIR, ignore_errors=True)
-        os.makedirs(WORKING_DIR)
-
-        with open("temp.pdf", "wb") as f:
+        
+        # Create working directory if it doesn't exist
+        if not os.path.exists(WORKING_DIR):
+            os.makedirs(WORKING_DIR)
+        
+        # Save uploaded file temporarily
+        temp_pdf_path = os.path.join(WORKING_DIR, "temp.pdf")
+        with open(temp_pdf_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         
         try:
             with st.spinner("Processing PDF..."):
-                pdf_to_text("temp.pdf", "document.txt")
-                with open("document.txt", "r", encoding="utf-8") as f:
-                    rag.insert(f.read())
-            st.session_state.rag_initialized = True
+                text = pdf_to_text(temp_pdf_path)
+                
+                documents = create_documents_from_text(text)
+                
+                # Set up retriever and chain
+                st.session_state.retriever = setup_retriever(documents)
+                st.session_state.chain = setup_llm_chain(st.session_state.retriever)
+                
+            st.success("PDF processed successfully! You can now ask questions.")
+            
         except Exception as e:
             st.error(f"Error processing PDF: {e}")
         finally:
-            if os.path.exists("temp.pdf"):
-                os.remove("temp.pdf")
+            # Clean up temporary file
+            if os.path.exists(temp_pdf_path):
+                os.remove(temp_pdf_path)
 
-if st.session_state.rag_initialized:
-    query_mode = st.radio(
-        "Select query mode:",
-        options=["local", "global", "naive", "hybrid", "mix"],
-        index=3,
-        key="mode"
+# Query section
+if st.session_state.retriever is not None:
+    st.subheader("Ask a Question")
+
+    st.text_input(
+        "Enter your question about the document:",
+        key="query_input"
     )
-    st.session_state.query_mode = query_mode
+    user_query = st.session_state.query_input
 
-    # Use a unique key for the text input to avoid conflicts
-    user_query = st.text_input("Enter your query:", key="query_input")
-
-    if st.button("Submit"):
-        if user_query.strip():
-            st.session_state.user_query = user_query
-            query(st.session_state.user_query, mode=st.session_state.query_mode)
+    if user_query.strip() and user_query != st.session_state.user_query:
+        st.session_state.user_query = user_query
+        process_query(user_query)
