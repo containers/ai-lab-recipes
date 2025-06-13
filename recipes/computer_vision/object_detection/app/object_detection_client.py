@@ -28,7 +28,14 @@ if image:
     bytes_io = io.BytesIO() 
     if img.mode in ("RGBA", "P"): 
         img = img.convert("RGB")
-    img.save(bytes_io, "JPEG")
+    # Choose format based on original uploaded file
+    img_format = image.type.split('/')[-1].upper()  # e.g., 'png' → 'PNG'
+
+    # Convert to RGB only if necessary
+    if img.mode in ("RGBA", "P") and img_format != "PNG":
+        img = img.convert("RGB")
+
+    img.save(bytes_io, format=img_format)
     img_bytes = bytes_io.getvalue()
     b64_image = base64.b64encode(img_bytes).decode('utf-8')
     data = {'image': b64_image}
