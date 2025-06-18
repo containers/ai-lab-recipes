@@ -8,6 +8,7 @@ import base64
 import os
 import io
 import shutil
+from typing import Optional
 
 
 app = FastAPI()
@@ -28,7 +29,7 @@ else:
     model = AutoModelForObjectDetection.from_pretrained(model, revision=revision)
 
 class Item(BaseModel):
-    image: bytes 
+    image: bytes
 
 @app.get("/health")
 def tests_alive():
@@ -39,7 +40,7 @@ def detection(item: Item):
     b64_image = item.image
     b64_image = base64.b64decode(b64_image)
     bytes_io = io.BytesIO(b64_image)    
-    image = Image.open(bytes_io)
+    image = Image.open(bytes_io).convert("RGB")
     inputs = processor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     target_sizes = torch.tensor([image.size[::-1]])
@@ -54,8 +55,9 @@ def detection(item: Item):
         label_confidence = f"Detected {model.config.id2label[label.item()]} with confidence {round(score.item(), 3)}"
         scores.append(label_confidence)
     
-    bytes_io = io.BytesIO() 
-    image.save(bytes_io, "JPEG")
+    bytes_io = io.BytesIO()
+    # Convert image format to PNG
+    image.save(bytes_io, format="PNG")
     img_bytes = bytes_io.getvalue()
     img_bytes = base64.b64encode(img_bytes).decode('utf-8')
     return {'image': img_bytes, "boxes": scores}
