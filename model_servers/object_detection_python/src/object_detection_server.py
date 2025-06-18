@@ -53,9 +53,11 @@ def detection(item: Item):
         draw.text((x, y), model.config.id2label[label.item()], fill="white")
         label_confidence = f"Detected {model.config.id2label[label.item()]} with confidence {round(score.item(), 3)}"
         scores.append(label_confidence)
-    
+
+    # Save output in the same format as input or PNG fallback
+    output_format = item.format if item.format else "PNG"
     bytes_io = io.BytesIO() 
-    image.save(bytes_io, "JPEG")
+    image.save(bytes_io, format=output_format)
     img_bytes = bytes_io.getvalue()
     img_bytes = base64.b64encode(img_bytes).decode('utf-8')
     return {'image': img_bytes, "boxes": scores}

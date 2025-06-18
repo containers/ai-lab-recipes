@@ -23,12 +23,14 @@ if image:
         scale_factor = 0.20
     img = img.resize((int(img.width * scale_factor) , 
                 int(img.height * scale_factor)))
-    window.image(img, use_column_width=True)  
+    window.image(img, use_column_width=True)
+    # Save image in original format or fallback to PNG
+    img_format = img.format or "PNG"  
     # convert PIL image into bytes for post request 
     bytes_io = io.BytesIO() 
-    if img.mode in ("RGBA", "P"): 
-        img = img.convert("RGB")
-    img.save(bytes_io, "JPEG")
+    if img.mode in ("P",):
+        img = img.convert("RGBA" if img_format == "PNG" else "RGB")
+    img.save(bytes_io, format=img_format)
     img_bytes = bytes_io.getvalue()
     b64_image = base64.b64encode(img_bytes).decode('utf-8')
     data = {'image': b64_image}
