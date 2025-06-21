@@ -32,7 +32,7 @@ python-dotenv==1.0.1
 python-multipart==0.0.20
 PyYAML==6.0.2
 regex==2024.5.15
-requests==2.32.3
+requests==2.32.4
 rich==13.7.1
 safetensors==0.4.5
 shellingham==1.5.4
