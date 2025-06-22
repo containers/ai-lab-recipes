@@ -23,15 +23,22 @@ if image:
         scale_factor = 0.20
     img = img.resize((int(img.width * scale_factor) , 
                 int(img.height * scale_factor)))
-    window.image(img, use_column_width=True)  
-    # convert PIL image into bytes for post request 
+    window.image(img, use_column_width=True)
+
+    # Convert image to RGB
+    img = img.convert("RGB")
+    # Encode image
     bytes_io = io.BytesIO() 
-    if img.mode in ("RGBA", "P"): 
-        img = img.convert("RGB")
-    img.save(bytes_io, "JPEG")
+    # Convert image format to PNG
+    img.save(bytes_io, format="PNG")
     img_bytes = bytes_io.getvalue()
     b64_image = base64.b64encode(img_bytes).decode('utf-8')
-    data = {'image': b64_image}
+
+    # Prepare payload
+    data = {
+        'image': b64_image,
+    }
+
     response = requests.post(f'{endpoint}/detection', headers=headers,json=data, verify=False)
     # parse response and display outputs
     response_json = response.json()
