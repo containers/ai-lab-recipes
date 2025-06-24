@@ -1,0 +1,15 @@
+version: v1.0
+application:
+  type: language
+  name: ChatBot_Streamlit_LlamaStack
+  description: Chat with a model service in a web frontend.
+  containers:
+    - name: streamlit-llamastack-chat-app
+      contextdir: app
+      containerfile: Containerfile
+      arch:
+        - arm64
+        - amd64
+      ports:
+        - 8501
+      image: quay.io/ai-lab/chatbot-llama-stack:latest
