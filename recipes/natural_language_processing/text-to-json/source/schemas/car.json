@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Car",
+    "type": "object",
+    "properties": {
+      "make": {
+        "type": "string",
+        "description": "The make or manufacturer of the car"
+      },
+      "model": {
+        "type": "string",
+        "description": "The model of the car"
+      },
+      "year": {
+        "type": "integer",
+        "minimum": 1900,
+        "maximum": 2024,
+        "description": "The manufacturing year of the car"
+      },
+      "color": {
+        "type": "string",
+        "description": "The color of the car"
+      },
+      "mileage": {
+        "type": "number",
+        "minimum": 0,
+        "description": "The mileage of the car in kilometers"
+      },
+      "price": {
+        "type": "number",
+        "minimum": 0,
+        "description": "The price of the car in USD"
+      }
+    },
+    "required": ["make", "model", "year", "color", "mileage", "price"]
+}
