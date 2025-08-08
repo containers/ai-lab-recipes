@@ -1,0 +1,22 @@
+# Example: an AI powered sample application is embedded as a systemd service
+# via Podman quadlet files in /usr/share/containers/systemd
+#
+# from recipes/natural_language_processing/rag, run
+# 'make bootc'
+
+FROM quay.io/centos-bootc/centos-bootc:stream9
+ARG SSHPUBKEY
+
+# The --build-arg "SSHPUBKEY=$(cat ~/.ssh/id_rsa.pub)" option inserts your
+# public key into the image, allowing root access via ssh.
+RUN set -eu; mkdir -p /usr/ssh && \
+    echo 'AuthorizedKeysFile /usr/ssh/%u.keys .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config.d/30-auth-system.conf && \
+    echo ${SSHPUBKEY} > /usr/ssh/root.keys && chmod 0600 /usr/ssh/root.keys
+
+ARG RECIPE=rag
+
+# Add quadlet files to setup system to automatically run AI application on boot
+COPY build/${RECIPE}.image build/${RECIPE}.kube build/${RECIPE}.yaml /usr/share/containers/systemd
+
+# Added for running as an OCI Container to prevent Overlay on Overlay issues.
+VOLUME /var/lib/containers
