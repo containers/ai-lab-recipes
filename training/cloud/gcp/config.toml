@@ -2,3 +2,6 @@
 name = "customizations-for-gcp"
 append = "net.ifnames=0 biosdevname=0 scsi_mod.use_blk_mq=Y console=ttyS0,38400n8d cloud-init=disabled"
 
+[[customizations.filesystem]]
+mountpoint = "/"
+minsize = "100 GiB"
