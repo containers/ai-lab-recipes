@@ -4,3 +4,7 @@ name = "customizations-for-azure"
 # append = "ro loglevel=3 console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300"
 # However, starting a RHEL instance in azure shows this one, and I'll be using it
 append = "loglevel=3 console=tty1 console=ttyS0,115200n8 earlyprintk=ttyS0,115200 net.ifnames=0"
+
+[[customizations.filesystem]]
+mountpoint = "/"
+minsize = "100 GiB"
